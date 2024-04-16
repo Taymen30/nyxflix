@@ -1,70 +1,41 @@
-# Getting Started with Create React App
+# MovieMaster App 🎥🍿
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Welcome to the MovieMaster app 2.0! Discover and explore a world of movies with this React-based web application. Keep in mind that this project is a work in progress, with exciting updates planned for the future. 🚀 To view simply click [here](https://main--legendary-hamster-5eac7a.netlify.app).
 
-## Available Scripts
+## Technologies 🛠️
 
-In the project directory, you can run:
+- React: The core library used for building interactive user interfaces. ⚛️
+- JavaScript: The primary programming language used in React for development. 📜
+- HTML: Markup language for creating web pages and defining structure. 🌐
+- CSS: Stylesheets for formatting and styling the user interface. 🎨
+- AJAX and Fetch: Techniques for asynchronous data retrieval and updates. 🔄
+- Component-Based Architecture: Modular units of code for building UI elements. 🧩
+- State and Props: Management of data and communication between components. 📊
 
-### `npm start`
+## Planning 📝
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+This project began with initial brainstorming on pen and paper, outlining the essential features for a user-friendly movie information application. The goal was to create a platform that provides quick and crucial details about movies, while also allowing users to explore further based on their preferences, particularly if they have a favorite actor or actress in mind. In addition to the initial planning, a Trello board was utilized to streamline the development process and keep track of tasks, ensuring a smooth and organized workflow throughout the project. 🗂️
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Home Page 🏠
 
-### `npm test`
+[Planning 1 Image]
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Movie Page 🎬
 
-### `npm run build`
+[Planning 2 Image]
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Actor/Actress Page 👩‍🎤
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+[Planning 3 Image]
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Features ✨
 
-### `npm run eject`
+- Discover New Movies: Explore a curated selection of the latest and greatest films.
+- Search Functionality: Find movies by title or filter them by genre to discover exactly what you're looking for.
+- Detailed Movie Information: Access in-depth details about each movie, including a trailer, overview, and cast information.
+- Cast List: Dive into the world of actors and actresses, and learn about their roles in the movie industry.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Upcoming Updates 🔄
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- React Router Integration: Navigate seamlessly between different sections of the app, enhancing the overall user experience.
+- Expanded Actor/Actress Details: Gain more comprehensive insights into specific actors and actresses, including their filmography, biographical information, and more. 🌟
