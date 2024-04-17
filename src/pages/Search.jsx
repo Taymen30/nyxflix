@@ -20,12 +20,15 @@ export default function Search() {
   return (
     <>
       <header className=" flex h-14 items-center ">
-          <h1 className="text-white text-5xl">Search</h1>
-          <SearchBar />
+        <h1 className="text-white text-5xl">Search</h1>
+        <SearchBar />
       </header>
       <div className="flex flex-wrap">
         {queryResults.map((movie) => (
-          <div key={movie.id} className="w-1/5 hover:opacity-70 transition-opacity duration-300">
+          <div
+            key={movie.id}
+            className="w-1/5 hover:opacity-70 transition-opacity duration-300"
+          >
             <Link to={`/movie/${movie.id}`}>
               {movie.poster_path ? (
                 <img
@@ -34,7 +37,9 @@ export default function Search() {
                   alt={movie.title}
                 />
               ) : (
-                <div>No poster available</div>
+                <div className=" flex h-[30vw] justify-center items-center border-gray-500 border">
+                  <p className="text-white text-3xl">No Poster</p>
+                </div>
               )}
             </Link>
           </div>

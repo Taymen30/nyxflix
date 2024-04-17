@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {Link, useParams} from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import SearchBar from "../components/SearchBar";
 import Player from "../components/Player";
 import BookmarksButton from "../components/BookmarksButton";
@@ -36,36 +36,33 @@ export default function MovieDetails() {
 
         <div className="flex mt-3 ml-32">
           {movie.genres.map((genre, i) => (
-              <Link key={i} to={`/genre/${genre.id}`}>
-
-            <p className=" px-2 py-0.5 text-white">
-              {genre.name}
-            </p>
-              </Link>
+            <Link key={i} to={`/genre/${genre.id}`}>
+              <p className=" px-2 py-0.5 text-white">{genre.name}</p>
+            </Link>
           ))}
         </div>
       </header>
 
-
-
-      <img
-        src={`https://image.tmdb.org/t/p/original/${movie.backdrop_path}`}
-        alt=""
-        className="w-full h-full object-cover"
-      />
+      {movie.backdrop_path ? (
+        <img
+          src={`https://image.tmdb.org/t/p/original/${movie.backdrop_path}`}
+          alt=""
+          className="w-full h-full object-cover"
+        />
+      ) : (
+        <></>
+      )}
       <overlay className="absolute inset-0 bg-black opacity-20"></overlay>
-
 
       <div id="player-container"></div>
 
       <info className="absolute bottom-[10%]  p-4 w-full flex gap-20 items-center justify-center">
-          <div>
-        <div className="w-[50px] h-[50px] justify-center items-center">
-          <Player imdb_id={movie.imdb_id} />
-        </div>
-          <BookmarksButton id={movie.id}/>
-
+        <div>
+          <div className="w-[50px] h-[50px] justify-center items-center">
+            <Player imdb_id={movie.imdb_id} />
           </div>
+          <BookmarksButton id={movie.id} />
+        </div>
         <div className="text-white text-lg w-2/3">{movie.overview}</div>
       </info>
     </section>
