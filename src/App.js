@@ -3,8 +3,7 @@ import Home from "./pages/Home";
 import Movie from "./pages/Movie";
 import Search from "./pages/Search";
 import Genre from "./pages/Genre";
-import Favourites from "./pages/Favourites";
-
+import Bookmarks from "./pages/Bookmarks";
 
 function App() {
   return (
@@ -16,7 +15,7 @@ function App() {
             <Route exact path="/movie/:id" element={<Movie />} />
             <Route exact path="/search/:query" element={<Search />} />
             <Route exact path="/genre/:genre" element={<Genre />} />
-            <Route exact path="/favourites" element={<Favourites />} />
+            <Route exact path="/bookmarks" element={<Bookmarks />} />
           </Routes>
         </div>
       </Router>

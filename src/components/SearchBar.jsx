@@ -41,20 +41,24 @@ export default function SearchBar({ setSearchType }) {
 
   if (!show) {
     return (
-      <div className="flex fixed right-1 top-2 z-20">
+      <div className="flex fixed gap-2 right-1 top-2 z-20">
         <HomeButton />
-        <Link to="/favourites">
-          <img
-            src="/white-medium-star.512x495.png"
-            alt=""
-            className="w-[40px] h-[40px] hover:cursor-pointer hover:opacity-70 transition-opacity duration-300 mx-3"
-          />
-        </Link>
+        {location.pathname !== "/bookmarks" ? (
+          <Link to="/bookmarks">
+            <img
+              src="/white-medium-star.512x495.png"
+              alt=""
+              className="w-[40px] h-[40px] hover:cursor-pointer hover:opacity-70 transition-opacity duration-300"
+            />
+          </Link>
+        ) : (
+          <></>
+        )}
         <img
           onClick={handleShowSearch}
           src="/search.512x512.png"
           alt=""
-          className="w-[40px] h-[40px] hover:cursor-pointer hover:opacity-70 transition-opacity duration-300 mx-3"
+          className="w-[40px] h-[40px] hover:cursor-pointer hover:opacity-70 transition-opacity duration-300"
         />
       </div>
     );
@@ -63,6 +67,17 @@ export default function SearchBar({ setSearchType }) {
   return (
     <div className="px-2 flex fixed gap-1 right-1 top-2 z-50">
       <HomeButton />
+      {location.pathname !== "/bookmarks" ? (
+        <Link to="/favourites">
+          <img
+            src="/white-medium-star.512x495.png"
+            alt=""
+            className="w-[40px] h-[40px] hover:cursor-pointer hover:opacity-70 transition-opacity duration-300"
+          />
+        </Link>
+      ) : (
+        <></>
+      )}
       {location.pathname === "/" ? (
         <select
           onChange={(e) => handleSearchType(e)}
