@@ -1,12 +1,13 @@
 import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import SearchBar from "../components/SearchBar";
 
 export default function Search() {
   const { query } = useParams();
   const [queryResults, setQueryResults] = useState([]);
 
   useEffect(() => {
-    const apiKey = "41bd7e5ac0565f89061afe73f89c4cc5";
+    const apiKey = process.env.REACT_APP_API_KEY;
     const url = `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${query}`;
 
     fetch(url)
@@ -18,10 +19,13 @@ export default function Search() {
 
   return (
     <>
-      <h1>Search Results</h1>
+      <header className=" flex h-14 items-center ">
+          <h1 className="text-white text-5xl">Search</h1>
+          <SearchBar />
+      </header>
       <div className="flex flex-wrap">
         {queryResults.map((movie) => (
-          <div key={movie.id} className="w-1/5">
+          <div key={movie.id} className="w-1/5 hover:opacity-70 transition-opacity duration-300">
             <Link to={`/movie/${movie.id}`}>
               {movie.poster_path ? (
                 <img
