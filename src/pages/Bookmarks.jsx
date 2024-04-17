@@ -6,8 +6,10 @@ export default function Bookmarks() {
   const [bookmarksId, setBookmarksId] = useState([]);
   const [bookmarkedMovies, setBookmarkedMovies] = useState([]);
 
+const randomBookmark = bookmarksId[Math.floor(Math.random()*bookmarksId.length)]
+
   useEffect(() => {
-    setBookmarksId(JSON.parse(localStorage.getItem("favourites")) || []);
+    setBookmarksId(JSON.parse(localStorage.getItem("Bookmarks")) || []);
   }, []);
 
   useEffect(() => {
@@ -31,10 +33,16 @@ export default function Bookmarks() {
         <SearchBar />
       </div>
       <div className="flex flex-wrap">
-        <div className="flex flex-col bg-white w-1/5 h-[30vw] justify-center items-center">
+
+<div className="w-1/5 h-[30vw]">
+
+<Link to={`/movie/${randomBookmark}`}>
+        <div className="flex h-full flex-col bg-white justify-center items-center hover:opacity-70 transition-opacity duration-300 hover:cursor-pointer">
             <img className="w-2/3" src="/random.512x477.png" alt=""/>
             <p className="text-3xl">Bookmarked</p>
         </div>
+</Link>
+</div>
         {bookmarkedMovies.map((movie) => (
           <div
             key={movie.id}
