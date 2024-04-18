@@ -37,7 +37,9 @@ export default function MovieDetails() {
         <div className="flex mt-3 ml-32">
           {movie.genres.map((genre, i) => (
             <Link key={i} to={`/genre/${genre.id}`}>
-              <p className=" px-2 py-0.5 text-white hover:opacity-70 transition-opacity duration-300">{genre.name}</p>
+              <p className=" px-2 py-0.5 text-white hover:opacity-70 transition-opacity duration-300">
+                {genre.name}
+              </p>
             </Link>
           ))}
         </div>
@@ -59,7 +61,7 @@ export default function MovieDetails() {
       <info className="absolute bottom-[10%]  p-4 w-full flex gap-20 items-center justify-center">
         <div>
           <div className="w-[50px] h-[50px] justify-center items-center">
-            <Player imdb_id={movie.imdb_id} id={movie.id}/>
+            <Player imdb_id={movie.imdb_id} id={movie.id} />
           </div>
           <BookmarksButton id={movie.id} />
         </div>
