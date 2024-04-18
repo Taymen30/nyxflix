@@ -59,7 +59,7 @@ export default function MovieDetails() {
       <info className="absolute bottom-[10%]  p-4 w-full flex gap-20 items-center justify-center">
         <div>
           <div className="w-[50px] h-[50px] justify-center items-center">
-            <Player imdb_id={movie.imdb_id} />
+            <Player imdb_id={movie.imdb_id} id={movie.id}/>
           </div>
           <BookmarksButton id={movie.id} />
         </div>
