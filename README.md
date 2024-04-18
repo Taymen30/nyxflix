@@ -1,41 +1,58 @@
 # MovieMaster App 🎥🍿
 
-Welcome to the MovieMaster app 2.0! Discover and explore a world of movies with this React-based web application. Keep in mind that this project is a work in progress, with exciting updates planned for the future. 🚀 To view simply click [here](https://main--legendary-hamster-5eac7a.netlify.app).
+Welcome to the updated MovieMaster app! This React-based web application now features a range of new and improved functionalities, including React Router integration, bookmarking capabilities, and enhanced genre and individual searching. The app has also undergone a design overhaul, resulting in a more streamlined and user-friendly experience, all made possible with the power of Tailwind CSS and React Router.
+
+To view the updated app, please visit: [MovieMaster App](https://movie-master2.vercel.app)
 
 ## Technologies 🛠️
 
-- React: The core library used for building interactive user interfaces. ⚛️
-- JavaScript: The primary programming language used in React for development. 📜
-- HTML: Markup language for creating web pages and defining structure. 🌐
-- CSS: Stylesheets for formatting and styling the user interface. 🎨
-- AJAX and Fetch: Techniques for asynchronous data retrieval and updates. 🔄
-- Component-Based Architecture: Modular units of code for building UI elements. 🧩
-- State and Props: Management of data and communication between components. 📊
+- **React:** The core library for building the interactive user interface.
+- **React Router:** Enables seamless navigation between different sections of the app.
+- **JavaScript:** The primary programming language used for development.
+- **HTML:** Markup language for creating web pages and defining structure.
+- **CSS (Tailwind CSS):** A utility-first CSS framework that provides a modern and responsive design system, used for styling and layout.
+- **AJAX and Fetch:** Techniques for asynchronous data retrieval and updates.
+- **Component-Based Architecture:** Modular units of code for building UI elements.
+- **State and Props:** Management of data and communication between components.
+- **Local Storage:** Utilized for storing user bookmarks.
+- **TMDB API:** Leveraged to fetch movie data and information.
+
+## Key Features 🌟
+
+### Home Page:
+
+![Show Image](/public/screenshots/MM.png)
+
+### Individual Movie Page:
+
+![Show Image](/public/screenshots/MM-Movie.png)
+
+### Bookmarking:
+
+- Users can now bookmark their favorite movies and access them through a dedicated "Bookmarks" section.
+- A "Random Bookmark" feature allows users to select a random movie from their bookmarked list.
+
+### Genre and Individual Searching:
+
+- The app now includes robust search functionality, enabling users to filter movies by genre or search for specific titles.
+
+### Simplified Design:
+
+- The app's overall design has been streamlined, providing a more intuitive and user-friendly experience.
 
 ## Planning 📝
 
-This project began with initial brainstorming on pen and paper, outlining the essential features for a user-friendly movie information application. The goal was to create a platform that provides quick and crucial details about movies, while also allowing users to explore further based on their preferences, particularly if they have a favorite actor or actress in mind. In addition to the initial planning, a Trello board was utilized to streamline the development process and keep track of tasks, ensuring a smooth and organized workflow throughout the project. 🗂️
+The initial planning process for this project involved extensive brainstorming, sketching, and the use of a Trello board to organize the development workflow. The key focus was to create a movie information application that would be easy to navigate and provide users with quick access to essential details about their favorite films.
 
-### Home Page 🏠
+![Show Image](/public/screenshots/planning1.jpg)
 
-[Planning 1 Image]
+![Show Image](/public/screenshots/planning2.jpg)
 
-### Movie Page 🎬
-
-[Planning 2 Image]
-
-### Actor/Actress Page 👩‍🎤
-
-[Planning 3 Image]
-
-## Features ✨
-
-- Discover New Movies: Explore a curated selection of the latest and greatest films.
-- Search Functionality: Find movies by title or filter them by genre to discover exactly what you're looking for.
-- Detailed Movie Information: Access in-depth details about each movie, including a trailer, overview, and cast information.
-- Cast List: Dive into the world of actors and actresses, and learn about their roles in the movie industry.
+![Show Image](/public/screenshots/planning3.jpg)
 
 ## Upcoming Updates 🔄
 
-- React Router Integration: Navigate seamlessly between different sections of the app, enhancing the overall user experience.
-- Expanded Actor/Actress Details: Gain more comprehensive insights into specific actors and actresses, including their filmography, biographical information, and more. 🌟
+- **Cast Section:** The team is currently working on incorporating a dedicated section to display comprehensive information about the cast of each movie.
+- **Improved Bookmarking:** Future updates will focus on enhancing the bookmarking feature, potentially including the ability to rate or provide reviews for bookmarked movies.
+
+I'm excited to continue evolving the MovieMaster app and providing my users with an even more robust and engaging movie exploration experience. Stay tuned for further updates!
