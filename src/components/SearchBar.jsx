@@ -68,7 +68,7 @@ export default function SearchBar({ setSearchType }) {
     <div className="px-2 flex fixed gap-1 right-1 top-2 z-50">
       <HomeButton />
       {location.pathname !== "/bookmarks" ? (
-        <Link to="/favourites">
+        <Link to="/bookmarks">
           <img
             src="/white-medium-star.512x495.png"
             alt=""
