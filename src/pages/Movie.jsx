@@ -37,7 +37,7 @@ export default function MovieDetails() {
         <div className="flex mt-3 ml-32">
           {movie.genres.map((genre, i) => (
             <Link key={i} to={`/genre/${genre.id}`}>
-              <p className=" px-2 py-0.5 text-white">{genre.name}</p>
+              <p className=" px-2 py-0.5 text-white hover:opacity-70 transition-opacity duration-300">{genre.name}</p>
             </Link>
           ))}
         </div>

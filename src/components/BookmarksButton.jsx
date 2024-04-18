@@ -30,14 +30,14 @@ export default function BookmarksButton({ id }) {
     <div>
       {isBookmarked ? (
         <button
-          className="bg-yellow-400 w-32 rounded-2xl h-9"
+          className="bg-yellow-400 w-32 rounded-2xl h-9 hover:opacity-70 transition-opacity duration-300"
           onClick={toggleFavorite}
         >
           Bookmark
         </button>
       ) : (
         <button
-          className="bg-white w-32 rounded-2xl h-9"
+          className="bg-white w-32 rounded-2xl h-9 hover:opacity-70 transition-opacity duration-300"
           onClick={toggleFavorite}
         >
           Bookmark

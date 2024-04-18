@@ -81,7 +81,7 @@ export default function SearchBar({ setSearchType }) {
       {location.pathname === "/" ? (
         <select
           onChange={(e) => handleSearchType(e)}
-          className="bg-transparent border border-white text-white rounded focus:outline-white hover:opacity-50 transition-opacity duration-300"
+          className="bg-transparent border border-white text-white rounded focus:outline-white"
         >
           <option className="bg-red-600" value="now_playing">
             Now Playing
@@ -97,10 +97,10 @@ export default function SearchBar({ setSearchType }) {
         value={query}
         onChange={handleInput}
         type="text"
-        className="bg-transparent text-white border border-white rounded mx-3 hover:opacity-50 focus:outline-white transition-opacity duration-300"
+        className="bg-transparent text-white border border-white rounded mx-3"
       />
       <button
-        className="text-white px-1 border border-white rounded hover:opacity-50 transition-opacity duration-300"
+        className="text-white px-1 border border-white rounded hover:opacity-70 transition-opacity duration-300"
         onClick={handleClick}
       >
         Search
