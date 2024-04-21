@@ -43,17 +43,19 @@ export default function SearchBar({ setSearchType }) {
     return (
       <div className="flex fixed gap-2 right-1 top-2 z-20">
         <HomeButton />
-        {location.pathname !== "/bookmarks" && (localStorage.getItem("Bookmarks") && JSON.parse(localStorage.getItem("Bookmarks")).length > 0 ? (
+        {location.pathname !== "/bookmarks" &&
+          (localStorage.getItem("Bookmarks") &&
+          JSON.parse(localStorage.getItem("Bookmarks")).length > 0 ? (
             <Link to="/bookmarks">
               <img
-                  src="/bookmarks.410x512.png"
-                  alt=""
-                  className="h-[40px] filter invert hover:cursor-pointer hover:opacity-70 transition-opacity duration-300"
+                src="/bookmarks.410x512.png"
+                alt=""
+                className="h-[40px] filter invert hover:cursor-pointer hover:opacity-70 transition-opacity duration-300"
               />
             </Link>
-        ) : (
+          ) : (
             <></>
-        ))}
+          ))}
 
         <img
           onClick={handleShowSearch}
@@ -68,17 +70,19 @@ export default function SearchBar({ setSearchType }) {
   return (
     <div className="px-2 flex fixed gap-1 right-1 top-2 z-50">
       <HomeButton />
-      {location.pathname !== "/bookmarks" && (localStorage.getItem("Bookmarks") && JSON.parse(localStorage.getItem("Bookmarks")).length > 0 ? (
+      {location.pathname !== "/bookmarks" &&
+        (localStorage.getItem("Bookmarks") &&
+        JSON.parse(localStorage.getItem("Bookmarks")).length > 0 ? (
           <Link to="/bookmarks">
             <img
-                src="/bookmarks-outline.417x512.png"
-                alt=""
-                className="h-[40px] mr-3 opacity-85 filter invert hover:cursor-pointer hover:opacity-70 transition-opacity duration-300"
+              src="/bookmarks-outline.417x512.png"
+              alt=""
+              className="h-[40px] mr-3 opacity-85 filter invert hover:cursor-pointer hover:opacity-70 transition-opacity duration-300"
             />
           </Link>
-      ) : (
+        ) : (
           <></>
-      ))}
+        ))}
 
       {location.pathname === "/" ? (
         <select
