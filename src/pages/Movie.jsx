@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import SearchBar from "../components/SearchBar";
 import Player from "../components/Player";
-import BookmarksButton from "../components/BookmarksButton";
+import BookmarkButton from "../components/BookmarkButton";
 
 export default function MovieDetails() {
   const { id } = useParams();
@@ -63,7 +63,7 @@ export default function MovieDetails() {
           <div className="w-[50px] h-[50px] justify-center items-center">
             <Player imdb_id={movie.imdb_id} id={movie.id} />
           </div>
-          <BookmarksButton id={movie.id} />
+          <BookmarkButton id={movie.id} />
         </div>
         <div className="text-white text-lg w-2/3">{movie.overview}</div>
       </info>

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 
 export default function Player({ imdb_id, id }) {

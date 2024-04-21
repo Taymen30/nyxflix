@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-export default function BookmarksButton({ id }) {
+export default function BookmarkButton({ id }) {
   const [isBookmarked, setIsBookmarked] = useState(false);
 
   useEffect(() => {
