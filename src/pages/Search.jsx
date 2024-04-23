@@ -1,9 +1,10 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import SearchBar from "../components/SearchBar";
 
 export default function Search() {
-  const { query } = useParams();
+  const [searchParams] = useSearchParams();
+  const query = searchParams.get("query");
   const [queryResults, setQueryResults] = useState([]);
 
   useEffect(() => {

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
 import Movie from "./pages/Movie";
@@ -14,7 +14,7 @@ function App() {
           <Routes>
             <Route exact path="/" element={<Home />} />
             <Route exact path="/movie/:id" element={<Movie />} />
-            <Route exact path="/search/:query" element={<Search />} />
+            <Route exact path="/search" element={<Search />} />
             <Route exact path="/genre/:genre" element={<Genre />} />
             <Route exact path="/bookmarks" element={<Bookmarks />} />
           </Routes>

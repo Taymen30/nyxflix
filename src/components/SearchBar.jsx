@@ -1,12 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate, Link } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+  Link,
+  useSearchParams,
+} from "react-router-dom";
 import HomeButton from "./HomeButton";
 
 export default function SearchBar({ setSearchType }) {
-  const [query, setQuery] = useState("");
   const [show, setShow] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    const currentQuery = searchParams.get("query") || "";
+    setQuery(currentQuery);
+  }, [searchParams]);
 
   useEffect(() => {
     if (show) {
@@ -26,8 +37,10 @@ export default function SearchBar({ setSearchType }) {
     setQuery(e.target.value);
   }
 
-  function handleClick() {
-    navigate(`/search/${query}`);
+  function handleSubmit(e) {
+    e.preventDefault();
+    setSearchParams({ query });
+    navigate(`/search?query=${query}`);
   }
 
   function handleShowSearch() {
@@ -56,7 +69,6 @@ export default function SearchBar({ setSearchType }) {
           ) : (
             <></>
           ))}
-
         <img
           onClick={handleShowSearch}
           src="/search.512x512.png"
@@ -83,11 +95,10 @@ export default function SearchBar({ setSearchType }) {
         ) : (
           <></>
         ))}
-
       {location.pathname === "/" ? (
         <select
           onChange={(e) => handleSearchType(e)}
-          className="bg-transparent border border-white text-white rounded focus:outline-white"
+          className="bg-transparent border border-white text-white rounded focus:outline-white mr-3 ml-[-10px] hover:cursor-pointer"
         >
           <option className="bg-red-600" value="now_playing">
             Now Playing
@@ -99,18 +110,17 @@ export default function SearchBar({ setSearchType }) {
       ) : (
         <></>
       )}
-      <input
-        value={query}
-        onChange={handleInput}
-        type="text"
-        className="bg-transparent text-white border border-white rounded mx-3"
-      />
-      <button
-        className="text-white px-1 border border-white rounded hover:opacity-70 transition-opacity duration-300"
-        onClick={handleClick}
-      >
-        Search
-      </button>
+      <form onSubmit={handleSubmit} className="p-0 m-0 flex justify-center">
+        <input
+          value={query}
+          onChange={handleInput}
+          type="text"
+          className="bg-transparent text-white border border-white rounded mr-1 ml-[-10px]"
+        />
+        <button className="text-white px-1 border border-white rounded hover:opacity-70 transition-opacity duration-300">
+          Search
+        </button>
+      </form>
     </div>
   );
 }
