@@ -6,9 +6,8 @@ import Search from "./pages/Search";
 import Genre from "./pages/Genre";
 import Bookmarks from "./pages/Bookmarks";
 
-function App() {
+export default function App() {
   return (
-    <div className="App">
       <Router>
         <Routes>
           <Route exact path="/" element={<Home />} />
@@ -18,8 +17,5 @@ function App() {
           <Route exact path="/bookmarks" element={<Bookmarks />} />
         </Routes>
       </Router>
-    </div>
   );
 }
-
-export default App;
