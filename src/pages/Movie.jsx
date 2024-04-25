@@ -32,10 +32,14 @@ export default function MovieDetails() {
   return (
     <section className=" h-screen">
       <SearchBar />
-      <header className="absolute z-10 flex flex-col items-center">
-        <h1 className="text-white text-5xl">{movie.title}</h1>
-
-        <div className="flex mt-3 ml-32">
+      <header className="absolute z-10 flex flex-col">
+        <div className="flex items-baseline">
+          <h1 className="text-white text-5xl">{movie.title}</h1>
+          <p className="text-white text-2xl ml-5">
+            {movie.release_date.split("-")[0]}
+          </p>
+        </div>
+        <div className="flex mt-3 ml-8">
           {movie.genres.map((genre, i) => (
             <Link
               className=" px-2 py-0.5 text-white hover:opacity-70 transition-opacity duration-300"
@@ -70,9 +74,6 @@ export default function MovieDetails() {
         </div>
         <div className="w-2/3">
           <p className="text-white text-lg">{movie.overview}</p>
-          <p className="text-white text-lg">
-            {movie.release_date.split("-")[0]}
-          </p>
         </div>
       </info>
     </section>
