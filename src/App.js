@@ -10,15 +10,13 @@ function App() {
   return (
     <div className="App">
       <Router>
-        <div>
-          <Routes>
-            <Route exact path="/" element={<Home />} />
-            <Route exact path="/movie/:id" element={<Movie />} />
-            <Route exact path="/search" element={<Search />} />
-            <Route exact path="/genre/:genre" element={<Genre />} />
-            <Route exact path="/bookmarks" element={<Bookmarks />} />
-          </Routes>
-        </div>
+        <Routes>
+          <Route exact path="/" element={<Home />} />
+          <Route exact path="/movie/:id" element={<Movie />} />
+          <Route exact path="/search" element={<Search />} />
+          <Route exact path="/genre/:genre" element={<Genre />} />
+          <Route exact path="/bookmarks" element={<Bookmarks />} />
+        </Routes>
       </Router>
     </div>
   );
