@@ -110,7 +110,7 @@ export default function SearchBar({ setSearchType }) {
       ) : (
         <></>
       )}
-      <form onSubmit={handleSubmit} className="p-0 m-0 flex justify-center">
+      <form onSubmit={handleSubmit} className="ml-3 flex justify-center">
         <input
           value={query}
           onChange={handleInput}

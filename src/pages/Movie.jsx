@@ -28,6 +28,7 @@ export default function MovieDetails() {
   if (!movie) {
     return <div>Loading...</div>;
   }
+
   return (
     <section className=" h-screen">
       <SearchBar />
@@ -36,10 +37,12 @@ export default function MovieDetails() {
 
         <div className="flex mt-3 ml-32">
           {movie.genres.map((genre, i) => (
-            <Link key={i} to={`/genre/${genre.id}`}>
-              <p className=" px-2 py-0.5 text-white hover:opacity-70 transition-opacity duration-300">
-                {genre.name}
-              </p>
+            <Link
+              className=" px-2 py-0.5 text-white hover:opacity-70 transition-opacity duration-300"
+              key={i}
+              to={`/genre/${genre.id}`}
+            >
+              {genre.name}
             </Link>
           ))}
         </div>
@@ -65,7 +68,10 @@ export default function MovieDetails() {
           </div>
           <BookmarkButton id={movie.id} />
         </div>
-        <div className="text-white text-lg w-2/3">{movie.overview}</div>
+        <div className="w-2/3">
+          <p className="text-white text-lg">{movie.overview}</p>
+          <p>{movie.release_date}</p>
+        </div>
       </info>
     </section>
   );
