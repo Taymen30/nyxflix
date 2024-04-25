@@ -61,7 +61,7 @@ export default function Player({ imdb_id, id }) {
   return (
     <>
       <div
-        className="bg-white w-32 rounded-2xl h-9 flex items-center justify-center cursor-pointer hover:opacity-70 transition-opacity duration-300"
+        className="bg-white w-32  rounded-2xl h-9 flex items-center justify-center cursor-pointer hover:opacity-70 transition-opacity duration-300"
         onClick={handlePlayButtonClick}
         id="play-button"
       >

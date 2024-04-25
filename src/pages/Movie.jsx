@@ -30,16 +30,16 @@ export default function MovieDetails() {
   }
 
   return (
-    <section className=" h-screen">
+    <div className=" h-screen">
       <SearchBar />
       <header className="absolute z-10 flex flex-col">
-        <div className="flex items-baseline">
+        <section className="flex items-baseline">
           <h1 className="text-white text-5xl">{movie.title}</h1>
           <p className="text-white text-2xl ml-5">
             {movie.release_date.split("-")[0]}
           </p>
-        </div>
-        <div className="flex mt-3 ml-8">
+        </section>
+        <ul className="flex mt-3 ml-8">
           {movie.genres.map((genre, i) => (
             <Link
               className=" px-2 py-0.5 text-white hover:opacity-70 transition-opacity duration-300"
@@ -49,7 +49,7 @@ export default function MovieDetails() {
               {genre.name}
             </Link>
           ))}
-        </div>
+        </ul>
       </header>
 
       {movie.backdrop_path ? (
@@ -65,17 +65,14 @@ export default function MovieDetails() {
 
       <div id="player-container"></div>
 
-      <info className="absolute bottom-[10%]  p-4 w-full flex gap-20 items-center justify-center">
-        <div>
-          <div className="w-[50px] h-[50px] justify-center items-center">
-            <Player imdb_id={movie.imdb_id} id={movie.id} />
-          </div>
+      <div className="absolute bottom-[10%]  p-4 w-full flex gap-20 items-center justify-center">
+        <section className="flex flex-col gap-1">
+          <Player imdb_id={movie.imdb_id} id={movie.id} />
           <BookmarkButton id={movie.id} />
-        </div>
-        <div className="w-2/3">
-          <p className="text-white text-lg">{movie.overview}</p>
-        </div>
-      </info>
-    </section>
+        </section>
+
+        <p className="text-white text-lg w-2/3">{movie.overview}</p>
+      </div>
+    </div>
   );
 }
