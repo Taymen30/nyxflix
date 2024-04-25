@@ -70,7 +70,9 @@ export default function MovieDetails() {
         </div>
         <div className="w-2/3">
           <p className="text-white text-lg">{movie.overview}</p>
-          <p>{movie.release_date}</p>
+          <p className="text-white text-lg">
+            {movie.release_date.split("-")[0]}
+          </p>
         </div>
       </info>
     </section>
