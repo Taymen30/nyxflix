@@ -3,43 +3,39 @@ import { Link } from "react-router-dom";
 import SearchBar from "../components/SearchBar";
 
 export default function Home() {
-  const [discover, setDiscover] = useState([]);
-  const [startingPage, setStartingPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [movies, setMovies] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const [searchType, setSearchType] = useState("now_playing");
 
   useEffect(() => {
     const fetchMovies = async () => {
       const apiKey = process.env.REACT_APP_API_KEY;
       const totalPagesToFetch = 3;
-      const allMovies = [];
+      setMovies([]);
 
       for (
-        let page = startingPage;
-        page < startingPage + totalPagesToFetch;
+        let page = currentPage;
+        page < currentPage + totalPagesToFetch;
         page++
       ) {
         const url = `https://api.themoviedb.org/3/movie/${searchType}?api_key=${apiKey}&language=en-US&page=${page}`;
         const response = await fetch(url);
         const data = await response.json();
-        allMovies.push(...data.results);
-        setTotalPages(data.total_pages);
+        setMovies((prevMovies) => [...prevMovies, ...data.results]);
       }
-
-      setDiscover(allMovies);
     };
     fetchMovies();
-  }, [startingPage, searchType]);
+  }, [currentPage, searchType]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [discover]);
+  }, [movies]);
 
   function handleNextResults() {
-    setStartingPage((prevPage) => prevPage + 3);
+    setCurrentPage((prevPage) => prevPage + 3);
   }
   function handlePreviousResults() {
-    setStartingPage((prevPage) => prevPage - 3);
+    setCurrentPage((prevPage) => prevPage - 3);
   }
 
   return (
@@ -49,9 +45,9 @@ export default function Home() {
         <SearchBar setSearchType={setSearchType} />
       </header>
       <div className="flex flex-wrap ">
-        {discover.map((movie, i) => (
+        {movies.map((movie, i) => (
           <div
-            key={movie.id}
+            key={i}
             className="w-1/5 hover:opacity-70 transition-opacity duration-300"
           >
             <Link to={`/movie/${movie.id}`}>
@@ -71,16 +67,15 @@ export default function Home() {
       <div className="flex w-full items-center justify-center fixed bottom-0">
         <div className=" w-1/3 flex justify-between">
           <button
-            className="text-8xl text-white hover:opacity-50 transition-opacity duration-300"
+            className="text-8xl text-white hover:opacity-50 transition-opacity duration-300 disabled:opacity-0"
             onClick={handlePreviousResults}
-            disabled={startingPage <= 1}
+            disabled={currentPage <= 1}
           >
             &lt;
           </button>
           <button
             onClick={handleNextResults}
             className="text-8xl text-white hover:opacity-50 transition-opacity duration-300"
-            disabled={startingPage + 2 >= totalPages}
           >
             &gt;
           </button>
