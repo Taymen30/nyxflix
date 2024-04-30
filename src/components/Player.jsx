@@ -42,10 +42,10 @@ export default function Player({ imdb_id, id }) {
 
   const handlePlayButtonClick = () => {
     const iframe = document.createElement("iframe");
-    iframe.className = "bg-black w-1/3 h-1/3 absolute top-1/3 left-1/3";
+    iframe.className = "bg-black w-1/2 h-1/2 absolute top-1/4 left-1/4";
     iframe.referrerPolicy = "no-referrer";
     iframe.sandbox = "allow-scripts allow-same-origin";
-    iframe.allowFullScreen = true;
+    iframe.setAttribute("allowFullScreen", true);
 
     if (gamer) {
       iframe.src = `https://vidsrc.to/embed/movie/${imdb_id}?autoplay=1`;
