@@ -1,6 +1,7 @@
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import SearchBar from "../components/SearchBar";
+import MovieList from "../components/MovieList";
 
 export default function Genre() {
   const { genre } = useParams();
@@ -53,26 +54,8 @@ export default function Genre() {
         <SearchBar />
       </header>
 
-      <div className="flex flex-wrap">
-        {genreResults.map((movie, i) => (
-          <div
-            key={movie.id}
-            className="w-1/5 hover:opacity-70 transition-opacity duration-300"
-          >
-            <Link to={`/movie/${movie.id}`}>
-              {movie.poster_path ? (
-                <img
-                  className="w-full"
-                  src={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
-                  alt={movie.title}
-                />
-              ) : (
-                <div>No poster</div>
-              )}
-            </Link>
-          </div>
-        ))}
-      </div>
+      <MovieList array={genreResults} />
+
       <nav className="z-50 flex">
         <p
           className="text-9xl text-white hover:cursor-pointer"

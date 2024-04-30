@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import SearchBar from "../components/SearchBar";
+import MovieList from "../components/MovieList";
 
 export default function Home() {
   const [movies, setMovies] = useState([]);
@@ -44,26 +45,9 @@ export default function Home() {
         <h1 className="text-6xl ml-1 text-white">MovieMaster</h1>
         <SearchBar setSearchType={setSearchType} />
       </header>
-      <div className="flex flex-wrap ">
-        {movies.map((movie, i) => (
-          <div
-            key={i}
-            className="w-1/5 hover:opacity-70 transition-opacity duration-300"
-          >
-            <Link to={`/movie/${movie.id}`}>
-              {movie.poster_path ? (
-                <img
-                  className="w-full"
-                  src={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
-                  alt={movie.title}
-                />
-              ) : (
-                <div>No poster</div>
-              )}
-            </Link>
-          </div>
-        ))}
-      </div>
+
+      <MovieList array={movies} />
+
       <div className="flex w-full items-center justify-center fixed bottom-0">
         <div className=" w-1/3 flex justify-between">
           <button

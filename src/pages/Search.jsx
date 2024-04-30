@@ -38,8 +38,12 @@ export default function Search() {
                   alt={movie.title}
                 />
               ) : (
-                <div className=" flex h-[30vw] justify-center items-center border-gray-500 border">
-                  <p className="text-white text-3xl">No Poster</p>
+                <div className=" flex flex-col h-[30vw] justify-center items-center border-gray-500 border">
+                  <p className="text-white text-2xl text-center">
+                    {movie.title}
+                  </p>
+                  <br />
+                  <p className="text-white text-1xl">No Poster</p>
                 </div>
               )}
             </Link>
