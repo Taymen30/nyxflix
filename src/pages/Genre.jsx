@@ -40,7 +40,10 @@ export default function Genre() {
     fetch(url)
       .then((response) => response.json())
       .then((data) => {
-        setGenreResults((prevResults) => [...prevResults, ...data.results]);
+        const filteredResults = data.results.filter(
+          (movie) => movie.poster_path
+        );
+        setGenreResults((prevResults) => [...prevResults, ...filteredResults]);
         setLoading(false);
       });
   }, [genre, page]);

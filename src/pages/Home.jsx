@@ -23,7 +23,10 @@ export default function Home() {
     fetch(url)
       .then((response) => response.json())
       .then((data) => {
-        setMovies((prevMovies) => [...prevMovies, ...data.results]);
+        const filteredResults = data.results.filter(
+          (movie) => movie.poster_path
+        );
+        setMovies((prevMovies) => [...prevMovies, ...filteredResults]);
         setLoading(false);
       });
     console.log(movies);
