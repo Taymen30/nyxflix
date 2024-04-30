@@ -5,7 +5,7 @@ export default function MovieList({ array }) {
     <div className="flex flex-wrap">
       {array.map((movie, i) => (
         <div
-          key={movie.id}
+          key={i}
           className="w-1/5 hover:opacity-70 transition-opacity duration-300"
         >
           <Link to={`/movie/${movie.id}`}>

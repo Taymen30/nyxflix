@@ -7,6 +7,7 @@ export default function Genre() {
   const { genre } = useParams();
   const [genreResults, setGenreResults] = useState([]);
   const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
 
   const genreMap = {
     28: "Action",
@@ -32,20 +33,34 @@ export default function Genre() {
 
   useEffect(() => {
     const apiKey = process.env.REACT_APP_API_KEY;
-    const url = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&with_genres=${genre},12&page=${page}\n`;
+    const url = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&with_genres=${genre}&page=${page}`;
+
+    setLoading(true);
+
     fetch(url)
       .then((response) => response.json())
       .then((data) => {
-        setGenreResults(data.results);
+        setGenreResults((prevResults) => [...prevResults, ...data.results]);
+        setLoading(false);
       });
   }, [genre, page]);
 
-  function nextPage() {
-    setPage((page) => page + 1);
-  }
-  function previousPage() {
-    setPage((page) => page - 1);
-  }
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollThreshold = 200;
+      const scrollY = window.scrollY || window.pageYOffset;
+      if (
+        window.innerHeight + scrollY >=
+          document.documentElement.scrollHeight - scrollThreshold &&
+        !loading
+      ) {
+        setPage((prevPage) => prevPage + 1);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [loading]);
 
   return (
     <>
@@ -55,21 +70,6 @@ export default function Genre() {
       </header>
 
       <MovieList array={genreResults} />
-
-      <nav className="z-50 flex">
-        <p
-          className="text-9xl text-white hover:cursor-pointer"
-          onClick={previousPage}
-        >
-          {"<"}
-        </p>
-        <p
-          className="text-9xl text-white hover:cursor-pointer"
-          onClick={nextPage}
-        >
-          {">"}
-        </p>
-      </nav>
     </>
   );
 }
