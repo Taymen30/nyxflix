@@ -4,29 +4,41 @@ import SearchBar from "../components/SearchBar";
 import Player from "../components/Player";
 import BookmarkButton from "../components/BookmarkButton";
 
-export default function MovieDetails() {
-  const { id } = useParams();
-  const [movie, setMovie] = useState(null);
+export default function MediaDetails() {
+  const { id, type } = useParams();
+  const [media, setMedia] = useState(null);
 
   useEffect(() => {
-    const fetchMovieDetails = async () => {
+    const fetchMediaDetails = async () => {
       try {
         const apiKey = process.env.REACT_APP_API_KEY;
-        const url = `https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}`;
+        let url;
+        if (type === "movie") {
+          url = `https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}`;
+        } else if (type === "tvshow") {
+          url = `https://api.themoviedb.org/3/tv/${id}?api_key=${apiKey}`;
+        }
         const response = await fetch(url);
         const data = await response.json();
-        setMovie(data);
+        setMedia(data);
         console.log(data);
       } catch (error) {
-        console.error("Error fetching movie details:", error);
+        console.error("Error fetching media details:", error);
       }
     };
 
-    fetchMovieDetails();
-  }, [id]);
+    fetchMediaDetails();
+  }, [id, type]);
 
-  if (!movie) {
-    return <div>Loading...</div>;
+  if (!media) {
+    return (
+      <div className="w-full h-full">
+        <p className="text-white text-3xl absolute top-1/2 left-1/2">
+          Loading...
+        </p>
+        ;
+      </div>
+    );
   }
 
   return (
@@ -34,13 +46,19 @@ export default function MovieDetails() {
       <SearchBar />
       <header className="absolute z-10 flex flex-col">
         <section className="flex items-baseline">
-          <h1 className="text-white text-5xl">{movie.title}</h1>
+          <h1 className="text-white text-5xl">
+            {type === "movie" ? media.title : media.original_name}
+          </h1>
           <p className="text-white text-2xl ml-5">
-            {movie.release_date.split("-")[0]}
+            {type === "movie"
+              ? media.release_date.split("-")[0]
+              : `${media.first_air_date.split("-")[0]} - ${
+                  media.last_air_date.split("-")[0]
+                }`}
           </p>
         </section>
         <ul className="flex mt-3 ml-8">
-          {movie.genres.map((genre, i) => (
+          {media.genres.map((genre, i) => (
             <Link
               className=" px-2 py-0.5 text-white hover:opacity-70 transition-opacity duration-300"
               key={i}
@@ -52,9 +70,9 @@ export default function MovieDetails() {
         </ul>
       </header>
 
-      {movie.backdrop_path ? (
+      {media.backdrop_path ? (
         <img
-          src={`https://image.tmdb.org/t/p/original/${movie.backdrop_path}`}
+          src={`https://image.tmdb.org/t/p/original/${media.backdrop_path}`}
           alt=""
           className="w-full h-full object-cover"
         />
@@ -67,11 +85,11 @@ export default function MovieDetails() {
 
       <div className="absolute bottom-[10%]  p-4 w-full flex gap-20 items-center justify-center">
         <section className="flex flex-col gap-1">
-          <Player imdb_id={movie.imdb_id} id={movie.id} />
-          <BookmarkButton id={movie.id} />
+          <Player imdb_id={media.imdb_id} id={media.id} type={type} />
+          <BookmarkButton id={media.id} />
         </section>
 
-        <p className="text-white text-lg w-2/3">{movie.overview}</p>
+        <p className="text-white text-lg w-2/3">{media.overview}</p>
       </div>
     </div>
   );

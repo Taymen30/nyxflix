@@ -1,36 +1,54 @@
 import React, { useEffect, useState } from "react";
 import SearchBar from "../components/SearchBar";
-import MovieList from "../components/MovieList";
+import MediaGrid from "../components/MediaGrid";
+import MediaTypeToggle from "../components/MediaTypeToggle";
+
+const apiKey = process.env.REACT_APP_API_KEY;
 
 export default function Home() {
   const [movies, setMovies] = useState([]);
+  const [movieListParam, setMovieListParam] = useState("now_playing");
+  const [tvShow, setTvShow] = useState([]);
+  const [tvListParam, setTvListParam] = useState("popular");
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchType, setSearchType] = useState("now_playing");
   const [loading, setLoading] = useState(false);
+  const [currentMediaType, setCurrentMediaType] = useState("Movies");
 
   useEffect(() => {
     setMovies([]);
+    setTvShow([]);
     setCurrentPage(1);
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [searchType]);
+  }, [movieListParam, tvListParam, currentMediaType]);
 
   useEffect(() => {
-    const apiKey = process.env.REACT_APP_API_KEY;
-    const url = `https://api.themoviedb.org/3/movie/${searchType}?api_key=${apiKey}&language=en-US&page=${currentPage}`;
+    const fetchData = async () => {
+      setLoading(true);
+      let url;
+      if (currentMediaType === "Movies") {
+        url = `https://api.themoviedb.org/3/movie/${movieListParam}?api_key=${apiKey}&language=en-US&page=${currentPage}`;
+      } else {
+        url = `https://api.themoviedb.org/3/tv/${tvListParam}?api_key=${apiKey}&language=en-US&page=${currentPage}`;
+      }
 
-    setLoading(true);
-
-    fetch(url)
-      .then((response) => response.json())
-      .then((data) => {
-        const filteredResults = data.results.filter(
-          (movie) => movie.poster_path
-        );
-        setMovies((prevMovies) => [...prevMovies, ...filteredResults]);
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        const filteredResults = data.results.filter((item) => item.poster_path);
+        if (currentMediaType === "Movies") {
+          setMovies((prevMovies) => [...prevMovies, ...filteredResults]);
+        } else {
+          setTvShow((prevSeries) => [...prevSeries, ...filteredResults]);
+        }
         setLoading(false);
-      });
-    console.log(movies);
-  }, [searchType, currentPage]);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [movieListParam, tvListParam, currentPage, currentMediaType]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -53,10 +71,13 @@ export default function Home() {
     <div className="m-1">
       <header className="flex items-center h-14 w-full bg-black ">
         <h1 className="text-6xl ml-1 text-white">MovieMaster</h1>
-        <SearchBar setSearchType={setSearchType} />
+        <MediaTypeToggle
+          currentMediaType={currentMediaType}
+          setCurrentMediaType={setCurrentMediaType}
+        />
+        <SearchBar setMovieListParam={setMovieListParam} />
       </header>
-
-      <MovieList array={movies} />
+      <MediaGrid array={currentMediaType === "Movies" ? movies : tvShow} />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import SearchBar from "../components/SearchBar";
-import MovieList from "../components/MovieList";
+import MediaGrid from "../components/MediaGrid";
 
 export default function Search() {
   const [searchParams] = useSearchParams();
@@ -51,7 +51,7 @@ export default function Search() {
         <h1 className="text-white text-5xl">Search</h1>
         <SearchBar />
       </header>
-      <MovieList array={queryResults} />
+      <MediaGrid array={queryResults} />
     </>
   );
 }

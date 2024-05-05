@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
 
-export default function Player({ imdb_id, id }) {
+const apiKey = process.env.REACT_APP_API_KEY;
+
+export default function Player({ imdb_id, id, type }) {
   const [trailerKey, setTrailerKey] = useState(null);
   const [gamer, setGamer] = useState(false);
+  const [tvShowImdb_id, setTvShowImdb_id] = useState(null);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -15,8 +18,25 @@ export default function Player({ imdb_id, id }) {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
+
   useEffect(() => {
     setGamer(localStorage.getItem("gamer") === "true");
+    fetch(
+      `https://api.themoviedb.org/3/tv/${id}/external_ids?api_key=${apiKey}`
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        const tvimdb_id = data.imdb_id;
+        if (tvimdb_id) {
+          setTvShowImdb_id(tvimdb_id);
+          console.log(tvimdb_id);
+        } else {
+          console.error("IMDb ID not found for TV show");
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching TV show IMDb ID:", error);
+      });
   }, [id]);
 
   const toggleGamerStatus = () => {
@@ -26,15 +46,33 @@ export default function Player({ imdb_id, id }) {
   };
 
   useEffect(() => {
-    const apiKey = process.env.REACT_APP_API_KEY;
-    fetch(`https://api.themoviedb.org/3/movie/${id}/videos?api_key=${apiKey}`)
+    const url =
+      type === "movie"
+        ? `https://api.themoviedb.org/3/movie/${id}/videos?api_key=${apiKey}`
+        : `https://api.themoviedb.org/3/tv/${id}/videos?api_key=${apiKey}`;
+
+    fetch(url)
       .then((res) => res.json())
       .then((data) => {
+        console.log(data);
+        let trailerKey = null;
+
         const trailer = data.results.find(
-          (result) => result.type === "Trailer"
+          (result) => result.type === "Trailer" || result.type === "Featurette"
         );
         if (trailer) {
-          setTrailerKey(trailer.key);
+          trailerKey = trailer.key;
+        } else {
+          const youTubeVideo = data.results.find(
+            (result) => result.site === "YouTube"
+          );
+          if (youTubeVideo) {
+            trailerKey = youTubeVideo.key;
+          }
+        }
+
+        if (trailerKey) {
+          setTrailerKey(trailerKey);
         }
       })
       .catch((error) => console.error("Error fetching trailers:", error));
@@ -48,7 +86,10 @@ export default function Player({ imdb_id, id }) {
     iframe.setAttribute("allowFullScreen", true);
 
     if (gamer) {
-      iframe.src = `https://vidsrc.to/embed/movie/${imdb_id}?autoplay=1`;
+      iframe.src =
+        type === "movie"
+          ? `https://vidsrc.to/embed/movie/${imdb_id}?autoplay=1`
+          : `https://vidsrc.xyz/embed/tv/${tvShowImdb_id}`;
       iframe.allow = "autoplay";
     } else {
       iframe.src = `https://www.youtube.com/embed/${trailerKey}`;

@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import SearchBar from "../components/SearchBar";
-import MovieList from "../components/MovieList";
+import MediaGrid from "../components/MediaGrid";
 
 export default function Genre() {
   const { genre } = useParams();
@@ -72,7 +72,7 @@ export default function Genre() {
         <SearchBar />
       </header>
 
-      <MovieList array={genreResults} />
+      <MediaGrid array={genreResults} />
     </>
   );
 }
