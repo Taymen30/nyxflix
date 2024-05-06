@@ -7,15 +7,16 @@ import {
 } from "react-router-dom";
 import HomeButton from "./HomeButton";
 
-export default function SearchBar({ setMovieListParam }) {
+export default function SearchBar({
+  setMovieListParam,
+  setTvListParam,
+  currentMediaType,
+}) {
   const [show, setShow] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [query, setQuery] = useState("");
-  const [currentMediaType, setCurrentMediaType] = useState(
-    localStorage.getItem("media-type")
-  );
 
   useEffect(() => {
     const currentQuery = searchParams.get("query") || "";
@@ -53,7 +54,9 @@ export default function SearchBar({ setMovieListParam }) {
 
   function handleSearchType(e) {
     e.preventDefault();
-    setMovieListParam(e.target.value);
+    currentMediaType === "movie"
+      ? setMovieListParam(e.target.value)
+      : setTvListParam(e.target.value);
   }
 
   if (!show) {
@@ -106,12 +109,21 @@ export default function SearchBar({ setMovieListParam }) {
           onChange={(e) => handleSearchType(e)}
           className="bg-transparent border border-white text-white rounded focus:outline-white mr-3 ml-[-10px] hover:cursor-pointer"
         >
-          <option className="bg-red-600" value="now_playing">
-            Now Playing
-          </option>
-          <option value="popular">Popular</option>
-          <option value="top_rated">Top Rated</option>
-          <option value="upcoming">Upcoming</option>
+          {currentMediaType === "movie" ? (
+            <>
+              <option value="now_playing">Now Playing</option>
+              <option value="popular">Popular</option>
+              <option value="top_rated">Top Rated</option>
+              <option value="upcoming">Upcoming</option>
+            </>
+          ) : (
+            <>
+              <option value="popular">Popular</option>
+              <option value="top_rated">Top Rated</option>
+              <option value="on_the_air">On The Air</option>
+              <option value="airing_today">Airing Today</option>
+            </>
+          )}
         </select>
       ) : (
         <></>

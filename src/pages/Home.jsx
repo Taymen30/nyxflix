@@ -72,7 +72,11 @@ export default function Home() {
           currentMediaType={currentMediaType}
           setCurrentMediaType={setCurrentMediaType}
         />
-        <SearchBar setMovieListParam={setMovieListParam} />
+        <SearchBar
+          setMovieListParam={setMovieListParam}
+          setTvListParam={setTvListParam}
+          currentMediaType={currentMediaType}
+        />
       </header>
       <MediaGrid array={currentMediaType === "movie" ? movies : tvShows} />
     </>
