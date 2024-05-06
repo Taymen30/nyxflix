@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 
 export default function MediaGrid({ array }) {
-  let savedMediaType = localStorage.getItem("Media_Type");
+  let savedMediaType = localStorage.getItem("media-type");
 
   return (
     <div className="flex flex-wrap">
@@ -11,7 +11,7 @@ export default function MediaGrid({ array }) {
           className="w-1/5 hover:opacity-70 transition-opacity duration-300"
         >
           <Link
-            to={`/${savedMediaType === "Movies" ? "movie" : "tvshow"}/${
+            to={`/${savedMediaType === "movie" ? "movie" : "tvshow"}/${
               video.id
             }`}
           >

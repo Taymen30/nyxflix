@@ -4,24 +4,20 @@ import SearchBar from "../components/SearchBar";
 import Player from "../components/Player";
 import BookmarkButton from "../components/BookmarkButton";
 
+const apiKey = process.env.REACT_APP_API_KEY;
+
 export default function MediaDetails() {
   const { id, type } = useParams();
   const [media, setMedia] = useState(null);
 
   useEffect(() => {
     const fetchMediaDetails = async () => {
+      let mediaType = type === "tvshow" ? "tv" : "movie";
       try {
-        const apiKey = process.env.REACT_APP_API_KEY;
-        let url;
-        if (type === "movie") {
-          url = `https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}`;
-        } else if (type === "tvshow") {
-          url = `https://api.themoviedb.org/3/tv/${id}?api_key=${apiKey}`;
-        }
+        const url = `https://api.themoviedb.org/3/${mediaType}/${id}?api_key=${apiKey}`;
         const response = await fetch(url);
         const data = await response.json();
         setMedia(data);
-        console.log(data);
       } catch (error) {
         console.error("Error fetching media details:", error);
       }
@@ -79,7 +75,7 @@ export default function MediaDetails() {
       ) : (
         <></>
       )}
-      <overlay className="absolute inset-0 bg-black opacity-20"></overlay>
+      <div className="absolute inset-0 bg-black opacity-20"></div>
 
       <div id="player-container"></div>
 

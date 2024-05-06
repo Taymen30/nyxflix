@@ -21,22 +21,24 @@ export default function Player({ imdb_id, id, type }) {
 
   useEffect(() => {
     setGamer(localStorage.getItem("gamer") === "true");
-    fetch(
-      `https://api.themoviedb.org/3/tv/${id}/external_ids?api_key=${apiKey}`
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        const tvimdb_id = data.imdb_id;
-        if (tvimdb_id) {
-          setTvShowImdb_id(tvimdb_id);
-          console.log(tvimdb_id);
-        } else {
-          console.error("IMDb ID not found for TV show");
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching TV show IMDb ID:", error);
-      });
+    if (type === "tvshow") {
+      fetch(
+        `https://api.themoviedb.org/3/tv/${id}/external_ids?api_key=${apiKey}`
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          const tvimdb_id = data.imdb_id;
+          if (tvimdb_id) {
+            setTvShowImdb_id(tvimdb_id);
+            console.log(tvimdb_id);
+          } else {
+            console.error("IMDb ID not found for TV show");
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching TV show IMDb ID:", error);
+        });
+    }
   }, [id]);
 
   const toggleGamerStatus = () => {
@@ -54,7 +56,6 @@ export default function Player({ imdb_id, id, type }) {
     fetch(url)
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
         let trailerKey = null;
 
         const trailer = data.results.find(
@@ -95,7 +96,6 @@ export default function Player({ imdb_id, id, type }) {
     }
 
     document.getElementById("player-container").appendChild(iframe);
-    document.getElementById("play-button").style.display = "none";
   };
 
   return (

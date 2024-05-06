@@ -3,27 +3,27 @@ import React, { useState, useEffect } from "react";
 export default function BookmarkButton({ id }) {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [mediaType, setMediaType] = useState(
-    localStorage.getItem("Media_Type") || "Movies"
+    localStorage.getItem("media-type") || "movie"
   );
 
   useEffect(() => {
     const bookmarks =
-      JSON.parse(localStorage.getItem(`Bookmarked ${mediaType}`)) || [];
+      JSON.parse(localStorage.getItem(`bookmarked-${mediaType}`)) || [];
     setIsBookmarked(bookmarks.includes(id));
   }, [id, mediaType]);
 
   const toggleFavorite = () => {
     const bookmarks =
-      JSON.parse(localStorage.getItem(`Bookmarked ${mediaType}`)) || [];
+      JSON.parse(localStorage.getItem(`bookmarked-${mediaType}`)) || [];
 
     if (isBookmarked) {
       localStorage.setItem(
-        `Bookmarked ${mediaType}`,
+        `bookmarked-${mediaType}`,
         JSON.stringify(bookmarks.filter((movieId) => movieId !== id))
       );
     } else {
       localStorage.setItem(
-        `Bookmarked ${mediaType}`,
+        `bookmarked-${mediaType}`,
         JSON.stringify([...bookmarks, id])
       );
     }
