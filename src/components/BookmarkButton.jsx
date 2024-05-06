@@ -2,47 +2,45 @@ import React, { useState, useEffect } from "react";
 
 export default function BookmarkButton({ id }) {
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [mediaType, setMediaType] = useState(
+    localStorage.getItem("Media_Type") || "Movies"
+  );
 
   useEffect(() => {
-    let Bookmarks = JSON.parse(localStorage.getItem("Bookmarks")) || [];
-    if (!Bookmarks) {
-      localStorage.setItem("Bookmarks", JSON.stringify([]));
-      Bookmarks = [];
-    }
-    setIsBookmarked(Bookmarks.includes(id));
-  }, [id]);
+    const bookmarks =
+      JSON.parse(localStorage.getItem(`Bookmarked ${mediaType}`)) || [];
+    setIsBookmarked(bookmarks.includes(id));
+  }, [id, mediaType]);
 
   const toggleFavorite = () => {
-    let Bookmarks = JSON.parse(localStorage.getItem("Bookmarks")) || [];
+    const bookmarks =
+      JSON.parse(localStorage.getItem(`Bookmarked ${mediaType}`)) || [];
 
     if (isBookmarked) {
-      Bookmarks = Bookmarks.filter((movieId) => movieId !== id);
+      localStorage.setItem(
+        `Bookmarked ${mediaType}`,
+        JSON.stringify(bookmarks.filter((movieId) => movieId !== id))
+      );
     } else {
-      Bookmarks.push(id);
+      localStorage.setItem(
+        `Bookmarked ${mediaType}`,
+        JSON.stringify([...bookmarks, id])
+      );
     }
-
-    localStorage.setItem("Bookmarks", JSON.stringify(Bookmarks));
 
     setIsBookmarked(!isBookmarked);
   };
 
   return (
     <div>
-      {isBookmarked ? (
-        <button
-          className="bg-yellow-400 w-32 rounded-2xl h-9 hover:opacity-70 transition-opacity duration-300"
-          onClick={toggleFavorite}
-        >
-          Bookmark
-        </button>
-      ) : (
-        <button
-          className="bg-white w-32 rounded-2xl h-9 hover:opacity-70 transition-opacity duration-300"
-          onClick={toggleFavorite}
-        >
-          Bookmark
-        </button>
-      )}
+      <button
+        className={`w-32 rounded-2xl h-9 hover:opacity-70 transition-opacity duration-300 ${
+          isBookmarked ? "bg-yellow-400" : "bg-white"
+        }`}
+        onClick={toggleFavorite}
+      >
+        Bookmark
+      </button>
     </div>
   );
 }

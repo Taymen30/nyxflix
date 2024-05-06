@@ -10,9 +10,12 @@ export default function Search() {
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
 
+  const api_key = process.env.REACT_APP_API_KEY;
+
   useEffect(() => {
-    const apiKey = process.env.REACT_APP_API_KEY;
-    const url = `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${query}&page=${currentPage}`;
+    let savedMediaType = localStorage.getItem("Media_Type");
+    const mediaType = savedMediaType === "movies" ? "movie" : "tv";
+    const url = `https://api.themoviedb.org/3/search/${mediaType}?api_key=${api_key}&query=${query}&page=${currentPage}`;
 
     setLoading(true);
 

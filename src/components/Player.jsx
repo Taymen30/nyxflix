@@ -89,8 +89,7 @@ export default function Player({ imdb_id, id, type }) {
       iframe.src =
         type === "movie"
           ? `https://vidsrc.to/embed/movie/${imdb_id}?autoplay=1`
-          : `https://vidsrc.xyz/embed/tv/${tvShowImdb_id}`;
-      iframe.allow = "autoplay";
+          : `https://vidsrc.to/embed/tv/${tvShowImdb_id}`;
     } else {
       iframe.src = `https://www.youtube.com/embed/${trailerKey}`;
     }
