@@ -7,7 +7,7 @@ import {
 } from "react-router-dom";
 import HomeButton from "./HomeButton";
 
-export default function SearchBar({ setSearchType }) {
+export default function SearchBar({ setMovieListParam }) {
   const [show, setShow] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -53,7 +53,7 @@ export default function SearchBar({ setSearchType }) {
 
   function handleSearchType(e) {
     e.preventDefault();
-    setSearchType(e.target.value);
+    setMovieListParam(e.target.value);
   }
 
   if (!show) {
