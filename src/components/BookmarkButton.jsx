@@ -12,7 +12,20 @@ export default function BookmarkButton({ id }) {
     setIsBookmarked(bookmarks.includes(id));
   }, [id, mediaType]);
 
-  const toggleFavorite = () => {
+  return (
+    <div>
+      <button
+        className={`w-32 rounded-2xl h-9 hover:opacity-70 transition-opacity duration-300 ${
+          isBookmarked ? "bg-yellow-400" : "bg-white"
+        }`}
+        onClick={toggleFavorite}
+      >
+        Bookmark
+      </button>
+    </div>
+  );
+
+  function toggleFavorite() {
     const bookmarks =
       JSON.parse(localStorage.getItem(`bookmarked-${mediaType}`)) || [];
 
@@ -29,18 +42,5 @@ export default function BookmarkButton({ id }) {
     }
 
     setIsBookmarked(!isBookmarked);
-  };
-
-  return (
-    <div>
-      <button
-        className={`w-32 rounded-2xl h-9 hover:opacity-70 transition-opacity duration-300 ${
-          isBookmarked ? "bg-yellow-400" : "bg-white"
-        }`}
-        onClick={toggleFavorite}
-      >
-        Bookmark
-      </button>
-    </div>
-  );
+  }
 }

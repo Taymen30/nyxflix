@@ -6,7 +6,7 @@ export default function HomeButton() {
 
   return (
     <>
-      {!isHomePage ? (
+      {!isHomePage && (
         <Link to={"/"}>
           <img
             className="w-[40px] h-[40px] hover:opacity-70 transition-opacity duration-300"
@@ -14,8 +14,6 @@ export default function HomeButton() {
             alt=""
           />
         </Link>
-      ) : (
-        <div className="h-[40px]"></div>
       )}
     </>
   );

@@ -11,7 +11,7 @@ export default function MediaDetails() {
   const [media, setMedia] = useState(null);
 
   useEffect(() => {
-    const fetchMediaDetails = async () => {
+    async function fetchMediaDetails() {
       let mediaType = type === "tvshow" ? "tv" : "movie";
       try {
         const url = `https://api.themoviedb.org/3/${mediaType}/${id}?api_key=${apiKey}`;
@@ -21,7 +21,7 @@ export default function MediaDetails() {
       } catch (error) {
         console.error("Error fetching media details:", error);
       }
-    };
+    }
 
     fetchMediaDetails();
   }, [id, type]);

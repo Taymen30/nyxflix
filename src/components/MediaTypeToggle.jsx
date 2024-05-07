@@ -14,11 +14,6 @@ export default function MediaTypeToggle({
     }
   }, []);
 
-  function handleToggle(e) {
-    setCurrentMediaType(e.target.value);
-    localStorage.setItem("media-type", e.target.value);
-  }
-
   return (
     <div className="flex items-center gap-2 mx-3">
       <input
@@ -44,4 +39,9 @@ export default function MediaTypeToggle({
       </label>
     </div>
   );
+
+  function handleToggle(e) {
+    setCurrentMediaType(e.target.value);
+    localStorage.setItem("media-type", e.target.value);
+  }
 }
