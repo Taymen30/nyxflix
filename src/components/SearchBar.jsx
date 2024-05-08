@@ -81,7 +81,7 @@ export default function SearchBar({
               value={query}
               onChange={handleInput}
               type="text"
-              className="bg-black text-white border border-white max-w-1/4 rounded mr-1 ml-[-10px]"
+              className="bg-black text-white border border-white max-w-[200px] rounded mr-1 ml-[-10px]"
             />
             <button
               className={`text-white px-1 border border-white rounded hover:opacity-70 transition-opacity bg-black duration-300 ${
