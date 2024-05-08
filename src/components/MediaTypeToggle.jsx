@@ -15,7 +15,7 @@ export default function MediaTypeToggle({
   }, []);
 
   return (
-    <div className="flex items-center gap-2 mx-3">
+    <div className="flex items-center gap-1 mx-3">
       <input
         type="radio"
         value="movie"
@@ -23,10 +23,7 @@ export default function MediaTypeToggle({
         onChange={handleToggle}
         className="appearance-none rounded-full w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 border-2 border-white checked:bg-white checked:border-transparent"
       />
-      <label
-        htmlFor="movie"
-        className="text-white text-sm sm:text-base lg:text-lg"
-      >
+      <label htmlFor="movie" className="text-white text-sm lg:text-lg">
         Movies
       </label>
 
@@ -37,11 +34,14 @@ export default function MediaTypeToggle({
         onChange={handleToggle}
         className="appearance-none rounded-full w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 border-2 border-white checked:bg-white checked:border-transparent"
       />
+      <label htmlFor="tvShows" className="text-white text-sm lg:text-lg">
+        TV
+      </label>
       <label
         htmlFor="tvShows"
-        className="text-white text-sm sm:text-base lg:text-lg"
+        className="text-white hidden lg:block text-sm lg:text-lg "
       >
-        TV Shows
+        Shows
       </label>
     </div>
   );

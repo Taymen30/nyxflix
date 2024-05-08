@@ -17,6 +17,7 @@ export default function SearchBar({
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [query, setQuery] = useState(searchParams.get("query") || "");
+  const [isGamer, setIsGamer] = useState(false);
 
   useEffect(() => {
     const handleEscapeKey = (e) => {
@@ -32,6 +33,12 @@ export default function SearchBar({
     };
   }, [isSearchVisible]);
 
+  useEffect(() => {
+    if (localStorage.getItem("gamer") === "true") {
+      setIsGamer(true);
+    }
+  }, [query]);
+
   return (
     <div className="flex fixed gap-2 right-1 top-2 z-20">
       <HomeButton />
@@ -45,11 +52,11 @@ export default function SearchBar({
         </Link>
       )}
       {isSearchVisible ? (
-        <div className="px-2 flex gap-1 mt-10 md:mt-0 md:bg-none bg-black z-50">
+        <div className="px-2 flex gap-1 mt-10 md:mt-0 z-50">
           {location.pathname === "/" && (
             <select
               onChange={handleSearchType}
-              className="bg-transparent border border-white text-white rounded focus:outline-white mr-3 ml-[-10px] hover:cursor-pointer "
+              className="bg-black border border-white text-white rounded focus:outline-white mr-3 ml-[-10px] hover:cursor-pointer "
             >
               {currentMediaType === "movie" ? (
                 <>
@@ -70,12 +77,17 @@ export default function SearchBar({
           )}
           <form onSubmit={handleSubmit} className="ml-3 flex justify-center">
             <input
+              id="search-input"
               value={query}
               onChange={handleInput}
               type="text"
-              className="bg-transparent text-white border border-white rounded mr-1 ml-[-10px]"
+              className="bg-black text-white border border-white max-w-1/4 rounded mr-1 ml-[-10px]"
             />
-            <button className="text-white px-1 border border-white rounded hover:opacity-70 transition-opacity duration-300">
+            <button
+              className={`text-white px-1 border border-white rounded hover:opacity-70 transition-opacity bg-black duration-300 ${
+                isGamer ? "text-green-700" : ""
+              }`}
+            >
               Search
             </button>
           </form>
@@ -106,8 +118,14 @@ export default function SearchBar({
 
   function handleSubmit(e) {
     e.preventDefault();
-    setSearchParams({ query });
-    navigate(`/search?query=${query}`);
+    if (query.toLocaleLowerCase() === "gamer") {
+      localStorage.setItem("gamer", "true");
+      setQuery("");
+      setIsGamer(true);
+    } else {
+      setSearchParams({ query });
+      navigate(`/search?query=${query}`);
+    }
   }
 
   function handleSearchType(e) {
