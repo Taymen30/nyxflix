@@ -42,10 +42,10 @@ export default function MediaDetails() {
       <SearchBar />
       <header className="absolute z-10 flex flex-col">
         <section className="flex items-baseline">
-          <h1 className="text-white text-5xl">
+          <h1 className="text-white text-2xl md:text-5xl">
             {type === "movie" ? media.title : media.original_name}
           </h1>
-          <p className="text-white text-2xl ml-5">
+          <p className="text-white md-text-2xl ml-5">
             {type === "movie"
               ? media.release_date.split("-")[0]
               : `${media.first_air_date.split("-")[0]} - ${
@@ -53,7 +53,7 @@ export default function MediaDetails() {
                 }`}
           </p>
         </section>
-        <ul className="flex mt-3 ml-8">
+        <ul className="flex md:mt-3 ml-8">
           {media.genres.map((genre, i) => (
             <Link
               className=" px-2 py-0.5 text-white hover:opacity-70 transition-opacity duration-300"
@@ -66,26 +66,24 @@ export default function MediaDetails() {
         </ul>
       </header>
 
-      {media.backdrop_path ? (
+      {media.backdrop_path && (
         <img
           src={`https://image.tmdb.org/t/p/original/${media.backdrop_path}`}
           alt=""
           className="w-full h-full object-cover"
         />
-      ) : (
-        <></>
       )}
       <div className="absolute inset-0 bg-black opacity-20"></div>
 
-      <div id="player-container"></div>
+      <div id="player-container" className="w-full flex justify-center"></div>
 
-      <div className="absolute bottom-[10%]  p-4 w-full flex gap-20 items-center justify-center">
+      <div className="fix bottom-[10%]  p-4 w-full flex gap-5 md:gap-20 items-center justify-center">
         <section className="flex flex-col gap-1">
           <Player imdb_id={media.imdb_id} id={media.id} type={type} />
           <BookmarkButton id={media.id} />
         </section>
 
-        <p className="text-white text-lg w-2/3">{media.overview}</p>
+        <p className="text-white text-xs md:text-lg w-2/3">{media.overview}</p>
       </div>
     </div>
   );

@@ -13,16 +13,16 @@ export default function BookmarkButton({ id }) {
   }, [id, mediaType]);
 
   return (
-    <div>
+    <>
       <button
-        className={`w-32 rounded-2xl h-9 hover:opacity-70 transition-opacity duration-300 ${
+        className={`text-xs w-16 md:w-32 h-7 md:h-9 rounded-2xl hover:opacity-70 transition-opacity duration-300 ${
           isBookmarked ? "bg-yellow-400" : "bg-white"
         }`}
         onClick={toggleFavorite}
       >
         Bookmark
       </button>
-    </div>
+    </>
   );
 
   function toggleFavorite() {

@@ -21,9 +21,12 @@ export default function MediaTypeToggle({
         value="movie"
         checked={currentMediaType === "movie"}
         onChange={handleToggle}
-        className="appearance-none rounded-full w-4 h-4 border-2 border-white checked:bg-white checked:border-transparent"
+        className="appearance-none rounded-full w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 border-2 border-white checked:bg-white checked:border-transparent"
       />
-      <label htmlFor="movie" className="text-white">
+      <label
+        htmlFor="movie"
+        className="text-white text-sm sm:text-base lg:text-lg"
+      >
         Movies
       </label>
 
@@ -32,9 +35,12 @@ export default function MediaTypeToggle({
         value="tv"
         checked={currentMediaType === "tv"}
         onChange={handleToggle}
-        className="appearance-none rounded-full w-4 h-4 border-2 border-white checked:bg-white checked:border-transparent"
+        className="appearance-none rounded-full w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 border-2 border-white checked:bg-white checked:border-transparent"
       />
-      <label htmlFor="tvShows" className="text-white">
+      <label
+        htmlFor="tvShows"
+        className="text-white text-sm sm:text-base lg:text-lg"
+      >
         TV Shows
       </label>
     </div>

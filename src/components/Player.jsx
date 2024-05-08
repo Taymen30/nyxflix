@@ -32,7 +32,7 @@ export default function Player({ imdb_id, id, type }) {
   return (
     <>
       <div
-        className="bg-white w-32 rounded-2xl h-9 flex items-center justify-center cursor-pointer hover:opacity-70 transition-opacity duration-300"
+        className="bg-white text-xs w-16 md:w-32 h-7 md:h-9 rounded-2xl flex items-center justify-center cursor-pointer hover:opacity-70 transition-opacity duration-300"
         onClick={handlePlayButtonClick}
         id="play-button"
       >
@@ -49,7 +49,8 @@ export default function Player({ imdb_id, id, type }) {
 
   function handlePlayButtonClick() {
     const iframe = document.createElement("iframe");
-    iframe.className = "bg-black w-1/2 h-1/2 absolute top-1/4 left-1/4";
+    iframe.className =
+      "bg-black w-[90vw] h-[50vw] absolute top-[20vh] md:w-[685px] md:h-[380px]";
     iframe.referrerPolicy = "no-referrer";
     iframe.sandbox = "allow-scripts allow-same-origin";
     iframe.setAttribute("allowFullScreen", true);

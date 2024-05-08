@@ -45,11 +45,11 @@ export default function SearchBar({
         </Link>
       )}
       {isSearchVisible ? (
-        <div className="px-2 flex gap-1 z-50">
+        <div className="px-2 flex gap-1 mt-10 md:mt-0 md:bg-none bg-black z-50">
           {location.pathname === "/" && (
             <select
               onChange={handleSearchType}
-              className="bg-transparent border border-white text-white rounded focus:outline-white mr-3 ml-[-10px] hover:cursor-pointer"
+              className="bg-transparent border border-white text-white rounded focus:outline-white mr-3 ml-[-10px] hover:cursor-pointer "
             >
               {currentMediaType === "movie" ? (
                 <>
