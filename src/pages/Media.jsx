@@ -53,10 +53,10 @@ export default function MediaDetails() {
                 }`}
           </p>
         </section>
-        <ul className="flex md:mt-3 ml-8">
+        <ul className="flex gap-1 ml-2 md:mt-3 md:ml-8">
           {media.genres.map((genre, i) => (
             <Link
-              className=" px-2 py-0.5 text-white hover:opacity-70 transition-opacity duration-300"
+              className="px-0 md:px-2 py-0.5 text-white hover:opacity-70 transition-opacity duration-300"
               key={i}
               to={`/genre/${genre.id}`}
             >
@@ -77,7 +77,7 @@ export default function MediaDetails() {
 
       <div id="player-container" className="w-full flex justify-center"></div>
 
-      <div className="fix bottom-[10%]  p-4 w-full flex gap-5 md:gap-20 items-center justify-center">
+      <div className="absolute bottom-[5%] p-4 w-full flex gap-5 md:gap-20 items-center justify-center">
         <section className="flex flex-col gap-1">
           <Player imdb_id={media.imdb_id} id={media.id} type={type} />
           <BookmarkButton id={media.id} />
