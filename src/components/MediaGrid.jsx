@@ -8,7 +8,7 @@ export default function MediaGrid({ array }) {
       {array.map((video, i) => (
         <div
           key={i}
-          className="w-1/4 md:w-1/5 hover:opacity-70 transition-opacity duration-300"
+          className="w-1/3 md:w-1/5 hover:opacity-70 transition-opacity duration-300"
         >
           <Link
             to={`/${savedMediaType === "movie" ? "movie" : "tvshow"}/${

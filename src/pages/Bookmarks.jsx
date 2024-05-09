@@ -57,9 +57,9 @@ export default function Bookmarks() {
 
   return (
     <div>
-      <div className="mx-1 h-14">
+      <div className="mx-1 lg:h-14">
         <section className="flex align-bottom">
-          <h1 className="text-white text-5xl">Bookmarks</h1>
+          <h1 className="text-white text-3xl lg:text-5xl">Bookmarks</h1>
           <MediaTypeToggle
             currentMediaType={mediaType}
             setCurrentMediaType={setMediaType}
@@ -93,7 +93,7 @@ export default function Bookmarks() {
           )
         )}
         {(mediaType === "movie" ? bookmarkedMovies : bookmarkedTvShows).length >
-        1 ? (
+          1 && (
           <div className="w-1/5 h-[30vw] items-center justify-center flex">
             <div className="rounded-full w-2/3 bg-white">
               <Link
@@ -111,8 +111,6 @@ export default function Bookmarks() {
               </Link>
             </div>
           </div>
-        ) : (
-          <></>
         )}
       </div>
     </div>
