@@ -40,17 +40,17 @@ export default function MediaDetails() {
   return (
     <div className=" h-screen">
       <SearchBar />
-      <header className="absolute z-10 flex flex-col">
-        <section className="flex items-baseline">
+      <header className="absolute w-full z-10 flex flex-col">
+        <section className="block w-2/3 lg:w-full lg:flex items-baseline">
           <h1 className="text-white text-2xl md:text-5xl">
             {type === "movie" ? media.title : media.original_name}
           </h1>
-          <p className="text-white md-text-2xl ml-5">
+          <p className="text-white md-text-2xl ml-2 lg:ml-5">
             {type === "movie"
-              ? media.release_date.split("-")[0]
-              : `${media.first_air_date.split("-")[0]} - ${
+              ? `(${media.release_date.split("-")[0]})`
+              : `(${media.first_air_date.split("-")[0]} - ${
                   media.last_air_date.split("-")[0]
-                }`}
+                })`}
           </p>
         </section>
         <ul className="flex gap-1 ml-2 md:mt-3 md:ml-8">
