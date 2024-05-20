@@ -32,7 +32,7 @@ export default function Player({ imdb_id, id, type }) {
   return (
     <>
       <div
-        className="bg-white text-xs w-16 md:w-32 h-7 md:h-9 rounded-2xl flex items-center justify-center cursor-pointer hover:opacity-70 transition-opacity duration-300"
+        className="bg-white text-xs w-20 md:w-32 h-7 md:h-9 rounded-2xl flex items-center justify-center cursor-pointer hover:opacity-70 transition-opacity duration-300"
         onClick={handlePlayButtonClick}
         id="play-button"
       >
