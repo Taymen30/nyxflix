@@ -40,14 +40,14 @@ export default function SearchBar({
   }, [query]);
 
   return (
-    <div className="flex fixed gap-2 right-1 top-2 z-20">
+    <div className="flex flex-col sm:flex-row items-end fixed gap-2 right-1 top-2 z-20">
       <HomeButton />
       {location.pathname !== "/bookmarks" && hasBookmarks() && (
         <Link to="/bookmarks">
           <img
             src="/bookmarks-outline.417x512.png"
             alt=""
-            className="h-[40px] filter invert hover:cursor-pointer hover:opacity-70 transition-opacity duration-300"
+            className="h-[40px]  filter invert hover:cursor-pointer hover:opacity-70 transition-opacity duration-300"
           />
         </Link>
       )}

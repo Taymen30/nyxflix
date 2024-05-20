@@ -92,7 +92,7 @@ export default function Bookmarks() {
 
   return (
     <div>
-      <div className="mx-1 lg:h-14">
+      <div className="flex mx-1 h-14 items-center">
         <section className="flex align-bottom">
           <h1 className="text-white text-3xl lg:text-5xl">Bookmarks</h1>
           <MediaTypeToggle
@@ -107,7 +107,7 @@ export default function Bookmarks() {
           (item, index) => (
             <div
               key={item.id}
-              className={`w-1/5 transform transition-transform transition-filter duration-300 ${
+              className={`w-1/3 md:w-1/5 transform transition-transform transition-filter duration-300 ${
                 highlightedIndex === index
                   ? "scale-110 brightness-110 z-20"
                   : selectedHighlighted !== null &&
@@ -136,7 +136,7 @@ export default function Bookmarks() {
         )}
         {(mediaType === "movie" ? bookmarkedMovies : bookmarkedTvShows).length >
           1 && (
-          <div className="w-1/5 h-[30vw] items-center justify-center flex">
+          <div className="w-1/3 md:w-1/5 h-[30vw] items-center justify-center flex">
             <button
               onClick={handleRandomClick}
               className="rounded-full w-2/3 bg-white"
