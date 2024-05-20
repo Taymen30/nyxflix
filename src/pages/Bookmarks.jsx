@@ -13,6 +13,7 @@ export default function Bookmarks() {
   );
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const [selectedHighlighted, setSelectedHighlighted] = useState(null);
+  const [delay, setDelay] = useState(150);
   const apiKey = process.env.REACT_APP_API_KEY;
 
   useEffect(() => {
@@ -56,18 +57,37 @@ export default function Bookmarks() {
 
     let index = 0;
     let cycles = Math.floor(Math.random() * 3) + 1;
-    const interval = setInterval(() => {
-      setHighlightedIndex(index);
-      index += 1;
-      if (index >= totalItems) {
-        index = 0;
-        cycles -= 1;
-      }
-      if (cycles === 0 && index === randomIndex) {
-        setSelectedHighlighted(index - 1);
-        clearInterval(interval);
-      }
-    }, 150);
+
+    function calculateDelay(currentIndex) {
+      const proximityToTarget = Math.abs(
+        (cycles + 1) * totalItems - (totalItems - randomIndex) - currentIndex
+      );
+      // console.log(
+      //   (cycles + 1) * totalItems - (totalItems - randomIndex) - currentIndex
+      // );
+      let newDelay = 150 + 500 / proximityToTarget;
+
+      return newDelay;
+    }
+
+    function highlightNextItem() {
+      const currentDelay = calculateDelay(index);
+      setTimeout(() => {
+        setHighlightedIndex(index);
+        index += 1;
+        if (index >= totalItems) {
+          index = 0;
+          cycles -= 1;
+        }
+        if (cycles === 0 && index === randomIndex) {
+          setSelectedHighlighted(index - 1);
+        } else {
+          highlightNextItem();
+        }
+      }, currentDelay);
+    }
+
+    highlightNextItem();
   }
 
   return (
