@@ -13,7 +13,7 @@ export default function Bookmarks() {
   );
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const [selectedHighlighted, setSelectedHighlighted] = useState(null);
-  const [delay, setDelay] = useState(150);
+  const [loadingRandom, setLoadingRandom] = useState(false);
   const apiKey = process.env.REACT_APP_API_KEY;
 
   useEffect(() => {
@@ -51,6 +51,7 @@ export default function Bookmarks() {
 
   function handleRandomClick() {
     setSelectedHighlighted(null);
+    setLoadingRandom(true);
     const items = mediaType === "movie" ? bookmarkedMovies : bookmarkedTvShows;
     const totalItems = items.length;
     const randomIndex = Math.floor(Math.random() * totalItems);
@@ -81,6 +82,7 @@ export default function Bookmarks() {
         }
         if (cycles === 0 && index === randomIndex) {
           setSelectedHighlighted(index - 1);
+          setLoadingRandom(false);
         } else {
           highlightNextItem();
         }
@@ -138,6 +140,7 @@ export default function Bookmarks() {
           1 && (
           <div className="w-1/3 md:w-1/5 h-[30vw] items-center justify-center flex">
             <button
+              disabled={loadingRandom}
               onClick={handleRandomClick}
               className="rounded-full w-2/3 bg-white"
             >
