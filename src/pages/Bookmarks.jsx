@@ -11,16 +11,9 @@ export default function Bookmarks() {
   const [mediaType, setMediaType] = useState(
     localStorage.getItem("media-type") || "movie"
   );
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const [selectedHighlighted, setSelectedHighlighted] = useState(null);
   const apiKey = process.env.REACT_APP_API_KEY;
-
-  const randomBookmark =
-    mediaType === "movie"
-      ? bookmarkedMoviesId[
-          Math.floor(Math.random() * bookmarkedMoviesId.length)
-        ]
-      : bookmarkedTvShowsId[
-          Math.floor(Math.random() * bookmarkedTvShowsId.length)
-        ];
 
   useEffect(() => {
     setBookmarkedMoviesId(
@@ -55,6 +48,28 @@ export default function Bookmarks() {
     }
   }, [bookmarkedMoviesId, bookmarkedTvShowsId, mediaType]);
 
+  function handleRandomClick() {
+    setSelectedHighlighted(null);
+    const items = mediaType === "movie" ? bookmarkedMovies : bookmarkedTvShows;
+    const totalItems = items.length;
+    const randomIndex = Math.floor(Math.random() * totalItems);
+
+    let index = 0;
+    let cycles = Math.floor(Math.random() * 3) + 1;
+    const interval = setInterval(() => {
+      setHighlightedIndex(index);
+      index += 1;
+      if (index >= totalItems) {
+        index = 0;
+        cycles -= 1;
+      }
+      if (cycles === 0 && index === randomIndex) {
+        setSelectedHighlighted(index - 1);
+        clearInterval(interval);
+      }
+    }, 150);
+  }
+
   return (
     <div>
       <div className="mx-1 lg:h-14">
@@ -67,12 +82,19 @@ export default function Bookmarks() {
         </section>
         <SearchBar />
       </div>
-      <div className="flex flex-wrap">
+      <div className="flex flex-wrap relative">
         {(mediaType === "movie" ? bookmarkedMovies : bookmarkedTvShows).map(
-          (item) => (
+          (item, index) => (
             <div
               key={item.id}
-              className="w-1/5 hover:opacity-70 transition-opacity duration-300"
+              className={`w-1/5 transform transition-transform transition-filter duration-300 ${
+                highlightedIndex === index
+                  ? "scale-110 brightness-110 z-20"
+                  : selectedHighlighted !== null &&
+                    index !== selectedHighlighted
+                  ? "brightness-50"
+                  : ""
+              }`}
             >
               <Link
                 to={`/${mediaType === "movie" ? "movie" : "tvshow"}/${item.id}`}
@@ -95,21 +117,18 @@ export default function Bookmarks() {
         {(mediaType === "movie" ? bookmarkedMovies : bookmarkedTvShows).length >
           1 && (
           <div className="w-1/5 h-[30vw] items-center justify-center flex">
-            <div className="rounded-full w-2/3 bg-white">
-              <Link
-                to={`/${
-                  mediaType === "movie" ? "movie" : "tvshow"
-                }/${randomBookmark}`}
-              >
-                <div className="flex h-full flex-col justify-center items-center ">
-                  <img
-                    className="w-2/3 rounded-full bg-white border-white border-2 hover:opacity-70 transition-opacity duration-300 "
-                    src="/random.512x477.png"
-                    alt=""
-                  />
-                </div>
-              </Link>
-            </div>
+            <button
+              onClick={handleRandomClick}
+              className="rounded-full w-2/3 bg-white"
+            >
+              <div className="flex h-full flex-col justify-center items-center">
+                <img
+                  className="w-2/3 rounded-full bg-white border-white border-2 hover:opacity-70 transition-opacity duration-300"
+                  src="/random.512x477.png"
+                  alt=""
+                />
+              </div>
+            </button>
           </div>
         )}
       </div>
