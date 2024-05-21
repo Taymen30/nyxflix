@@ -57,7 +57,7 @@ export default function Bookmarks() {
     const randomIndex = Math.floor(Math.random() * totalItems);
 
     let index = 0;
-    let cycles = Math.floor(Math.random() * 3) + 1;
+    let cycles = Math.floor(Math.random() * 6) + 5;
 
     function calculateDelay(currentIndex) {
       const proximityToTarget = Math.abs(
@@ -66,7 +66,7 @@ export default function Bookmarks() {
       // console.log(
       //   (cycles + 1) * totalItems - (totalItems - randomIndex) - currentIndex
       // );
-      let newDelay = 150 + 500 / proximityToTarget;
+      let newDelay = 40 + 500 / proximityToTarget;
 
       return newDelay;
     }
