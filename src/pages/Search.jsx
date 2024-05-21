@@ -13,6 +13,11 @@ export default function Search() {
   const api_key = process.env.REACT_APP_API_KEY;
 
   useEffect(() => {
+    setQueryResults([]);
+    setCurrentPage(1);
+  }, [query]);
+
+  useEffect(() => {
     let savedMediaType = localStorage.getItem("media-type");
     const mediaType = savedMediaType === "movie" ? "movie" : "tv";
     const url = `https://api.themoviedb.org/3/search/${mediaType}?api_key=${api_key}&query=${query}&page=${currentPage}`;
