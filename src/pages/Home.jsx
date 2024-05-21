@@ -28,7 +28,6 @@ export default function Home({
   );
 
   useEffect(() => {
-    console.log(currentMoviePage, lastFetchedMoviePage);
     setLoading(true);
     if (
       currentMediaType === "movie" &&
