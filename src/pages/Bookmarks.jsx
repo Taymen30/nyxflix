@@ -66,7 +66,7 @@ export default function Bookmarks() {
       // console.log(
       //   (cycles + 1) * totalItems - (totalItems - randomIndex) - currentIndex
       // );
-      let newDelay = 40 + 500 / proximityToTarget;
+      let newDelay = 30 + 500 / proximityToTarget;
 
       return newDelay;
     }
