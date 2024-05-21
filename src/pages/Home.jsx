@@ -28,28 +28,32 @@ export default function Home({
   );
 
   useEffect(() => {
-    setLoading(true);
-    if (
-      currentMediaType === "movie" &&
-      currentMoviePage === lastFetchedMoviePage
-    ) {
-      setLoading(false);
-      return;
-    }
-    if (currentMediaType === "tv" && currentTvPage === lastFetchedTvPage) {
-      setLoading(false);
-      return;
-    }
+    async function fetchData() {
+      setLoading(true);
 
-    const url =
-      currentMediaType === "movie"
-        ? `https://api.themoviedb.org/3/movie/${movieListParam}?api_key=${apiKey}&language=en-US&page=${currentMoviePage}`
-        : `https://api.themoviedb.org/3/tv/${tvListParam}?api_key=${apiKey}&language=en-US&page=${currentTvPage}`;
+      if (
+        currentMediaType === "movie" &&
+        currentMoviePage === lastFetchedMoviePage
+      ) {
+        setLoading(false);
+        return;
+      }
 
-    fetch(url)
-      .then((response) => response.json())
-      .then((data) => {
+      if (currentMediaType === "tv" && currentTvPage === lastFetchedTvPage) {
+        setLoading(false);
+        return;
+      }
+
+      const url =
+        currentMediaType === "movie"
+          ? `https://api.themoviedb.org/3/movie/${movieListParam}?api_key=${apiKey}&language=en-US&page=${currentMoviePage}`
+          : `https://api.themoviedb.org/3/tv/${tvListParam}?api_key=${apiKey}&language=en-US&page=${currentTvPage}`;
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
         const filteredResults = data.results.filter((item) => item.poster_path);
+
         if (currentMediaType === "movie") {
           setMovies((prevMovies) => [...prevMovies, ...filteredResults]);
           setLastFetchedMoviePage(currentMoviePage);
@@ -57,12 +61,16 @@ export default function Home({
           setTvShows((prevShow) => [...prevShow, ...filteredResults]);
           setLastFetchedTvPage(currentTvPage);
         }
-        setLoading(false);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("Error fetching data:", error);
+      } finally {
         setLoading(false);
-      });
+      }
+    }
+
+    if (!loading) {
+      fetchData();
+    }
   }, [
     movieListParam,
     tvListParam,
@@ -71,6 +79,7 @@ export default function Home({
     currentMediaType,
     lastFetchedMoviePage,
     lastFetchedTvPage,
+    loading,
   ]);
 
   useEffect(() => {
