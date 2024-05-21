@@ -5,30 +5,47 @@ import MediaTypeToggle from "../components/MediaTypeToggle";
 
 const apiKey = process.env.REACT_APP_API_KEY;
 
-export default function Home() {
-  const [movies, setMovies] = useState([]);
+export default function Home({
+  movies,
+  setMovies,
+  tvShows,
+  setTvShows,
+  currentTvPage,
+  setCurrentTvPage,
+  currentMoviePage,
+  setCurrentMoviePage,
+  lastFetchedMoviePage,
+  setLastFetchedMoviePage,
+  lastFetchedTvPage,
+  setLastFetchedTvPage,
+}) {
   const [movieListParam, setMovieListParam] = useState("now_playing");
-  const [tvShows, setTvShows] = useState([]);
   const [tvListParam, setTvListParam] = useState("popular");
-  const [currentPage, setCurrentPage] = useState(1);
+
   const [loading, setLoading] = useState(false);
   const [currentMediaType, setCurrentMediaType] = useState(
     localStorage.getItem("media-type") || "movie"
   );
 
   useEffect(() => {
-    setMovies([]);
-    setTvShows([]);
-    setCurrentPage(1);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [movieListParam, tvListParam, currentMediaType]);
-
-  useEffect(() => {
+    console.log(currentMoviePage, lastFetchedMoviePage);
     setLoading(true);
+    if (
+      currentMediaType === "movie" &&
+      currentMoviePage === lastFetchedMoviePage
+    ) {
+      setLoading(false);
+      return;
+    }
+    if (currentMediaType === "tv" && currentTvPage === lastFetchedTvPage) {
+      setLoading(false);
+      return;
+    }
+
     const url =
       currentMediaType === "movie"
-        ? `https://api.themoviedb.org/3/movie/${movieListParam}?api_key=${apiKey}&language=en-US&page=${currentPage}`
-        : `https://api.themoviedb.org/3/tv/${tvListParam}?api_key=${apiKey}&language=en-US&page=${currentPage}`;
+        ? `https://api.themoviedb.org/3/movie/${movieListParam}?api_key=${apiKey}&language=en-US&page=${currentMoviePage}`
+        : `https://api.themoviedb.org/3/tv/${tvListParam}?api_key=${apiKey}&language=en-US&page=${currentTvPage}`;
 
     fetch(url)
       .then((response) => response.json())
@@ -36,8 +53,10 @@ export default function Home() {
         const filteredResults = data.results.filter((item) => item.poster_path);
         if (currentMediaType === "movie") {
           setMovies((prevMovies) => [...prevMovies, ...filteredResults]);
+          setLastFetchedMoviePage(currentMoviePage);
         } else {
           setTvShows((prevShow) => [...prevShow, ...filteredResults]);
+          setLastFetchedTvPage(currentTvPage);
         }
         setLoading(false);
       })
@@ -45,7 +64,15 @@ export default function Home() {
         console.error("Error fetching data:", error);
         setLoading(false);
       });
-  }, [movieListParam, tvListParam, currentPage, currentMediaType]);
+  }, [
+    movieListParam,
+    tvListParam,
+    currentMoviePage,
+    currentTvPage,
+    currentMediaType,
+    lastFetchedMoviePage,
+    lastFetchedTvPage,
+  ]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -56,21 +83,22 @@ export default function Home() {
           document.documentElement.scrollHeight - scrollThreshold &&
         !loading
       ) {
-        setCurrentPage((prevPage) => prevPage + 1);
+        currentMediaType === "movie"
+          ? setCurrentMoviePage((prevPage) => prevPage + 1)
+          : setCurrentTvPage((prevPage) => prevPage + 1);
       }
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [loading]);
+  }, [loading, currentMediaType]);
 
   return (
     <>
-      <header className="flex items-center h-14 w-full bg-black ">
+      <header className="flex items-center h-14 w-full bg-black">
         <h1 className="text-white text-3xl sm:text-4xl md:text-6xl ml-1">
           MovieMaster
         </h1>
-
         <MediaTypeToggle
           currentMediaType={currentMediaType}
           setCurrentMediaType={setCurrentMediaType}
@@ -82,6 +110,7 @@ export default function Home() {
         />
       </header>
       <MediaGrid array={currentMediaType === "movie" ? movies : tvShows} />
+      {loading && <div>Loading...</div>}
     </>
   );
 }
