@@ -3,16 +3,18 @@ import { Link, useParams } from "react-router-dom";
 import SearchBar from "../components/SearchBar";
 import Player from "../components/Player";
 import BookmarkButton from "../components/BookmarkButton";
+import Credits from "../components/Credits";
 
 const apiKey = process.env.REACT_APP_API_KEY;
 
 export default function MediaDetails() {
   const { id, type } = useParams();
   const [media, setMedia] = useState(null);
+  const [mediaCast, setMediaCast] = useState(null);
+  const mediaType = type === "tvshow" ? "tv" : "movie";
 
   useEffect(() => {
     async function fetchMediaDetails() {
-      let mediaType = type === "tvshow" ? "tv" : "movie";
       try {
         const url = `https://api.themoviedb.org/3/${mediaType}/${id}?api_key=${apiKey}`;
         const response = await fetch(url);
@@ -80,6 +82,12 @@ export default function MediaDetails() {
       <div className="absolute bottom-[5%] p-4 w-full flex gap-5 md:gap-20 items-center justify-center">
         <section className="flex flex-col gap-1">
           <Player imdb_id={media.imdb_id} id={media.id} type={type} />
+          <Credits
+            mediaCast={mediaCast}
+            setMediaCast={setMediaCast}
+            mediaType={mediaType}
+            id={id}
+          />
           <BookmarkButton id={media.id} />
         </section>
 
