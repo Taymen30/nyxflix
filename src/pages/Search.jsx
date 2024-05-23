@@ -6,6 +6,7 @@ import MediaGrid from "../components/MediaGrid";
 export default function Search() {
   const [searchParams] = useSearchParams();
   const query = searchParams.get("query");
+
   const [queryResults, setQueryResults] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -57,6 +58,7 @@ export default function Search() {
     <>
       <header className="flex h-14 items-center">
         <h1 className="text-white text-5xl">Search</h1>
+        <p className="text-white pl-2">{query}</p>
         <SearchBar />
       </header>
       <MediaGrid array={queryResults} />

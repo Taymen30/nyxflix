@@ -47,7 +47,7 @@ export default function SearchBar({
       {location.pathname === "/" && currentMediaType === "movie" && (
         <img
           onClick={() => shuffleMovies()}
-          src="random.512x477.png"
+          src="distribute-randomize.512x480.png"
           alt=""
           className="w-[40px] h-[40px] hover:cursor-pointer hover:opacity-70 transition-opacity duration-300 filter invert"
         />
