@@ -115,9 +115,16 @@ export default function Home({
           setMovieListParam={setMovieListParam}
           setTvListParam={setTvListParam}
           currentMediaType={currentMediaType}
+          movies={movies}
+          setMovies={setMovies}
+          tvShows={tvShows}
+          setTvShows={setTvShows}
         />
       </header>
-      <MediaGrid array={currentMediaType === "movie" ? movies : tvShows} />
+      <MediaGrid
+        setArray={setMovies}
+        array={currentMediaType === "movie" ? movies : tvShows}
+      />
       {loading && <div>Loading...</div>}
     </>
   );

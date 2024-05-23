@@ -11,6 +11,10 @@ export default function SearchBar({
   setMovieListParam,
   setTvListParam,
   currentMediaType,
+  movies,
+  setMovies,
+  tvShows,
+  setTvShows,
 }) {
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const navigate = useNavigate();
@@ -42,6 +46,14 @@ export default function SearchBar({
   return (
     <div className="flex flex-col sm:flex-row items-end fixed gap-2 right-1 top-2 z-20">
       <HomeButton />
+      {location.pathname === "/" && currentMediaType === "movie" && (
+        <img
+          onClick={() => shuffleMovies()}
+          src="random.512x477.png"
+          alt=""
+          className="w-[40px] h-[40px] hover:cursor-pointer hover:opacity-70 transition-opacity duration-300 filter invert"
+        />
+      )}
       {location.pathname !== "/bookmarks" && hasBookmarks() && (
         <Link to="/bookmarks">
           <img
@@ -52,8 +64,8 @@ export default function SearchBar({
         </Link>
       )}
       {isSearchVisible ? (
-        <div className="px-2 flex gap-1 mt-10 md:mt-0 z-50">
-          {location.pathname === "/" && (
+        <div className="px-2 h-[40px] flex gap-1 mt-10 md:mt-0 z-50">
+          {/* {location.pathname === "/" && (
             <select
               onChange={handleSearchType}
               className="bg-black border border-white text-white rounded focus:outline-white mr-3 ml-[-10px] hover:cursor-pointer "
@@ -74,7 +86,7 @@ export default function SearchBar({
                 </>
               )}
             </select>
-          )}
+          )} */}
           <form onSubmit={handleSubmit} className="ml-3 flex justify-center">
             <input
               id="search-input"
@@ -133,5 +145,16 @@ export default function SearchBar({
     currentMediaType === "movie"
       ? setMovieListParam(e.target.value)
       : setTvListParam(e.target.value);
+  }
+  function shuffleMovies() {
+    const shuffledMovies = [...movies];
+    for (let i = shuffledMovies.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffledMovies[i], shuffledMovies[j]] = [
+        shuffledMovies[j],
+        shuffledMovies[i],
+      ];
+    }
+    setMovies(shuffledMovies);
   }
 }
