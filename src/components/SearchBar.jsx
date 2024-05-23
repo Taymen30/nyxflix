@@ -8,13 +8,11 @@ import {
 import HomeButton from "./HomeButton";
 
 export default function SearchBar({
-  setMovieListParam,
-  setTvListParam,
+  // setMovieListParam,
+  // setTvListParam,
   currentMediaType,
   movies,
   setMovies,
-  tvShows,
-  setTvShows,
 }) {
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const navigate = useNavigate();
@@ -64,7 +62,7 @@ export default function SearchBar({
         </Link>
       )}
       {isSearchVisible ? (
-        <div className="px-2 h-[40px] flex gap-1 mt-10 md:mt-0 z-50">
+        <div className="pr-2 h-[40px] flex gap-1 mt-10 md:mt-0 z-50">
           {/* {location.pathname === "/" && (
             <select
               onChange={handleSearchType}
@@ -140,12 +138,13 @@ export default function SearchBar({
     }
   }
 
-  function handleSearchType(e) {
-    e.preventDefault();
-    currentMediaType === "movie"
-      ? setMovieListParam(e.target.value)
-      : setTvListParam(e.target.value);
-  }
+  // function handleSearchType(e) {
+  //   e.preventDefault();
+  //   currentMediaType === "movie"
+  //     ? setMovieListParam(e.target.value)
+  //     : setTvListParam(e.target.value);
+  // }
+
   function shuffleMovies() {
     const shuffledMovies = [...movies];
     for (let i = shuffledMovies.length - 1; i > 0; i--) {
