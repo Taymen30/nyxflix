@@ -31,10 +31,7 @@ export default function MediaDetails() {
   if (!media) {
     return (
       <div className="w-full h-full">
-        <p className="text-white text-3xl absolute top-1/2 left-1/2">
-          Loading...
-        </p>
-        ;
+        <p className=" text-3xl absolute top-1/2 left-1/2">Loading...</p>;
       </div>
     );
   }
@@ -44,10 +41,10 @@ export default function MediaDetails() {
       <SearchBar />
       <header className="absolute w-full z-10 flex flex-col">
         <section className="block w-2/3 lg:w-full lg:flex items-baseline">
-          <h1 className="text-white text-2xl md:text-5xl">
+          <h1 className=" text-2xl md:text-5xl">
             {type === "movie" ? media.title : media.original_name}
           </h1>
-          <p className="text-white md-text-2xl ml-2 lg:ml-5">
+          <p className=" md-text-2xl ml-2 lg:ml-5">
             {type === "movie"
               ? `(${media.release_date.split("-")[0]})`
               : `(${media.first_air_date.split("-")[0]} - ${
@@ -58,7 +55,7 @@ export default function MediaDetails() {
         <ul className="flex gap-1 ml-2 md:mt-3 md:ml-8">
           {media.genres.map((genre, i) => (
             <Link
-              className="px-0 md:px-2 py-0.5 text-white hover:opacity-70 transition-opacity duration-300"
+              className="px-0 md:px-2 py-0.5  hover:opacity-70 transition-opacity duration-300"
               key={i}
               to={`/genre/${genre.id}`}
             >
@@ -91,7 +88,7 @@ export default function MediaDetails() {
           <BookmarkButton id={media.id} />
         </section>
 
-        <p className="text-white text-xs md:text-lg w-2/3">{media.overview}</p>
+        <p className=" text-xs md:text-lg w-2/3">{media.overview}</p>
       </div>
     </div>
   );

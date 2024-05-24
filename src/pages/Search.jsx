@@ -57,8 +57,8 @@ export default function Search() {
   return (
     <>
       <header className="flex h-14 items-center">
-        <h1 className="text-white text-5xl">Search</h1>
-        <p className="text-white pl-2">{query}</p>
+        <h1 className="text-5xl">Search</h1>
+        <p className="pl-2">{query}</p>
         <SearchBar />
       </header>
       <MediaGrid array={queryResults} />

@@ -96,7 +96,7 @@ export default function Bookmarks() {
     <div>
       <div className="flex mx-1 h-14 items-center">
         <section className="flex align-bottom">
-          <h1 className="text-white text-3xl lg:text-5xl">Bookmarks</h1>
+          <h1 className="text-3xl lg:text-5xl">Bookmarks</h1>
           <MediaTypeToggle
             currentMediaType={mediaType}
             setCurrentMediaType={setMediaType}
@@ -128,8 +128,8 @@ export default function Bookmarks() {
                     alt={mediaType === "movie" ? item.title : item.name}
                   />
                 ) : (
-                  <div className=" flex h-[30vw] justify-center items-center">
-                    <p className="text-white text-3xl">No Poster</p>
+                  <div className="flex h-[30vw] justify-center items-center">
+                    <p className="text-3xl">No Poster</p>
                   </div>
                 )}
               </Link>

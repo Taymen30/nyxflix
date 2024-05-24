@@ -47,11 +47,9 @@ export default function MediaGrid({ array }) {
                 />
               ) : (
                 <div className="flex flex-col h-[30vw] justify-center items-center border-gray-500 border">
-                  <p className="text-white text-2xl text-center">
-                    {video.title}
-                  </p>
+                  <p className=" text-2xl text-center">{video.title}</p>
                   <br />
-                  <p className="text-white text-1xl">No Poster</p>
+                  <p className=" text-1xl">No Poster</p>
                 </div>
               )}
             </Link>

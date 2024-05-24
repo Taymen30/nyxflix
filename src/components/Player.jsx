@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 const apiKey = process.env.REACT_APP_API_KEY;
 
 export default function Player({ imdb_id, id, type }) {
-  const [isTrailerLoaded, setIsTrailerLoaded] = useState(false);
+  const [trailerId, setTrailerId] = useState(null);
   const [gamer, setGamer] = useState(false);
   const [tvShowImdb_id, setTvShowImdb_id] = useState(null);
 
@@ -32,9 +32,10 @@ export default function Player({ imdb_id, id, type }) {
   return (
     <>
       <div
-        className="bg-white text-xs w-20 md:w-32 h-7 md:h-9 rounded-2xl flex items-center justify-center cursor-pointer hover:opacity-70 transition-opacity duration-300"
+        className="bg-white text-black text-xs w-20 md:w-32 h-7 md:h-9 rounded-2xl flex items-center justify-center cursor-pointer hover:opacity-70 transition-opacity duration-300"
         onClick={handlePlayButtonClick}
         id="play-button"
+        disabled={!trailerId}
       >
         Play
       </div>
@@ -61,7 +62,7 @@ export default function Player({ imdb_id, id, type }) {
           ? `https://vidsrc.to/embed/movie/${imdb_id}?autoplay=1`
           : `https://vidsrc.to/embed/tv/${tvShowImdb_id}`;
     } else {
-      iframe.src = `https://www.youtube.com/embed/${isTrailerLoaded}`;
+      iframe.src = `https://www.youtube.com/embed/${trailerId}`;
     }
 
     document.getElementById("player-container").appendChild(iframe);
@@ -94,24 +95,37 @@ export default function Player({ imdb_id, id, type }) {
     fetch(url)
       .then((res) => res.json())
       .then((data) => {
-        let trailerKey = null;
-        const trailer = data.results.find(
-          (result) => result.type === "Trailer" || result.type === "Featurette"
-        );
-
-        if (trailer) {
-          trailerKey = trailer.key;
-        } else {
-          const youTubeVideo = data.results.find(
-            (result) => result.site === "YouTube"
-          );
-          if (youTubeVideo) {
-            trailerKey = youTubeVideo.key;
-          }
+        const videos = data.results;
+        if (videos.length === 0) {
+          console.error("No videos found");
+          return;
         }
 
-        if (trailerKey) {
-          setIsTrailerLoaded(trailerKey);
+        const sortedVideos = [...videos];
+        const sortOrder = ["Trailer", "Teaser", "Clip", "Featurette"];
+
+        sortedVideos.sort((a, b) => {
+          const indexA = sortOrder.indexOf(a.type ?? "");
+          const indexB = sortOrder.indexOf(b.type ?? "");
+          if (indexA === -1 && indexB === -1) {
+            return (a.type ?? "").localeCompare(b.type ?? "");
+          } else if (indexA === -1) {
+            return 1;
+          } else if (indexB === -1) {
+            return -1;
+          } else {
+            return indexA - indexB;
+          }
+        });
+
+        const bestVideo = sortedVideos.find(
+          (video) => video.site === "YouTube"
+        );
+        if (bestVideo && bestVideo.key) {
+          const trailerKey = bestVideo.key;
+          setTrailerId(trailerKey);
+        } else {
+          console.log("No suitable video found");
         }
       })
       .catch((error) => console.error("Error fetching trailers:", error));

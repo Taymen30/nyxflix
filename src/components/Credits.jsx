@@ -26,7 +26,7 @@ export default function Credits({ mediaCast, setMediaCast, mediaType, id }) {
       }
     }
 
-    if (displayCredits || !mediaCast) {
+    if (displayCredits && !mediaCast) {
       fetchCastDetails();
     }
   }, [displayCredits, mediaType, id]);
@@ -53,8 +53,8 @@ export default function Credits({ mediaCast, setMediaCast, mediaType, id }) {
                     alt=""
                     className="rounded"
                   />
-                  <p className="text-white">{person.name}</p>
-                  <p className="text-white">"{person.character}"</p>
+                  <p className="">{person.name}</p>
+                  <p className="">"{person.character}"</p>
                 </Link>
               ))}
           </div>
@@ -63,7 +63,7 @@ export default function Credits({ mediaCast, setMediaCast, mediaType, id }) {
       {mediaType === "movie" && (
         <>
           <button
-            className="bg-white text-xs w-20 md:w-32 h-7 md:h-9 rounded-2xl flex items-center justify-center cursor-pointer hover:opacity-70 transition-opacity duration-300"
+            className="bg-white text-black text-xs w-20 md:w-32 h-7 md:h-9 rounded-2xl flex items-center justify-center cursor-pointer hover:opacity-70 transition-opacity duration-300"
             onClick={() => {
               setDisplayCredits(!displayCredits);
             }}

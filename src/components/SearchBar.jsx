@@ -66,7 +66,7 @@ export default function SearchBar({
           {/* {location.pathname === "/" && (
             <select
               onChange={handleSearchType}
-              className="bg-black border border-white text-white rounded focus:outline-white mr-3 ml-[-10px] hover:cursor-pointer "
+              className="bg-black border border-white  rounded focus:outline-white mr-3 ml-[-10px] hover:cursor-pointer "
             >
               {currentMediaType === "movie" ? (
                 <>
@@ -91,10 +91,10 @@ export default function SearchBar({
               value={query}
               onChange={handleInput}
               type="text"
-              className="bg-black text-white border border-white max-w-[150px] md:max-w-[550px] rounded mr-1 ml-[-10px]"
+              className="bg-black  border border-white max-w-[150px] md:max-w-[550px] rounded mr-1 ml-[-10px]"
             />
             <button
-              className={`text-white px-1 border border-white rounded hover:opacity-70 transition-opacity bg-black duration-300 ${
+              className={` px-1 border border-white rounded hover:opacity-70 transition-opacity bg-black duration-300 ${
                 isGamer ? "bg-red-700" : ""
               }`}
             >

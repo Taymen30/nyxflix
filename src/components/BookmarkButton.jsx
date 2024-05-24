@@ -15,7 +15,7 @@ export default function BookmarkButton({ id }) {
   return (
     <>
       <button
-        className={`text-xs w-20 md:w-32 h-7 md:h-9 rounded-2xl hover:opacity-70 transition-opacity duration-300 ${
+        className={`text-black text-xs w-20 md:w-32 h-7 md:h-9 rounded-2xl hover:opacity-70 transition-opacity duration-300 ${
           isBookmarked ? "bg-yellow-400" : "bg-white"
         }`}
         onClick={toggleFavorite}

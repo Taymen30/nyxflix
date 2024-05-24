@@ -104,9 +104,7 @@ export default function Home({
   return (
     <>
       <header className="flex items-center h-14 w-full bg-black">
-        <h1 className="text-white text-3xl sm:text-4xl md:text-6xl ml-1">
-          MovieMaster
-        </h1>
+        <h1 className=" text-3xl sm:text-4xl md:text-6xl ml-1">MovieMaster</h1>
         <MediaTypeToggle
           currentMediaType={currentMediaType}
           setCurrentMediaType={setCurrentMediaType}

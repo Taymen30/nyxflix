@@ -68,7 +68,7 @@ export default function Genre() {
   return (
     <>
       <header className="relative top-0 z-50 h-14">
-        <h1 className="text-white text-5xl">{genreMap[genre]}</h1>
+        <h1 className="text-5xl">{genreMap[genre]}</h1>
         <SearchBar />
       </header>
 
