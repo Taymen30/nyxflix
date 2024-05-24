@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function Credits({ mediaCast, setMediaCast, mediaType, id }) {
   const apiKey = process.env.REACT_APP_API_KEY;
-
   const [displayCredits, setDisplayCredits] = useState(false);
 
   useEffect(() => {
@@ -19,75 +19,59 @@ export default function Credits({ mediaCast, setMediaCast, mediaType, id }) {
           const truncatedLength = cast.length - remainder;
           cast = cast.slice(0, truncatedLength);
         }
-
+        console.log(cast);
         setMediaCast(cast);
       } catch (error) {
         console.error("Error fetching cast details:", error);
       }
     }
-    fetchCastDetails();
-  }, [displayCredits]);
 
-  useEffect(() => {
-    if (!displayCredits || mediaCast.length > 0) {
-      return;
+    if (displayCredits || !mediaCast) {
+      fetchCastDetails();
     }
-
-    async function fetchProfileImages() {
-      try {
-        const castWithImages = await Promise.all(
-          mediaCast.map(async (person) => {
-            console.log(person);
-            const profileImageUrl = `https://image.tmdb.org/t/p/w500/${person.profile_path}`;
-            return {
-              ...person,
-              profile_path: profileImageUrl,
-            };
-          })
-        );
-        setMediaCast(castWithImages.filter((person) => person !== null));
-      } catch (error) {
-        console.error("Error fetching profile images:", error);
-      }
-    }
-
-    fetchProfileImages();
-  }, [displayCredits, mediaCast]);
+  }, [displayCredits, mediaType, id]);
 
   return (
     <>
-      {displayCredits && (
+      {displayCredits && mediaType === "movie" && (
         <div
           onClick={() => {
             setDisplayCredits(!displayCredits);
           }}
-          className="fixed inset-0 flex justify-center items-center z-20"
+          className="fixed inset-0 flex justify-center items-center z-20 bg-black bg-opacity-50"
         >
-          <div className="w-3/4 h-3/4 flex flex-wrap overflow-auto bg-gray-500 z-30">
+          <div className="w-3/4 h-3/4 p-10 rounded flex flex-wrap overflow-auto bg-black bg-opacity-80 z-30">
             {mediaCast &&
               mediaCast.map((person) => (
-                <div className="w-1/5 h-[30vw]" key={person.id}>
+                <Link
+                  to={`/person/${person.id}`}
+                  key={person.id}
+                  className="w-1/5 h-[27vw] hover:scale-105 p-1 text-center transition-all duration-300"
+                >
                   <img
                     src={`https://image.tmdb.org/t/p/w500/${person.profile_path}`}
                     alt=""
+                    className="rounded"
                   />
-                  <p className="">{person.name}</p>
-                </div>
+                  <p className="text-white">{person.name}</p>
+                  <p className="text-white">"{person.character}"</p>
+                </Link>
               ))}
           </div>
         </div>
       )}
-
-      <>
-        <button
-          className="bg-white text-xs w-20 md:w-32 h-7 md:h-9 rounded-2xl flex items-center justify-center cursor-pointer hover:opacity-70 transition-opacity duration-300"
-          onClick={() => {
-            setDisplayCredits(!displayCredits);
-          }}
-        >
-          Credits
-        </button>
-      </>
+      {mediaType === "movie" && (
+        <>
+          <button
+            className="bg-white text-xs w-20 md:w-32 h-7 md:h-9 rounded-2xl flex items-center justify-center cursor-pointer hover:opacity-70 transition-opacity duration-300"
+            onClick={() => {
+              setDisplayCredits(!displayCredits);
+            }}
+          >
+            Credits
+          </button>
+        </>
+      )}
     </>
   );
 }
