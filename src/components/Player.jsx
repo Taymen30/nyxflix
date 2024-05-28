@@ -5,7 +5,6 @@ const apiKey = process.env.REACT_APP_API_KEY;
 export default function Player({ imdb_id, id, type }) {
   const [trailerId, setTrailerId] = useState(null);
   const [gamer, setGamer] = useState(false);
-  const [tvShowImdb_id, setTvShowImdb_id] = useState(null);
 
   useEffect(() => {
     function handleKeyDown(event) {
@@ -19,13 +18,6 @@ export default function Player({ imdb_id, id, type }) {
 
   useEffect(() => {
     setGamer(localStorage.getItem("gamer") === "true");
-
-    if (type === "tvshow") {
-      fetchTvShowImdbId(id);
-    }
-  }, [id]);
-
-  useEffect(() => {
     fetchTrailerKey(type, id);
   }, [id]);
 
@@ -60,30 +52,12 @@ export default function Player({ imdb_id, id, type }) {
       iframe.src =
         type === "movie"
           ? `https://vidsrc.to/embed/movie/${imdb_id}?autoplay=1`
-          : `https://vidsrc.to/embed/tv/${tvShowImdb_id}`;
+          : `https://vidsrc.to/embed/tv/${id}`;
     } else {
       iframe.src = `https://www.youtube.com/embed/${trailerId}`;
     }
 
     document.getElementById("player-container").appendChild(iframe);
-  }
-
-  function fetchTvShowImdbId(id) {
-    fetch(
-      `https://api.themoviedb.org/3/tv/${id}/external_ids?api_key=${apiKey}`
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        const tvimdb_id = data.imdb_id;
-        if (tvimdb_id) {
-          setTvShowImdb_id(tvimdb_id);
-        } else {
-          console.error("IMDb ID not found for TV show");
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching TV show IMDb ID:", error);
-      });
   }
 
   function fetchTrailerKey(type, id) {

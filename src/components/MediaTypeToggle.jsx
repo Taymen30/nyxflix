@@ -41,9 +41,9 @@ export default function MediaTypeToggle({
       ))}
     </div>
   );
-}
 
-function handleDivClick(mediaType) {
-  setCurrentMediaType(mediaType);
-  localStorage.setItem("media-type", mediaType);
+  function handleDivClick(mediaType) {
+    setCurrentMediaType(mediaType);
+    localStorage.setItem("media-type", mediaType);
+  }
 }
