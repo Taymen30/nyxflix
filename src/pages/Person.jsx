@@ -1,24 +1,78 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 import SearchBar from "../components/SearchBar";
 
 export default function Person() {
   const apiKey = process.env.REACT_APP_API_KEY;
   const { id } = useParams();
   const [personDetails, setPersonDetails] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const scrollableDiv = useRef(null);
+  const [isScrolling, setIsScrolling] = useState(null);
+  const [readMore, setReadMore] = useState(false);
+
+  useEffect(() => {
+    let scrollIntervalId;
+    const scrollInterval = 20;
+    const scrollStep = 0.5;
+
+    const scrollableWidth = scrollableDiv.current
+      ? scrollableDiv.current.scrollWidth - scrollableDiv.current.clientWidth
+      : 0;
+
+    let isScrollingRight = true;
+
+    const startScrolling = () => {
+      scrollIntervalId = setInterval(() => {
+        if (scrollableDiv.current) {
+          const currentScrollLeft = scrollableDiv.current.scrollLeft;
+          if (isScrollingRight) {
+            // Scroll to the right
+            if (currentScrollLeft >= scrollableWidth) {
+              isScrollingRight = false;
+            } else {
+              scrollableDiv.current.scrollLeft += scrollStep;
+            }
+          } else {
+            // Scroll to the left
+            if (currentScrollLeft <= 0) {
+              isScrollingRight = true;
+            } else {
+              scrollableDiv.current.scrollLeft -= scrollStep;
+            }
+          }
+        }
+      }, scrollInterval);
+    };
+
+    const stopScrolling = () => {
+      clearInterval(scrollIntervalId);
+    };
+
+    if (isScrolling) {
+      startScrolling();
+    }
+
+    return () => {
+      stopScrolling();
+    };
+  }, [isScrolling]);
 
   useEffect(() => {
     async function fetchPersonDetails() {
       try {
-        const response = await fetch(
+        setLoading(true);
+
+        // Fetch person details
+        const personResponse = await fetch(
           `https://api.themoviedb.org/3/person/${id}?api_key=${apiKey}`
         );
 
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
+        if (!personResponse.ok) {
+          throw new Error("Network response for person details was not ok");
         }
 
-        const personData = await response.json();
+        const personData = await personResponse.json();
 
         // Fetch movie credits
         const movieCreditsResponse = await fetch(
@@ -26,27 +80,37 @@ export default function Person() {
         );
 
         if (!movieCreditsResponse.ok) {
-          throw new Error("Network response was not ok");
+          throw new Error("Network response for movie credits was not ok");
         }
 
         const movieCreditsData = await movieCreditsResponse.json();
 
+        const filteredMovies = movieCreditsData.cast.filter(
+          (movie) => movie.poster_path
+        );
+
         const combinedData = {
           ...personData,
-          movieCredits: movieCreditsData,
+          movieCredits: filteredMovies,
         };
 
-        console.log(combinedData);
         setPersonDetails(combinedData);
+        setIsScrolling(true);
       } catch (error) {
         console.error("Error fetching person details:", error);
+      } finally {
+        setLoading(false);
       }
     }
 
-    if (id) {
+    if (id && apiKey) {
       fetchPersonDetails();
     }
-  }, [id, apiKey]);
+  }, [id]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div>
@@ -58,7 +122,7 @@ export default function Person() {
           </header>
 
           <div className="flex flex-row mt-10">
-            <section className="flex w-1/2  justify-center">
+            <section className="flex w-1/2 justify-center">
               {personDetails.profile_path && (
                 <img
                   src={`https://image.tmdb.org/t/p/original/${personDetails.profile_path}`}
@@ -68,7 +132,7 @@ export default function Person() {
               )}
             </section>
 
-            <section className="w-1/2">
+            <section className="w-1/2 flex flex-col gap-2">
               <p className="">
                 {personDetails.birthday &&
                   `Born: ${new Date(personDetails.birthday).toLocaleDateString(
@@ -88,14 +152,35 @@ export default function Person() {
                     year: "numeric",
                   })}`}
               </p>
-              <p></p>
-              <p className="h-1/3 text-xs">{personDetails.biography}</p>
+              <p>{personDetails.place_of_birth}</p>
+              <section>
+                <p
+                  className={`text-xs w-3/4 ${readMore ? "" : "line-clamp-5"}`}
+                >
+                  {personDetails.biography}
+                </p>
+                <p
+                  className="text-xs hover:cursor-pointer text-orange-50"
+                  onClick={handleReadMore}
+                >
+                  {readMore ? "read less" : "read more"}
+                </p>
+              </section>
             </section>
           </div>
-          <div className="flex overflow-x-auto py-4">
+          <div
+            className="flex overflow-x-auto py-4"
+            ref={scrollableDiv}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
             {personDetails.movieCredits &&
-              personDetails.movieCredits.cast.map((movie) => (
-                <div key={movie.id} className="flex-shrink-0 w-[100px] mx-2">
+              personDetails.movieCredits.map((movie) => (
+                <Link
+                  to={`/movie/${movie.id}`}
+                  key={movie.id}
+                  className="flex-shrink-0 w-[100px] hover:scale-105 transition-transform duration-300 mx-2"
+                >
                   {movie.poster_path && (
                     <img
                       src={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
@@ -103,11 +188,23 @@ export default function Person() {
                       className="w-full h-auto rounded-md"
                     />
                   )}
-                </div>
+                </Link>
               ))}
           </div>
         </>
       )}
     </div>
   );
+
+  function handleReadMore() {
+    setReadMore(!readMore);
+  }
+
+  function handleMouseEnter() {
+    setIsScrolling(false);
+  }
+
+  function handleMouseLeave() {
+    setIsScrolling(true);
+  }
 }

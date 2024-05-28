@@ -12,6 +12,7 @@ export default function Credits({ mediaCast, setMediaCast, mediaType, id }) {
           `https://api.themoviedb.org/3/${mediaType}/${id}/credits?api_key=${apiKey}`
         );
         const data = await response.json();
+        console.log(data);
         let cast = data.cast.filter((person) => person.profile_path);
 
         if (cast.length > 15) {
@@ -19,7 +20,6 @@ export default function Credits({ mediaCast, setMediaCast, mediaType, id }) {
           const truncatedLength = cast.length - remainder;
           cast = cast.slice(0, truncatedLength);
         }
-        console.log(cast);
         setMediaCast(cast);
       } catch (error) {
         console.error("Error fetching cast details:", error);
