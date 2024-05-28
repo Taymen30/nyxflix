@@ -4,9 +4,9 @@ export default function MediaTypeToggle({
   currentMediaType,
   setCurrentMediaType,
 }) {
+  const mediaTypes = ["movie", "tv"];
   useEffect(() => {
     let savedMediaType = localStorage.getItem("media-type");
-
     if (savedMediaType) {
       setCurrentMediaType(savedMediaType);
     } else {
@@ -14,37 +14,36 @@ export default function MediaTypeToggle({
     }
   }, []);
 
-  return (
-    <div className="flex items-center gap-1 mx-3">
-      <input
-        type="radio"
-        value="movie"
-        checked={currentMediaType === "movie"}
-        onChange={handleToggle}
-        className="appearance-none rounded-full w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 border-2 border-white checked:bg-white checked:border-transparent"
-      />
-      <label htmlFor="movie" className=" text-sm lg:text-lg">
-        Movies
-      </label>
+  const handleDivClick = (mediaType) => {
+    setCurrentMediaType(mediaType);
+    localStorage.setItem("media-type", mediaType);
+  };
 
-      <input
-        type="radio"
-        value="tv"
-        checked={currentMediaType === "tv"}
-        onChange={handleToggle}
-        className="appearance-none rounded-full w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 border-2 border-white checked:bg-white checked:border-transparent"
-      />
-      <label htmlFor="tvShows" className=" text-sm lg:text-lg">
-        TV
-      </label>
-      <label htmlFor="tvShows" className=" hidden lg:block text-sm lg:text-lg ">
-        Shows
-      </label>
+  return (
+    <div className="flex items-center gap-2 mx-2 md:gap-5 md:mx-5">
+      {mediaTypes.map((mediaType) => (
+        <div
+          key={mediaType}
+          className={`group flex cursor-pointer ${
+            currentMediaType === mediaType ? "text-white" : ""
+          }`}
+          onClick={() => handleDivClick(mediaType)}
+        >
+          <div
+            className={`appearance-none rounded-full w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 border-2 group-hover:bg-white group-hover:border-transparent ${
+              currentMediaType === mediaType
+                ? "bg-white border-transparent"
+                : "border-white"
+            }`}
+          />
+          <label
+            htmlFor={mediaType}
+            className="text-sm lg:text-lg ml-1 group-hover:cursor-pointer"
+          >
+            {mediaType === "movie" ? "Movies" : "TV Shows"}
+          </label>
+        </div>
+      ))}
     </div>
   );
-
-  function handleToggle(e) {
-    setCurrentMediaType(e.target.value);
-    localStorage.setItem("media-type", e.target.value);
-  }
 }
