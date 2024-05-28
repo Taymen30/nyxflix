@@ -14,11 +14,6 @@ export default function MediaTypeToggle({
     }
   }, []);
 
-  const handleDivClick = (mediaType) => {
-    setCurrentMediaType(mediaType);
-    localStorage.setItem("media-type", mediaType);
-  };
-
   return (
     <div className="flex items-center gap-2 mx-2 md:gap-5 md:mx-5">
       {mediaTypes.map((mediaType) => (
@@ -46,4 +41,9 @@ export default function MediaTypeToggle({
       ))}
     </div>
   );
+}
+
+function handleDivClick(mediaType) {
+  setCurrentMediaType(mediaType);
+  localStorage.setItem("media-type", mediaType);
 }
