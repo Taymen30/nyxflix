@@ -32,7 +32,7 @@ export default function MediaGrid({ array }) {
               duration: Math.random() * 2,
               type: "spring",
             }}
-            className="w-[10%] md:w-[10%] hover:opacity-70 transition-opacity duration-300"
+            className="w-1/3 md:w-1/5 hover:opacity-70 transition-opacity duration-300"
           >
             <Link
               to={`/${savedMediaType === "movie" ? "movie" : "tvshow"}/${
