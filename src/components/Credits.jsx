@@ -12,7 +12,6 @@ export default function Credits({ mediaCast, setMediaCast, mediaType, id }) {
           `https://api.themoviedb.org/3/${mediaType}/${id}/credits?api_key=${apiKey}`
         );
         const data = await response.json();
-        console.log(data);
         let cast = data.cast.filter((person) => person.profile_path);
 
         if (cast.length > 15) {
@@ -20,6 +19,7 @@ export default function Credits({ mediaCast, setMediaCast, mediaType, id }) {
           const truncatedLength = cast.length - remainder;
           cast = cast.slice(0, truncatedLength);
         }
+
         setMediaCast(cast);
       } catch (error) {
         console.error("Error fetching cast details:", error);
@@ -38,25 +38,34 @@ export default function Credits({ mediaCast, setMediaCast, mediaType, id }) {
           onClick={() => {
             setDisplayCredits(!displayCredits);
           }}
-          className="fixed inset-0 flex justify-center items-center z-20 bg-black bg-opacity-50"
+          className="fixed inset-0 flex z-20 bg-black bg-opacity-50 items-center justify-center"
         >
-          <div className="w-3/4 h-3/4 p-10 rounded flex flex-wrap overflow-auto bg-black bg-opacity-80 z-30">
-            {mediaCast &&
-              mediaCast.map((person) => (
-                <Link
-                  to={`/person/${person.id}`}
-                  key={person.id}
-                  className="w-1/5 h-[27vw] hover:scale-105 p-1 text-center transition-all duration-300"
-                >
-                  <img
-                    src={`https://image.tmdb.org/t/p/w500/${person.profile_path}`}
-                    alt=""
-                    className="rounded"
-                  />
-                  <p className="">{person.name}</p>
-                  <p className="">"{person.character}"</p>
-                </Link>
-              ))}
+          <div className="p-2 md:p-10  flex flex-col justify-center w-4/5 h-4/5 md:w-3/4 md:h-3/4  items-center  bg-black bg-opacity-80 rounded-xl z-30">
+            <div className=" md:mb-6">
+              <h1 className="text-3xl">Cast</h1>
+            </div>
+            <div className="flex-row flex flex-wrap overflow-auto  bg-black">
+              {mediaCast &&
+                mediaCast.map((person) => (
+                  <Link
+                    to={`/person/${person.id}`}
+                    key={person.id}
+                    className=" w-1/3 h-[33vw] md:w-1/5 flex flex-col mb-16 md:mb-[-30px] lg:mb-[-100px] hover:scale-105 p-2 text-center transition-all duration-300 "
+                  >
+                    <img
+                      src={`https://image.tmdb.org/t/p/w500/${person.profile_path}`}
+                      alt=""
+                      className="rounded"
+                    />
+                    <p className="text-xs md:text-sm lg:text-base">
+                      {person.name}
+                    </p>
+                    <p className="text-xs md:text-sm lg:text-base">
+                      "{person.character}"
+                    </p>
+                  </Link>
+                ))}
+            </div>
           </div>
         </div>
       )}
