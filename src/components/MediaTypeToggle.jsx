@@ -5,6 +5,7 @@ export default function MediaTypeToggle({
   setCurrentMediaType,
 }) {
   const mediaTypes = ["movie", "tv"];
+
   useEffect(() => {
     let savedMediaType = localStorage.getItem("media-type");
     if (savedMediaType) {
@@ -35,7 +36,13 @@ export default function MediaTypeToggle({
             htmlFor={mediaType}
             className="text-sm lg:text-lg ml-1 group-hover:cursor-pointer"
           >
-            {mediaType === "movie" ? "Movies" : "TV Shows"}
+            {mediaType === "movie" ? (
+              "Movies"
+            ) : (
+              <>
+                TV <span className="hidden sm:inline">Shows</span>
+              </>
+            )}
           </label>
         </div>
       ))}

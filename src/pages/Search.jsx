@@ -1,9 +1,9 @@
 import { useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import SearchBar from "../components/SearchBar";
 import MediaGrid from "../components/MediaGrid";
+import Header from "../components/Header";
 
-export default function Search() {
+export default function Search({ currentMediaType, setCurrentMediaType }) {
   const [searchParams] = useSearchParams();
   const query = searchParams.get("query");
 
@@ -16,12 +16,10 @@ export default function Search() {
   useEffect(() => {
     setQueryResults([]);
     setCurrentPage(1);
-  }, [query]);
+  }, [query, currentMediaType]);
 
   useEffect(() => {
-    let savedMediaType = localStorage.getItem("media-type");
-    const mediaType = savedMediaType === "movie" ? "movie" : "tv";
-    const url = `https://api.themoviedb.org/3/search/${mediaType}?api_key=${api_key}&query=${query}&page=${currentPage}`;
+    const url = `https://api.themoviedb.org/3/search/${currentMediaType}?api_key=${api_key}&query=${query}&page=${currentPage}`;
 
     setLoading(true);
 
@@ -34,7 +32,7 @@ export default function Search() {
         setQueryResults((prevResults) => [...prevResults, ...filteredResults]);
         setLoading(false);
       });
-  }, [query, currentPage]);
+  }, [query, currentPage, currentMediaType]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -56,11 +54,11 @@ export default function Search() {
 
   return (
     <>
-      <header className="flex h-14 items-center">
-        <h1 className="text-5xl">Search</h1>
-        <p className="pl-2">{query}</p>
-        <SearchBar />
-      </header>
+      <Header
+        title={query}
+        currentMediaType={currentMediaType}
+        setCurrentMediaType={setCurrentMediaType}
+      />
       <MediaGrid array={queryResults} />
     </>
   );

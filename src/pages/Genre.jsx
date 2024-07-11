@@ -1,9 +1,10 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import SearchBar from "../components/SearchBar";
-import MediaGrid from "../components/MediaGrid";
 
-export default function Genre() {
+import MediaGrid from "../components/MediaGrid";
+import Header from "../components/Header";
+
+export default function Genre({ currentMediaType, setCurrentMediaType }) {
   const { genre } = useParams();
   const [genreResults, setGenreResults] = useState([]);
   const [page, setPage] = useState(1);
@@ -30,10 +31,14 @@ export default function Genre() {
     10752: "War",
     37: "Western",
   };
+  useEffect(() => {
+    setGenreResults([]);
+    setPage(1);
+  }, [currentMediaType]);
 
   useEffect(() => {
     const apiKey = process.env.REACT_APP_API_KEY;
-    const url = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&with_genres=${genre}&page=${page}`;
+    const url = `https://api.themoviedb.org/3/discover/${currentMediaType}?api_key=${apiKey}&with_genres=${genre}&page=${page}`;
 
     setLoading(true);
 
@@ -46,7 +51,7 @@ export default function Genre() {
         setGenreResults((prevResults) => [...prevResults, ...filteredResults]);
         setLoading(false);
       });
-  }, [genre, page]);
+  }, [genre, page, currentMediaType]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -67,10 +72,11 @@ export default function Genre() {
 
   return (
     <>
-      <header className="relative top-0 z-50 h-14">
-        <h1 className="text-5xl">{genreMap[genre]}</h1>
-        <SearchBar />
-      </header>
+      <Header
+        title={genreMap[genre]}
+        currentMediaType={currentMediaType}
+        setCurrentMediaType={setCurrentMediaType}
+      />
 
       <MediaGrid array={genreResults} />
     </>

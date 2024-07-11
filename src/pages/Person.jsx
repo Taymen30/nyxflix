@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import SearchBar from "../components/SearchBar";
+import Header from "../components/Header";
 
-export default function Person() {
+export default function Person({ currentMediaType, setCurrentMediaType }) {
   const apiKey = process.env.REACT_APP_API_KEY;
   const { id } = useParams();
   const [personDetails, setPersonDetails] = useState(null);
@@ -116,10 +116,11 @@ export default function Person() {
     <div>
       {personDetails && (
         <>
-          <header>
-            <h1 className="text-2xl md:text-5xl">{personDetails.name}</h1>
-            <SearchBar />
-          </header>
+          <Header
+            title={personDetails.name}
+            currentMediaType={currentMediaType}
+            setCurrentMediaType={setCurrentMediaType}
+          />
 
           <div className="flex flex-row mt-10">
             <section className="flex w-1/2 justify-center">

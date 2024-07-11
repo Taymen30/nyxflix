@@ -15,6 +15,9 @@ export default function App() {
   const [currentMoviePage, setCurrentMoviePage] = useState(1);
   const [lastFetchedMoviePage, setLastFetchedMoviePage] = useState(0);
   const [lastFetchedTvPage, setLastFetchedTvPage] = useState(0);
+  const [currentMediaType, setCurrentMediaType] = useState(
+    localStorage.getItem("media-type") || "movie"
+  );
   return (
     <>
       <Router>
@@ -36,14 +39,61 @@ export default function App() {
                 setLastFetchedMoviePage={setLastFetchedMoviePage}
                 lastFetchedTvPage={lastFetchedTvPage}
                 setLastFetchedTvPage={setLastFetchedTvPage}
+                currentMediaType={currentMediaType}
+                setCurrentMediaType={setCurrentMediaType}
               />
             }
           />
-          <Route exact path="/:type/:id" element={<MediaDetails />} />
-          <Route exact path="/search" element={<Search />} />
-          <Route exact path="/genre/:genre" element={<Genre />} />
-          <Route exact path="/bookmarks" element={<Bookmarks />} />
-          <Route exact path="/person/:id" element={<Person />} />
+          <Route
+            exact
+            path="/:type/:id"
+            element={
+              <MediaDetails
+                currentMediaType={currentMediaType}
+                setCurrentMediaType={setCurrentMediaType}
+              />
+            }
+          />
+          <Route
+            exact
+            path="/search"
+            element={
+              <Search
+                currentMediaType={currentMediaType}
+                setCurrentMediaType={setCurrentMediaType}
+              />
+            }
+          />
+          <Route
+            exact
+            path="/genre/:genre"
+            element={
+              <Genre
+                currentMediaType={currentMediaType}
+                setCurrentMediaType={setCurrentMediaType}
+              />
+            }
+          />
+          <Route
+            exact
+            path="/bookmarks"
+            element={
+              <Bookmarks
+                currentMediaType={currentMediaType}
+                setCurrentMediaType={setCurrentMediaType}
+              />
+            }
+          />
+          <Route
+            exact
+            path="/person/:id"
+            element={
+              <Person
+                currentMediaType={currentMediaType}
+                setCurrentMediaType={setCurrentMediaType}
+              />
+            }
+          />
         </Routes>
       </Router>
       <Analytics />

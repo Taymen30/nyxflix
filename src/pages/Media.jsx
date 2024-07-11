@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import SearchBar from "../components/SearchBar";
 import Player from "../components/Player";
 import BookmarkButton from "../components/BookmarkButton";
 import Credits from "../components/Credits";
+import Header from "../components/Header";
 
 const apiKey = process.env.REACT_APP_API_KEY;
 
-export default function MediaDetails() {
+export default function MediaDetails({
+  currentMediaType,
+  setCurrentMediaType,
+}) {
   const { id, type } = useParams();
   const [media, setMedia] = useState(null);
   const [mediaCast, setMediaCast] = useState(null);
@@ -38,9 +41,13 @@ export default function MediaDetails() {
 
   return (
     <div className=" h-screen">
-      <SearchBar />
-      <header className="absolute w-full z-10 flex flex-col">
+      <header className="absolute w-full z-10 flex  flex-col">
         <section className="block w-2/3 lg:w-full lg:flex items-baseline">
+          <Header
+            title={false}
+            currentMediaType={currentMediaType}
+            setCurrentMediaType={setCurrentMediaType}
+          />
           <h1 className=" text-2xl md:text-5xl">
             {type === "movie" ? media.title : media.original_name}
           </h1>

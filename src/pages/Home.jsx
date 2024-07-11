@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import SearchBar from "../components/SearchBar";
+import Header from "../components/Header";
 import MediaGrid from "../components/MediaGrid";
-import MediaTypeToggle from "../components/MediaTypeToggle";
 
 const apiKey = process.env.REACT_APP_API_KEY;
 
@@ -18,14 +17,13 @@ export default function Home({
   setLastFetchedMoviePage,
   lastFetchedTvPage,
   setLastFetchedTvPage,
+  currentMediaType,
+  setCurrentMediaType,
 }) {
   const [movieListParam, setMovieListParam] = useState("now_playing");
   const [tvListParam, setTvListParam] = useState("popular");
 
   const [loading, setLoading] = useState(false);
-  const [currentMediaType, setCurrentMediaType] = useState(
-    localStorage.getItem("media-type") || "movie"
-  );
 
   useEffect(() => {
     async function fetchData() {
@@ -103,20 +101,14 @@ export default function Home({
 
   return (
     <>
-      <header className="flex items-center h-14 w-full bg-black">
-        <h1 className=" text-3xl sm:text-4xl md:text-6xl ml-1">MovieMaster</h1>
-        <MediaTypeToggle
-          currentMediaType={currentMediaType}
-          setCurrentMediaType={setCurrentMediaType}
-        />
-        <SearchBar
-          // setMovieListParam={setMovieListParam}
-          // setTvListParam={setTvListParam}
-          currentMediaType={currentMediaType}
-          movies={movies}
-          setMovies={setMovies}
-        />
-      </header>
+      <Header
+        title={"MovieMaster"}
+        currentMediaType={currentMediaType}
+        setCurrentMediaType={setCurrentMediaType}
+        movies={movies}
+        setMovies={setMovies}
+      />
+
       <MediaGrid
         setArray={setMovies}
         array={currentMediaType === "movie" ? movies : tvShows}
