@@ -76,7 +76,7 @@ export default function MediaDetails({
         <img
           src={`https://image.tmdb.org/t/p/original/${media.backdrop_path}`}
           alt=""
-          className="w-full h-full object-cover"
+          className="w-full h-screen object-cover"
         />
       )}
       <div className="absolute inset-0 bg-black opacity-20"></div>
