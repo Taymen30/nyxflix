@@ -2,7 +2,11 @@
 module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
-    extend: {},
+    extend: {
+      height: {
+        "fill-available": "-webkit-fill-available",
+      },
+    },
   },
   plugins: [require("@tailwindcss/aspect-ratio")],
 };
