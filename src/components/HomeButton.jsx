@@ -9,7 +9,7 @@ export default function HomeButton() {
       {!isHomePage && (
         <Link to={"/"}>
           <img
-            className="w-[40px] h-[40px] hover:opacity-70 transition-opacity duration-300"
+            className="sm:w-[40px] sm:h-[40px] w-[30px] h-[30px]  hover:opacity-70 transition-opacity duration-300"
             src="/house-home.512x512.png"
             alt=""
           />
