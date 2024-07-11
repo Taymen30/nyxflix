@@ -87,13 +87,15 @@ export default function Header({
   return (
     <header
       className={`flex items-center ${
-        !title ? "absolute" : "h-14 md:h-16 sticky z-50 top-0 bg-opacity-50"
+        !title
+          ? "absolute"
+          : "h-9 sm:h-12 md:h-16 sticky z-50 top-0 bg-opacity-50"
       } w-full bg-black`}
     >
       <div className="relative w-full">
         {shouldShowControls && (
           <div className="fixed top-0 left-0 right-0 z-20 flex justify-between items-center">
-            <h1 className="text-3xl sm:text-4xl md:text-6xl ml-1">{title}</h1>
+            <h1 className="text-2xl sm:text-4xl md:text-6xl ml-1">{title}</h1>
             <AnimatePresence>
               {!isSearchVisible && (
                 <motion.div
@@ -130,7 +132,7 @@ export default function Header({
                   <img
                     src="/bookmarks-outline.417x512.png"
                     alt=""
-                    className="h-[40px] filter invert hover:cursor-pointer hover:opacity-70 transition-opacity duration-300"
+                    className="h-[30px] sm:h-[40px] filter invert hover:cursor-pointer hover:opacity-70 transition-opacity duration-300"
                   />
                 </Link>
               )}
@@ -138,7 +140,7 @@ export default function Header({
                 onClick={() => setIsSearchVisible(true)}
                 src="/search.512x512.png"
                 alt=""
-                className="w-[40px] h-[40px] hover:cursor-pointer hover:opacity-70 transition-opacity duration-300"
+                className="w-[30px] h-[30px] sm:w-[40px] sm:h-[40px] hover:cursor-pointer hover:opacity-70 transition-opacity duration-300"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
               />

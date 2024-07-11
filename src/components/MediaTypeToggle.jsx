@@ -34,7 +34,7 @@ export default function MediaTypeToggle({
           />
           <label
             htmlFor={mediaType}
-            className="text-sm lg:text-lg ml-1 group-hover:cursor-pointer"
+            className="text-xs sm:text-sm lg:text-lg ml-1 group-hover:cursor-pointer"
           >
             {mediaType === "movie" ? (
               "Movies"
