@@ -134,7 +134,7 @@ export default function Bookmarks({ currentMediaType, setCurrentMediaType }) {
             <button
               disabled={loadingRandom}
               onClick={handleRandomClick}
-              className="rounded-full w-2/3 bg-white"
+              className="rounded-full w-2/3 bg-white transition-transform active:translate-y-1 active:translate-x-1"
             >
               <div className="flex h-full flex-col justify-center items-center">
                 <img
