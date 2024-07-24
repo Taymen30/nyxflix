@@ -46,11 +46,11 @@ export default function Header({
     }
   }, [isSearchVisible]);
 
-  const handleInput = (e) => {
+  function handleInput(e) {
     setQuery(e.target.value);
-  };
+  }
 
-  const handleSubmit = (e) => {
+  function handleSubmit(e) {
     e.preventDefault();
     if (query.toLocaleLowerCase() === "gamer") {
       localStorage.setItem("gamer", "true");
@@ -60,20 +60,20 @@ export default function Header({
       setSearchParams({ query });
       navigate(`/search?query=${query}`);
     }
-  };
+  }
 
-  const handleOverlayClick = (e) => {
+  function handleOverlayClick(e) {
     if (
       !e.target.closest(".media-type-toggle") &&
       !e.target.closest(".search-form")
     ) {
       setIsSearchVisible(false);
     }
-  };
+  }
 
-  const handleFormClick = (e) => {
+  function handleFormClick(e) {
     e.stopPropagation();
-  };
+  }
 
   const shouldShowControls =
     location.pathname === "/" ||
