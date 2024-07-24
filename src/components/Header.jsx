@@ -98,13 +98,7 @@ export default function Header({
             <h1 className="text-2xl sm:text-4xl md:text-6xl ml-1">{title}</h1>
             <AnimatePresence>
               {!isSearchVisible && (
-                <motion.div
-                  className="flex-grow flex justify-center media-type-toggle"
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3 }}
-                >
+                <motion.div className="flex-grow flex justify-center media-type-toggle">
                   {title && !location.pathname.includes("/person") && (
                     <MediaTypeToggle
                       currentMediaType={currentMediaType}
