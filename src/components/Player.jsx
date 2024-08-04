@@ -26,29 +26,15 @@ export default function Player({
   useEffect(() => {
     setGamer(localStorage.getItem("gamer") === "true");
     fetchTrailerKey(type, id);
-  }, [id]);
+  }, [id, type]);
 
-  return (
-    <>
-      <div
-        className="bg-white text-black text-xs w-20 md:w-32 h-7 md:h-9 rounded-2xl flex items-center justify-center cursor-pointer hover:opacity-70 transition-opacity duration-300"
-        onClick={handlePlayButtonClick}
-        id="play-button"
-        disabled={!trailerId}
-      >
-        Play
-      </div>
-    </>
-  );
-
-  function toggleGamerStatus() {
-    const gamerStatus = localStorage.getItem("gamer");
-    localStorage.setItem("gamer", gamerStatus === "true" ? "false" : "true");
-    setGamer(localStorage.getItem("gamer") === "true");
-  }
-
-  function handlePlayButtonClick() {
+  const handlePlayButtonClick = () => {
     onPlayClick();
+
+    const previousIframe = document.querySelector("#player-container iframe");
+    if (previousIframe) {
+      previousIframe.remove();
+    }
 
     const iframe = document.createElement("iframe");
     iframe.className =
@@ -56,15 +42,19 @@ export default function Player({
     iframe.referrerPolicy = "no-referrer";
     iframe.sandbox = "allow-scripts allow-same-origin";
     iframe.setAttribute("allowFullScreen", true);
-    if (gamer) {
-      iframe.src =
-        type === "movie"
-          ? `https://www.NontonGo.win/embed/movie/${imdb_id}`
-          : `https://www.NontonGo.win/embed/tv/${id}/${season}/${episode}`;
-    } else {
-      iframe.src = `https://www.youtube.com/embed/${trailerId}`;
-    }
+    iframe.src = gamer
+      ? type === "movie"
+        ? `https://www.NontonGo.win/embed/movie/${imdb_id}`
+        : `https://www.NontonGo.win/embed/tv/${id}/${season}/${episode}`
+      : `https://www.youtube.com/embed/${trailerId}`;
+
     document.getElementById("player-container").appendChild(iframe);
+  };
+
+  function toggleGamerStatus() {
+    const gamerStatus = localStorage.getItem("gamer");
+    localStorage.setItem("gamer", gamerStatus === "true" ? "false" : "true");
+    setGamer(localStorage.getItem("gamer") === "true");
   }
 
   function fetchTrailerKey(type, id) {
@@ -107,4 +97,15 @@ export default function Player({
       })
       .catch((error) => console.error("Error fetching trailers:", error));
   }
+
+  return (
+    <div
+      className="bg-white text-black text-xs w-20 md:w-32 h-7 md:h-9 rounded-2xl flex items-center justify-center cursor-pointer hover:opacity-70 transition-opacity duration-300"
+      onClick={handlePlayButtonClick}
+      id="play-button"
+      disabled={!trailerId}
+    >
+      Play
+    </div>
+  );
 }

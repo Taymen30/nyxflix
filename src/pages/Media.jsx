@@ -25,7 +25,10 @@ export default function MediaDetails({
     return { season: 1, episode: 0 };
   });
   const [displaySeason, setDisplaySeason] = useState(currentEpisode.season);
-  const [selectedEpisode, setSelectedEpisode] = useState(null);
+  const [selectedEpisode, setSelectedEpisode] = useState({
+    season: null,
+    episode: null,
+  });
   const [isGamerMode, setIsGamerMode] = useState(
     localStorage.getItem("gamer") === "true" || false
   );
@@ -65,23 +68,27 @@ export default function MediaDetails({
 
   const handleSeasonChange = (newSeason) => {
     setDisplaySeason(Number(newSeason));
-    setSelectedEpisode(null);
+    setSelectedEpisode({ season: null, episode: null });
     fetchEpisodes(newSeason);
   };
 
   const handleEpisodeClick = (episodeNumber) => {
-    setSelectedEpisode(episodeNumber);
+    setSelectedEpisode({ season: displaySeason, episode: episodeNumber });
   };
 
   const handlePlayButtonClick = () => {
-    if (selectedEpisode !== null) {
-      setCurrentEpisode({ season: displaySeason, episode: selectedEpisode });
+    if (selectedEpisode.season !== null && selectedEpisode.episode !== null) {
+      const updatedEpisode = {
+        season: selectedEpisode.season,
+        episode: selectedEpisode.episode,
+      };
+      setCurrentEpisode(updatedEpisode);
       localStorage.setItem(
         `tvshow_${id}_progress`,
-        JSON.stringify({ season: displaySeason, episode: selectedEpisode })
+        JSON.stringify(updatedEpisode)
       );
     }
-    setSelectedEpisode(null);
+    setSelectedEpisode({ season: null, episode: null });
   };
 
   const scrollEpisodeCarousel = (direction) => {
@@ -152,8 +159,8 @@ export default function MediaDetails({
             imdb_id={mediaDetails.imdb_id}
             id={mediaDetails.id}
             type={type}
-            season={currentEpisode.season}
-            episode={currentEpisode.episode}
+            season={selectedEpisode.season}
+            episode={selectedEpisode.episode}
             onPlayClick={handlePlayButtonClick}
           />
           <BookmarkButton id={mediaDetails.id} />
@@ -197,7 +204,8 @@ export default function MediaDetails({
                   onClick={() => handleEpisodeClick(episode.episode_number)}
                   key={episode.episode_number}
                   className={`inline-block w-48 md:w-64 p-2 rounded-lg mr-4 hover:cursor-pointer transition-all duration-300 hover:brightness-125 ${
-                    selectedEpisode === episode.episode_number
+                    selectedEpisode.season === displaySeason &&
+                    selectedEpisode.episode === episode.episode_number
                       ? "bg-black"
                       : currentEpisode.episode === episode.episode_number &&
                         currentEpisode.season === displaySeason
