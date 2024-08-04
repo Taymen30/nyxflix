@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 
 const apiKey = process.env.REACT_APP_API_KEY;
 
-export default function Player({ imdb_id, id, type }) {
+export default function Player({ imdb_id, id, type, season, episode }) {
   const [trailerId, setTrailerId] = useState(null);
   const [gamer, setGamer] = useState(false);
 
@@ -51,8 +51,8 @@ export default function Player({ imdb_id, id, type }) {
     if (gamer) {
       iframe.src =
         type === "movie"
-          ? `https://vidsrc.to/embed/movie/${imdb_id}?autoplay=1`
-          : `https://vidsrc.to/embed/tv/${id}`;
+          ? `https://www.NontonGo.win/embed/movie/${imdb_id}`
+          : `https://www.NontonGo.win/embed/tv/${id}/${season}/${episode}`;
     } else {
       iframe.src = `https://www.youtube.com/embed/${trailerId}`;
     }
