@@ -20,9 +20,9 @@ export default function MediaDetails({
       const savedProgress = JSON.parse(
         localStorage.getItem(`tvshow_${id}_progress`)
       );
-      return savedProgress || { season: 1, episode: 1 };
+      return savedProgress || { season: 0, episode: 0 };
     }
-    return { season: 1, episode: 1 };
+    return { season: 0, episode: 0 };
   });
   const [displaySeason, setDisplaySeason] = useState(currentEpisode.season);
   const [selectedEpisode, setSelectedEpisode] = useState(null);
