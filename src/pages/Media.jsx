@@ -168,11 +168,11 @@ export default function MediaDetails({
           />
         </section>
 
-        {!isGamerMode && (
+        {!isGamerMode && type !== "tvshow" && (
           <p className="text-xs md:text-lg w-2/3">{mediaDetails.overview}</p>
         )}
 
-        {isGamerMode && (
+        {isGamerMode && type === "tvshow" && (
           <div className="bg-black bg-opacity-30 rounded relative w-2/3">
             <p className="text-center text-xl p-1">
               Season: {currentEpisode.season}
@@ -211,7 +211,9 @@ export default function MediaDetails({
                     </div>
                   </div>
                   <section className="m-1">
-                    <p className="text-sm font-bold">{episode.name}</p>
+                    <p className="text-sm font-bold overflow-hidden">
+                      {episode.name}
+                    </p>
                     <div className="flex justify-between mt-1">
                       <p className="text-xs">
                         {new Date(episode.air_date).toLocaleDateString("en-AU")}
