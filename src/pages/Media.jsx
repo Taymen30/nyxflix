@@ -24,6 +24,8 @@ export default function MediaDetails({
     }
     return { season: 1, episode: 1 };
   });
+  const [displaySeason, setDisplaySeason] = useState(currentEpisode.season);
+  const [selectedEpisode, setSelectedEpisode] = useState(null);
   const [isGamerMode, setIsGamerMode] = useState(
     localStorage.getItem("gamer") === "true" || false
   );
@@ -40,7 +42,7 @@ export default function MediaDetails({
         setMediaDetails(data);
         if (contentType === "tv") {
           setTvShowData((prev) => ({ ...prev, seasons: data.seasons }));
-          fetchEpisodes(currentEpisode.season);
+          fetchEpisodes(displaySeason);
         }
       } catch (error) {
         console.error("Error fetching media details:", error);
@@ -48,7 +50,7 @@ export default function MediaDetails({
     }
 
     fetchMediaDetails();
-  }, [id, type, contentType, currentEpisode.season]);
+  }, [id, type, contentType, displaySeason]);
 
   const fetchEpisodes = async (seasonNumber) => {
     try {
@@ -61,18 +63,25 @@ export default function MediaDetails({
     }
   };
 
-  useEffect(() => {
-    if (contentType === "tv") {
+  const handleSeasonChange = (newSeason) => {
+    setDisplaySeason(Number(newSeason));
+    setSelectedEpisode(null);
+    fetchEpisodes(newSeason);
+  };
+
+  const handleEpisodeClick = (episodeNumber) => {
+    setSelectedEpisode(episodeNumber);
+  };
+
+  const handlePlayButtonClick = () => {
+    if (selectedEpisode !== null) {
+      setCurrentEpisode({ season: displaySeason, episode: selectedEpisode });
       localStorage.setItem(
         `tvshow_${id}_progress`,
-        JSON.stringify(currentEpisode)
+        JSON.stringify({ season: displaySeason, episode: selectedEpisode })
       );
     }
-  }, [currentEpisode, id, contentType]);
-
-  const handleSeasonChange = (newSeason) => {
-    setCurrentEpisode((prev) => ({ season: Number(newSeason), episode: 1 }));
-    fetchEpisodes(newSeason);
+    setSelectedEpisode(null);
   };
 
   const scrollEpisodeCarousel = (direction) => {
@@ -145,21 +154,9 @@ export default function MediaDetails({
             type={type}
             season={currentEpisode.season}
             episode={currentEpisode.episode}
+            onPlayClick={handlePlayButtonClick}
           />
           <BookmarkButton id={mediaDetails.id} />
-          {isGamerMode && contentType === "tv" && (
-            <select
-              onChange={(e) => handleSeasonChange(e.target.value)}
-              value={currentEpisode.season}
-              className="text-xs text-center w-20 md:w-32 h-7 md:h-9 rounded-2xl text-black"
-            >
-              {tvShowData.seasons.map((season) => (
-                <option key={season.season_number} value={season.season_number}>
-                  {season.name}
-                </option>
-              ))}
-            </select>
-          )}
           <Credits
             mediaCast={castInfo}
             setMediaCast={setCastInfo}
@@ -175,24 +172,35 @@ export default function MediaDetails({
 
         {isGamerMode && type === "tvshow" && (
           <div className="bg-black bg-opacity-30 rounded relative w-2/3">
-            <p className="text-center text-xl p-1">
-              Season: {currentEpisode.season}
-            </p>
+            <div className="w-full flex justify-center mt-2">
+              <select
+                onChange={(e) => handleSeasonChange(e.target.value)}
+                value={displaySeason}
+                className="text-xs text-center w-20 md:w-32 h-7 md:h-9 rounded text-black"
+              >
+                {tvShowData.seasons.map((season) => (
+                  <option
+                    key={season.season_number}
+                    value={season.season_number}
+                  >
+                    {season.name}
+                  </option>
+                ))}
+              </select>
+            </div>
             <div
               ref={episodeCarouselRef}
               className="overflow-x-auto m-2 whitespace-nowrap "
             >
               {tvShowData.episodes.map((episode) => (
                 <div
-                  onClick={() => {
-                    setCurrentEpisode((prev) => ({
-                      ...prev,
-                      episode: episode.episode_number,
-                    }));
-                  }}
+                  onClick={() => handleEpisodeClick(episode.episode_number)}
                   key={episode.episode_number}
                   className={`inline-block w-48 md:w-64 p-2 rounded-lg mr-4 hover:cursor-pointer transition-all duration-300 hover:brightness-125 ${
-                    currentEpisode.episode === episode.episode_number
+                    selectedEpisode === episode.episode_number
+                      ? "bg-black"
+                      : currentEpisode.episode === episode.episode_number &&
+                        currentEpisode.season === displaySeason
                       ? "bg-yellow-300 text-black"
                       : "bg-black bg-opacity-30"
                   }`}

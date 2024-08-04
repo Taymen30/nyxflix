@@ -2,7 +2,14 @@ import React, { useEffect, useState } from "react";
 
 const apiKey = process.env.REACT_APP_API_KEY;
 
-export default function Player({ imdb_id, id, type, season, episode }) {
+export default function Player({
+  imdb_id,
+  id,
+  type,
+  season,
+  episode,
+  onPlayClick,
+}) {
   const [trailerId, setTrailerId] = useState(null);
   const [gamer, setGamer] = useState(false);
 
@@ -41,13 +48,14 @@ export default function Player({ imdb_id, id, type, season, episode }) {
   }
 
   function handlePlayButtonClick() {
+    onPlayClick();
+
     const iframe = document.createElement("iframe");
     iframe.className =
       "bg-black w-[90vw] h-[50vw] absolute top-[20vh] md:w-[685px] md:h-[380px]";
     iframe.referrerPolicy = "no-referrer";
     iframe.sandbox = "allow-scripts allow-same-origin";
     iframe.setAttribute("allowFullScreen", true);
-
     if (gamer) {
       iframe.src =
         type === "movie"
@@ -56,7 +64,6 @@ export default function Player({ imdb_id, id, type, season, episode }) {
     } else {
       iframe.src = `https://www.youtube.com/embed/${trailerId}`;
     }
-
     document.getElementById("player-container").appendChild(iframe);
   }
 
@@ -65,7 +72,6 @@ export default function Player({ imdb_id, id, type, season, episode }) {
       type === "movie"
         ? `https://api.themoviedb.org/3/movie/${id}/videos?api_key=${apiKey}`
         : `https://api.themoviedb.org/3/tv/${id}/videos?api_key=${apiKey}`;
-
     fetch(url)
       .then((res) => res.json())
       .then((data) => {
@@ -74,10 +80,8 @@ export default function Player({ imdb_id, id, type, season, episode }) {
           console.error("No videos found");
           return;
         }
-
         const sortedVideos = [...videos];
         const sortOrder = ["Trailer", "Teaser", "Clip", "Featurette"];
-
         sortedVideos.sort((a, b) => {
           const indexA = sortOrder.indexOf(a.type ?? "");
           const indexB = sortOrder.indexOf(b.type ?? "");
@@ -91,7 +95,6 @@ export default function Player({ imdb_id, id, type, season, episode }) {
             return indexA - indexB;
           }
         });
-
         const bestVideo = sortedVideos.find(
           (video) => video.site === "YouTube"
         );
