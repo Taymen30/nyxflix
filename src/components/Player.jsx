@@ -40,7 +40,7 @@ export default function Player({
     iframe.className =
       "bg-black w-[90vw] h-[50vw] absolute top-[20vh] md:w-[685px] md:h-[380px]";
     iframe.referrerPolicy = "no-referrer";
-    iframe.sandbox = "allow-scripts allow-same-origin";
+    // iframe.sandbox = "allow-scripts allow-same-origin";
     iframe.setAttribute("allowFullScreen", true);
     iframe.src = gamer
       ? type === "movie"
