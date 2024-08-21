@@ -44,8 +44,8 @@ export default function Player({
     iframe.setAttribute("allowFullScreen", true);
     iframe.src = gamer
       ? type === "movie"
-        ? `https://www.NontonGo.win/embed/movie/${imdb_id}`
-        : `https://www.NontonGo.win/embed/tv/${id}/${season}/${episode}`
+        ? `https://multiembed.mov/directstream.php?video_id=${imdb_id}`
+        : `https://multiembed.mov/directstream.php?video_id=${id}&tmdb=1&s=${season}&e=${episode}`
       : `https://www.youtube.com/embed/${trailerId}`;
 
     document.getElementById("player-container").appendChild(iframe);
