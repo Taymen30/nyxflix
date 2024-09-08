@@ -172,10 +172,9 @@ export default function MediaDetails({
           />
         </section>
 
-        {!isGamerMode ||
-          (type !== "tvshow" && (
-            <p className="text-xs md:text-lg w-2/3">{mediaDetails.overview}</p>
-          ))}
+        {isGamerMode && type !== "tvshow" && (
+          <p className="text-xs md:text-lg w-2/3">{mediaDetails.overview}</p>
+        )}
 
         {isGamerMode && type === "tvshow" && (
           <div className="bg-black bg-opacity-30 rounded relative w-2/3">
