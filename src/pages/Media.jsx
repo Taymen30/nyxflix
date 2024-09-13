@@ -172,7 +172,7 @@ export default function MediaDetails({
           />
         </section>
 
-        {isGamerMode && type !== "tvshow" && (
+        {!isGamerMode && type !== "tvshow" && (
           <p className="text-xs md:text-lg w-2/3">{mediaDetails.overview}</p>
         )}
 
