@@ -153,7 +153,7 @@ export default function MediaDetails({
 
       <div id="player-container" className="w-full flex justify-center"></div>
 
-      <div className="absolute bottom-[5%] p-4 w-full flex gap-5 md:gap-20 items-center justify-center">
+      <div className="absolute bottom-0 p-4 w-full flex gap-5 md:gap-20 items-center justify-center">
         <section className="flex flex-col gap-1">
           <Player
             imdb_id={mediaDetails.imdb_id}
@@ -172,12 +172,14 @@ export default function MediaDetails({
           />
         </section>
 
-        {!isGamerMode && type !== "tvshow" && (
-          <p className="text-xs md:text-lg w-2/3">{mediaDetails.overview}</p>
+        {type !== "tvshow" && (
+          <p className="text-xs md:text-[16px] w-2/3">
+            {mediaDetails.overview}
+          </p>
         )}
 
         {isGamerMode && type === "tvshow" && (
-          <div className="bg-black bg-opacity-30 rounded relative w-2/3">
+          <div className="relative w-2/3">
             <div className="w-full flex justify-center mt-2">
               <select
                 onChange={(e) => handleSeasonChange(e.target.value)}
@@ -202,7 +204,7 @@ export default function MediaDetails({
                 <div
                   onClick={() => handleEpisodeClick(episode.episode_number)}
                   key={episode.episode_number}
-                  className={`inline-block w-48 md:w-64 p-2 rounded-lg mr-4 hover:cursor-pointer transition-all duration-300 hover:brightness-125 ${
+                  className={`inline-block w-28 md:w-52 p-2 rounded-lg mr-4 hover:cursor-pointer transition-all duration-300 hover:brightness-125 ${
                     selectedEpisode.season === displaySeason &&
                     selectedEpisode.episode === episode.episode_number
                       ? "bg-black"
@@ -217,7 +219,7 @@ export default function MediaDetails({
                       <img
                         src={`https://image.tmdb.org/t/p/w500/${episode.still_path}`}
                         alt={episode.name}
-                        className="w-full h-auto mb-2 rounded"
+                        className="w-full h-14 md:h-28 mb-2 rounded"
                       />
                     )}
                     <div className="absolute top-2 right-2 w-5 h-5 border border-white bg-black bg-opacity-70 rounded-full flex items-center justify-center">
@@ -227,7 +229,7 @@ export default function MediaDetails({
                     </div>
                   </div>
                   <section className="m-1">
-                    <p className="text-sm font-bold overflow-hidden">
+                    <p className="text-[10px] md:text-sm font-bold overflow-hidden">
                       {episode.name}
                     </p>
                     <div className="flex justify-between mt-1">
