@@ -24,6 +24,7 @@ export default function Header({
   const [query, setQuery] = useState(searchParams.get("query") || "");
   const [isGamer, setIsGamer] = useState(false);
   const [togglePosition, setTogglePosition] = useState({ x: 0, y: 0 });
+
   useEffect(() => {
     if (localStorage.getItem("gamer") === "true") {
       setIsGamer(true);

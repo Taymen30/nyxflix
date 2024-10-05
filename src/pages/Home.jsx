@@ -127,7 +127,7 @@ export default function Home({
             }}
           >
             <Header
-              title={"MovieMaster"}
+              title={"HBD Carter n Lily"}
               currentMediaType={currentMediaType}
               setCurrentMediaType={setCurrentMediaType}
               movies={movies}

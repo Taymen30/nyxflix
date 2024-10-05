@@ -28,7 +28,7 @@ export default function Player({
     fetchTrailerKey(type, id);
   }, [id, type]);
 
-  const handlePlayButtonClick = () => {
+  function handlePlayButtonClick() {
     onPlayClick();
 
     const previousIframe = document.querySelector("#player-container iframe");
@@ -49,7 +49,31 @@ export default function Player({
       : `https://www.youtube.com/embed/${trailerId}`;
 
     document.getElementById("player-container").appendChild(iframe);
-  };
+  }
+
+  function handlePlayButtonDoubleClick() {
+    if (gamer) {
+      onPlayClick();
+
+      const previousIframe = document.querySelector("#player-container iframe");
+      if (previousIframe) {
+        previousIframe.remove();
+      }
+
+      const iframe = document.createElement("iframe");
+      iframe.className =
+        "bg-black w-[90vw] h-[50vw] absolute top-[12vh] md:w-[60vw] md:h-[28vw]";
+      iframe.referrerPolicy = "no-referrer";
+      // iframe.sandbox = "allow-scripts allow-same-origin";
+      iframe.setAttribute("allowFullScreen", true);
+      iframe.src =
+        type === "movie"
+          ? `https://vidsrc.xyz/embed/movie?imdb=${imdb_id}`
+          : `https://vidsrc.xyz/embed/tv?tmdb=${id}&season=${season}&episode=${episode}`;
+
+      document.getElementById("player-container").appendChild(iframe);
+    }
+  }
 
   function toggleGamerStatus() {
     const gamerStatus = localStorage.getItem("gamer");
@@ -102,6 +126,7 @@ export default function Player({
     <div
       className="bg-white text-black text-xs w-20 md:w-32 h-7 md:h-9 rounded-2xl flex items-center justify-center cursor-pointer hover:opacity-70 transition-opacity duration-300"
       onClick={handlePlayButtonClick}
+      onDoubleClick={handlePlayButtonDoubleClick}
       id="play-button"
       disabled={!trailerId}
     >
