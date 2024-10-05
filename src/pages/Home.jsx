@@ -142,21 +142,24 @@ export default function Home({
             </motion.div>
           )
         }
-        {verified && animationShown && (
-          <div>
-            <Header
-              title={"MovieMaster"}
-              currentMediaType={currentMediaType}
-              setCurrentMediaType={setCurrentMediaType}
-              movies={movies}
-              setMovies={setMovies}
-            />
-            <MediaGrid
-              setArray={setMovies}
-              array={currentMediaType === "movie" ? movies : tvShows}
-            />
-          </div>
-        )}
+        {
+          // verified &&
+          animationShown && (
+            <div>
+              <Header
+                title={"MovieMaster"}
+                currentMediaType={currentMediaType}
+                setCurrentMediaType={setCurrentMediaType}
+                movies={movies}
+                setMovies={setMovies}
+              />
+              <MediaGrid
+                setArray={setMovies}
+                array={currentMediaType === "movie" ? movies : tvShows}
+              />
+            </div>
+          )
+        }
       </AnimatePresence>
       {loading && <div>Loading...</div>}
     </>
