@@ -108,37 +108,40 @@ export default function Home({
 
   return (
     <>
-      {!verified && <Challenge setVerified={setVerified} />}
+      {/* {!verified && <Challenge setVerified={setVerified} />} */}
 
       <AnimatePresence>
-        {verified && !animationShown && (
-          <motion.div
-            initial={{
-              opacity: 0,
-              scale: 0,
-              x: window.innerWidth,
-              y: window.innerHeight,
-            }}
-            animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
-            transition={{ duration: 0.5 }}
-            onAnimationComplete={() => {
-              setAnimationShown(true);
-              localStorage.setItem("animationShown", "true");
-            }}
-          >
-            <Header
-              title={"HBD Carter n Lily"}
-              currentMediaType={currentMediaType}
-              setCurrentMediaType={setCurrentMediaType}
-              movies={movies}
-              setMovies={setMovies}
-            />
-            <MediaGrid
-              setArray={setMovies}
-              array={currentMediaType === "movie" ? movies : tvShows}
-            />
-          </motion.div>
-        )}
+        {
+          // verified &&
+          !animationShown && (
+            <motion.div
+              initial={{
+                opacity: 0,
+                scale: 0,
+                x: window.innerWidth,
+                y: window.innerHeight,
+              }}
+              animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
+              transition={{ duration: 0.5 }}
+              onAnimationComplete={() => {
+                setAnimationShown(true);
+                localStorage.setItem("animationShown", "true");
+              }}
+            >
+              <Header
+                title={"HBD Carter n Lily"}
+                currentMediaType={currentMediaType}
+                setCurrentMediaType={setCurrentMediaType}
+                movies={movies}
+                setMovies={setMovies}
+              />
+              <MediaGrid
+                setArray={setMovies}
+                array={currentMediaType === "movie" ? movies : tvShows}
+              />
+            </motion.div>
+          )
+        }
         {verified && animationShown && (
           <div>
             <Header
