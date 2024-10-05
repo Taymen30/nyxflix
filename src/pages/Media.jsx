@@ -88,7 +88,7 @@ export default function MediaDetails({
         JSON.stringify(updatedEpisode)
       );
     }
-    setSelectedEpisode({ season: null, episode: null });
+    // setSelectedEpisode({ season: null, episode: null });
   };
 
   const scrollEpisodeCarousel = (direction) => {
