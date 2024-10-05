@@ -147,7 +147,7 @@ export default function Home({
           animationShown && (
             <div>
               <Header
-                title={"MovieMaster"}
+                title={"HBD Carter n Lily"}
                 currentMediaType={currentMediaType}
                 setCurrentMediaType={setCurrentMediaType}
                 movies={movies}
