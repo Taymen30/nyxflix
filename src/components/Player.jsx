@@ -64,7 +64,7 @@ export default function Player({
       iframe.className =
         "bg-black w-[90vw] h-[50vw] absolute top-[12vh] md:w-[60vw] md:h-[28vw]";
       iframe.referrerPolicy = "no-referrer";
-      // iframe.sandbox = "allow-scripts allow-same-origin";
+      iframe.sandbox = "allow-scripts allow-same-origin";
       iframe.setAttribute("allowFullScreen", true);
       iframe.src =
         type === "movie"
