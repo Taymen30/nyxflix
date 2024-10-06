@@ -3,6 +3,7 @@ import Header from "../components/Header";
 import MediaGrid from "../components/MediaGrid";
 import Challenge from "../components/Challenge";
 import { motion, AnimatePresence } from "framer-motion";
+import { getTitle } from "../utils/Helpers";
 
 const apiKey = process.env.REACT_APP_API_KEY;
 
@@ -129,7 +130,7 @@ export default function Home({
               }}
             >
               <Header
-                title={"HBD Carter n Lily"}
+                title={getTitle()}
                 currentMediaType={currentMediaType}
                 setCurrentMediaType={setCurrentMediaType}
                 movies={movies}
@@ -147,7 +148,7 @@ export default function Home({
           animationShown && (
             <div>
               <Header
-                title={"HBD Carter n Lily"}
+                title={getTitle()}
                 currentMediaType={currentMediaType}
                 setCurrentMediaType={setCurrentMediaType}
                 movies={movies}
