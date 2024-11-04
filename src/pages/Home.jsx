@@ -79,15 +79,16 @@ export default function Home({
       }
     }
 
-    if (currentMediaType === "tv" ? tvShows.length < 20 : movies.length < 20) {
-      if (currentMediaType === "movie") {
-        setCurrentMoviePage((prev) => prev + 1);
-      } else if (currentMediaType === "tv") {
-        setCurrentTvPage((prev) => prev + 1);
-      }
-    }
-
     if (!loading) {
+      if (
+        currentMediaType === "tv" ? tvShows.length < 20 : movies.length < 20
+      ) {
+        if (currentMediaType === "movie") {
+          setCurrentMoviePage((prev) => prev + 1);
+        } else if (currentMediaType === "tv") {
+          setCurrentTvPage((prev) => prev + 1);
+        }
+      }
       fetchData();
     }
   }, [
