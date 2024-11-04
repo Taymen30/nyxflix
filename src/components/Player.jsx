@@ -68,8 +68,8 @@ export default function Player({
       iframe.setAttribute("allowFullScreen", true);
       iframe.src =
         type === "movie"
-          ? `https://vidsrc.xyz/embed/movie?imdb=${imdb_id}`
-          : `https://vidsrc.xyz/embed/tv?tmdb=${id}&season=${season}&episode=${episode}`;
+          ? `https://vidsrc.net/embed/movie?imdb=${imdb_id}`
+          : `https://vidsrc.net/embed/tv?tmdb=${id}&season=${season}&episode=${episode}`;
 
       document.getElementById("player-container").appendChild(iframe);
     }
