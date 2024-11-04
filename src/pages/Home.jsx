@@ -58,7 +58,12 @@ export default function Home({
       try {
         const response = await fetch(url);
         const data = await response.json();
-        const filteredResults = data.results.filter((item) => item.poster_path);
+        const filteredResults = data.results.filter(
+          (item) =>
+            item.poster_path &&
+            item.vote_count > 100 &&
+            ["ko", "ja", "en", "es"].includes(item.original_language)
+        );
 
         if (currentMediaType === "movie") {
           setMovies((prevMovies) => [...prevMovies, ...filteredResults]);
@@ -71,6 +76,14 @@ export default function Home({
         console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
+      }
+    }
+
+    if (currentMediaType === "tv" ? tvShows.length < 20 : movies.length < 20) {
+      if (currentMediaType === "movie") {
+        setCurrentMoviePage((prev) => prev + 1);
+      } else if (currentMediaType === "tv") {
+        setCurrentTvPage((prev) => prev + 1);
       }
     }
 
