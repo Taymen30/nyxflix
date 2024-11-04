@@ -43,6 +43,7 @@ export default function MediaDetails({
         const response = await fetch(url);
         const data = await response.json();
         setMediaDetails(data);
+        document.title = data.title || data.original_name;
         if (contentType === "tv") {
           setTvShowData((prev) => ({ ...prev, seasons: data.seasons }));
           fetchEpisodes(displaySeason);
