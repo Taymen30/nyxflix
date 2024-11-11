@@ -7,6 +7,7 @@ import Genre from "./pages/Genre";
 import Bookmarks from "./pages/Bookmarks";
 import Person from "./pages/Person";
 import { Analytics } from "@vercel/analytics/react";
+import {useLocalStorage} from "./hooks/useLocalStorage";
 
 export default function App() {
   const [movies, setMovies] = useState([]);
@@ -15,9 +16,7 @@ export default function App() {
   const [currentMoviePage, setCurrentMoviePage] = useState(1);
   const [lastFetchedMoviePage, setLastFetchedMoviePage] = useState(0);
   const [lastFetchedTvPage, setLastFetchedTvPage] = useState(0);
-  const [currentMediaType, setCurrentMediaType] = useState(
-    localStorage.getItem("media-type") || "movie"
-  );
+  const [currentMediaType, setCurrentMediaType] = useLocalStorage("media-type", "movie")
   return (
     <>
       <Router>

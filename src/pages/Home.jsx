@@ -4,6 +4,7 @@ import MediaGrid from "../components/MediaGrid";
 import Challenge from "../components/Challenge";
 import { motion, AnimatePresence } from "framer-motion";
 import { getTitle } from "../utils/Helpers";
+import {useLocalStorage} from "../hooks/useLocalStorage";
 
 const apiKey = process.env.REACT_APP_API_KEY;
 
@@ -23,15 +24,10 @@ export default function Home({
   currentMediaType,
   setCurrentMediaType,
 }) {
-  const [movieListParam, setMovieListParam] = useState("now_playing");
-  const [tvListParam, setTvListParam] = useState("popular");
+  const [movieListParam] = useState("now_playing");
+  const [tvListParam] = useState("popular");
   const [loading, setLoading] = useState(false);
-  const [verified, setVerified] = useState(() => {
-    return localStorage.getItem("challenge") === "completed";
-  });
-  const [animationShown, setAnimationShown] = useState(() => {
-    return localStorage.getItem("animationShown") === "true";
-  });
+  const [animationShown, setAnimationShown] = useLocalStorage("animationShown", false);
 
   useEffect(() => {
     async function fetchData() {
@@ -140,7 +136,6 @@ export default function Home({
               transition={{ duration: 0.5 }}
               onAnimationComplete={() => {
                 setAnimationShown(true);
-                localStorage.setItem("animationShown", "true");
               }}
             >
               <Header

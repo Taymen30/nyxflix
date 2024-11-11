@@ -1,19 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 
 export default function MediaTypeToggle({
   currentMediaType,
   setCurrentMediaType,
 }) {
   const mediaTypes = ["movie", "tv"];
-
-  useEffect(() => {
-    let savedMediaType = localStorage.getItem("media-type");
-    if (savedMediaType) {
-      setCurrentMediaType(savedMediaType);
-    } else {
-      localStorage.setItem("media-type", currentMediaType);
-    }
-  }, []);
 
   return (
     <div className="flex items-center gap-2 mx-2 md:gap-5 md:mx-5">
@@ -23,7 +14,7 @@ export default function MediaTypeToggle({
           className={`group flex cursor-pointer ${
             currentMediaType === mediaType ? "text-white" : ""
           }`}
-          onClick={() => handleDivClick(mediaType)}
+          onClick={() => setCurrentMediaType(mediaType)}
         >
           <div
             className={`appearance-none rounded-full w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 border-2 group-hover:bg-white group-hover:border-transparent ${
@@ -48,9 +39,4 @@ export default function MediaTypeToggle({
       ))}
     </div>
   );
-
-  function handleDivClick(mediaType) {
-    setCurrentMediaType(mediaType);
-    localStorage.setItem("media-type", mediaType);
-  }
 }

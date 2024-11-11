@@ -4,35 +4,32 @@ import Player from "../components/Player";
 import BookmarkButton from "../components/BookmarkButton";
 import Credits from "../components/Credits";
 import Header from "../components/Header";
+import { useLocalStorage } from "../hooks/useLocalStorage";
 
 const API_KEY = process.env.REACT_APP_API_KEY;
 
 export default function MediaDetails({
-  currentMediaType,
-  setCurrentMediaType,
-}) {
+                                       currentMediaType,
+                                       setCurrentMediaType,
+                                     }) {
   const { id, type } = useParams();
   const [mediaDetails, setMediaDetails] = useState(null);
   const [castInfo, setCastInfo] = useState(null);
   const [tvShowData, setTvShowData] = useState({ seasons: [], episodes: [] });
-  const [currentEpisode, setCurrentEpisode] = useState(() => {
-    if (type === "tvshow") {
-      const savedProgress = JSON.parse(
-        localStorage.getItem(`tvshow_${id}_progress`)
-      );
-      return savedProgress || { season: 1, episode: 0 };
-    }
-    return { season: 1, episode: 0 };
-  });
+  const [currentEpisode, setCurrentEpisode] = useLocalStorage(`tvshow_${id}_progress`, { season: 1, episode: 0 });
   const [displaySeason, setDisplaySeason] = useState(currentEpisode.season);
   const [selectedEpisode, setSelectedEpisode] = useState({
     season: null,
     episode: null,
   });
-  const [isGamerMode, setIsGamerMode] = useState(
-    localStorage.getItem("gamer") === "true" || false
-  );
+  const [isGamerMode] = useLocalStorage("gamer", false);
   const episodeCarouselRef = useRef(null);
+
+  useEffect(() => {
+    if (currentEpisode.season) {
+      setDisplaySeason(currentEpisode.season)
+    }
+  }, [currentEpisode.season])
 
   const contentType = type === "tvshow" ? "tv" : "movie";
 
@@ -83,13 +80,8 @@ export default function MediaDetails({
         season: selectedEpisode.season,
         episode: selectedEpisode.episode,
       };
-      setCurrentEpisode(updatedEpisode);
-      localStorage.setItem(
-        `tvshow_${id}_progress`,
-        JSON.stringify(updatedEpisode)
-      );
+      setCurrentEpisode(updatedEpisode); // Update current episode with useLocalStorage
     }
-    // setSelectedEpisode({ season: null, episode: null });
   };
 
   const scrollEpisodeCarousel = (direction) => {
@@ -104,89 +96,89 @@ export default function MediaDetails({
 
   if (!mediaDetails) {
     return (
-      <div className="w-full h-full">
-        <p className="text-3xl absolute top-1/2 left-1/2">Loading...</p>
-      </div>
+        <div className="w-full h-full">
+          <p className="text-3xl absolute top-1/2 left-1/2">Loading...</p>
+        </div>
     );
   }
 
   return (
-    <div className="h-screen">
-      <header className="absolute w-full z-10 flex flex-col">
-        <section className="block w-2/3 lg:w-full lg:flex items-baseline">
-          <Header
-            title={false}
-            currentMediaType={currentMediaType}
-            setCurrentMediaType={setCurrentMediaType}
-          />
-          <h1 className="text-2xl md:text-5xl">
-            {type === "movie" ? mediaDetails.title : mediaDetails.original_name}
-          </h1>
-          <p className="md-text-2xl ml-2 lg:ml-5">
-            {type === "movie"
-              ? `(${mediaDetails.release_date.split("-")[0]})`
-              : `(${mediaDetails.first_air_date.split("-")[0]} - ${
-                  mediaDetails.last_air_date.split("-")[0]
-                })`}
-          </p>
-        </section>
-        <ul className="flex gap-1 ml-2 md:mt-3 md:ml-8">
-          {mediaDetails.genres.map((genre, i) => (
-            <Link
-              className="px-0 md:px-2 py-0.5 hover:opacity-70 transition-opacity duration-300"
-              key={i}
-              to={`/genre/${genre.id}`}
-            >
-              {genre.name}
-            </Link>
-          ))}
-        </ul>
-      </header>
+      <div className="h-screen">
+        <header className="absolute w-full z-10 flex flex-col">
+          <section className="block w-2/3 lg:w-full lg:flex items-baseline">
+            <Header
+                title={false}
+                currentMediaType={currentMediaType}
+                setCurrentMediaType={setCurrentMediaType}
+            />
+            <h1 className="text-2xl md:text-5xl">
+              {type === "movie" ? mediaDetails.title : mediaDetails.original_name}
+            </h1>
+            <p className="md-text-2xl ml-2 lg:ml-5">
+              {type === "movie"
+                  ? `(${mediaDetails.release_date.split("-")[0]})`
+                  : `(${mediaDetails.first_air_date.split("-")[0]} - ${
+                      mediaDetails.last_air_date.split("-")[0]
+                  })`}
+            </p>
+          </section>
+          <ul className="flex gap-1 ml-2 md:mt-3 md:ml-8">
+            {mediaDetails.genres.map((genre, i) => (
+                <Link
+                    className="px-0 md:px-2 py-0.5 hover:opacity-70 transition-opacity duration-300"
+                    key={i}
+                    to={`/genre/${genre.id}`}
+                >
+                  {genre.name}
+                </Link>
+            ))}
+          </ul>
+        </header>
 
-      {mediaDetails.backdrop_path && (
-        <img
-          src={`https://image.tmdb.org/t/p/original/${mediaDetails.backdrop_path}`}
-          alt=""
-          className="w-full h-screen object-cover"
-        />
-      )}
-      <div className="absolute inset-0 bg-black opacity-20"></div>
-
-      <div id="player-container" className="w-full flex justify-center"></div>
-
-      <div className="absolute bottom-0 p-4 w-full flex gap-5 md:gap-20 items-center justify-center">
-        <section className="flex flex-col gap-1">
-          <Player
-            imdb_id={mediaDetails.imdb_id}
-            id={mediaDetails.id}
-            type={type}
-            season={selectedEpisode.season}
-            episode={selectedEpisode.episode}
-            onPlayClick={handlePlayButtonClick}
-          />
-          <BookmarkButton id={mediaDetails.id} />
-          <Credits
-            mediaCast={castInfo}
-            setMediaCast={setCastInfo}
-            mediaType={contentType}
-            id={id}
-          />
-        </section>
-
-        {type !== "tvshow" && (
-          <p className="text-xs md:text-[16px] w-2/3">
-            {mediaDetails.overview}
-          </p>
+        {mediaDetails.backdrop_path && (
+            <img
+                src={`https://image.tmdb.org/t/p/original/${mediaDetails.backdrop_path}`}
+                alt=""
+                className="w-full h-screen object-cover"
+            />
         )}
+        <div className="absolute inset-0 bg-black opacity-20"></div>
 
-        {isGamerMode && type === "tvshow" && (
-          <div className="relative w-2/3">
-            <div className="w-full flex justify-center mt-2">
-              <select
-                onChange={(e) => handleSeasonChange(e.target.value)}
-                value={displaySeason}
-                className="text-xs text-center w-20 md:w-32 h-7 md:h-9 rounded text-black"
-              >
+        <div id="player-container" className="w-full flex justify-center"></div>
+
+        <div className="absolute bottom-0 p-4 w-full flex gap-5 md:gap-20 items-center justify-center">
+          <section className="flex flex-col gap-1">
+            <Player
+                imdb_id={mediaDetails.imdb_id}
+                id={mediaDetails.id}
+                type={type}
+                season={selectedEpisode.season}
+                episode={selectedEpisode.episode}
+                onPlayClick={handlePlayButtonClick}
+            />
+            <BookmarkButton id={mediaDetails.id} />
+            <Credits
+                mediaCast={castInfo}
+                setMediaCast={setCastInfo}
+                mediaType={contentType}
+                id={id}
+            />
+          </section>
+
+          {type !== "tvshow" && (
+              <p className="text-xs md:text-[16px] w-2/3">
+                {mediaDetails.overview}
+              </p>
+          )}
+
+          {isGamerMode && type === "tvshow" && (
+              <div className="relative w-2/3">
+                <div className="w-full flex justify-center mt-2">
+                  <select
+                      onChange={(e) => handleSeasonChange(e.target.value)}
+                      value={displaySeason}
+                      className="text-xs text-center w-20 md:w-32 h-7 md:h-9 rounded text-black"
+                  >
                 {tvShowData.seasons.map((season) => (
                   <option
                     key={season.season_number}

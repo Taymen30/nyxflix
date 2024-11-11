@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Header from "../components/Header";
+import {useLocalStorage} from "../hooks/useLocalStorage";
 
 export default function Bookmarks({ currentMediaType, setCurrentMediaType }) {
-  const [bookmarkedMoviesId, setBookmarkedMoviesId] = useState([]);
-  const [bookmarkedTvShowsId, setBookmarkedTvShowsId] = useState([]);
+  const [bookmarkedMoviesId] = useLocalStorage("bookmarked-movie", []);
+  const [bookmarkedTvShowsId] = useLocalStorage("bookmarked-tv", []);
   const [bookmarkedMovies, setBookmarkedMovies] = useState([]);
   const [bookmarkedTvShows, setBookmarkedTvShows] = useState([]);
 
@@ -12,15 +13,6 @@ export default function Bookmarks({ currentMediaType, setCurrentMediaType }) {
   const [selectedHighlighted, setSelectedHighlighted] = useState(null);
   const [loadingRandom, setLoadingRandom] = useState(false);
   const apiKey = process.env.REACT_APP_API_KEY;
-
-  useEffect(() => {
-    setBookmarkedMoviesId(
-      JSON.parse(localStorage.getItem("bookmarked-movie")) || []
-    );
-    setBookmarkedTvShowsId(
-      JSON.parse(localStorage.getItem("bookmarked-tv")) || []
-    );
-  }, []);
 
   useEffect(() => {
     if (currentMediaType === "movie" && bookmarkedMoviesId.length > 0) {
