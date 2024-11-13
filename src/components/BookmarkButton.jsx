@@ -3,7 +3,10 @@ import { useLocalStorage } from "../hooks/useLocalStorage";
 
 export default function BookmarkButton({ id }) {
   const [mediaType] = useLocalStorage("media-type", "movie");
-  const [bookmarks, setBookmarks] = useLocalStorage(`bookmarked-${mediaType}`, []);
+  const [bookmarks, setBookmarks] = useLocalStorage(
+    `bookmarked-${mediaType}`,
+    []
+  );
   const [isBookmarked, setIsBookmarked] = useState(false);
 
   useEffect(() => {
@@ -20,13 +23,13 @@ export default function BookmarkButton({ id }) {
   }
 
   return (
-      <button
-          className={`text-black text-xs w-20 md:w-32 h-7 md:h-9 rounded-2xl hover:opacity-70 transition-opacity duration-300 ${
-              isBookmarked ? "bg-yellow-400" : "bg-white"
-          }`}
-          onClick={toggleFavorite}
-      >
-        Bookmark
-      </button>
+    <button
+      className={`text-black text-xs w-20 md:w-32 h-7 md:h-9 rounded-2xl hover:opacity-70 transition-opacity duration-300 ${
+        isBookmarked ? "bg-yellow-400" : "bg-white"
+      }`}
+      onClick={toggleFavorite}
+    >
+      Bookmark
+    </button>
   );
 }

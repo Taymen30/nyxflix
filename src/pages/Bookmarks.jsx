@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Header from "../components/Header";
-import {useLocalStorage} from "../hooks/useLocalStorage";
+import { useLocalStorage } from "../hooks/useLocalStorage";
 
 export default function Bookmarks({ currentMediaType, setCurrentMediaType }) {
   const [bookmarkedMoviesId] = useLocalStorage("bookmarked-movie", []);

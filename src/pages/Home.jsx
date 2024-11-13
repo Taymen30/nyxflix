@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
 import MediaGrid from "../components/MediaGrid";
-import Challenge from "../components/Challenge";
 import { motion, AnimatePresence } from "framer-motion";
 import { getTitle } from "../utils/Helpers";
-import {useLocalStorage} from "../hooks/useLocalStorage";
+import { useLocalStorage } from "../hooks/useLocalStorage";
 
 const apiKey = process.env.REACT_APP_API_KEY;
 
@@ -27,7 +26,10 @@ export default function Home({
   const [movieListParam] = useState("now_playing");
   const [tvListParam] = useState("popular");
   const [loading, setLoading] = useState(false);
-  const [animationShown, setAnimationShown] = useLocalStorage("animationShown", false);
+  const [animationShown, setAnimationShown] = useLocalStorage(
+    "animationShown",
+    false
+  );
 
   useEffect(() => {
     async function fetchData() {
@@ -119,57 +121,49 @@ export default function Home({
 
   return (
     <>
-      {/* {!verified && <Challenge setVerified={setVerified} />} */}
-
       <AnimatePresence>
-        {
-          // verified &&
-          !animationShown && (
-            <motion.div
-              initial={{
-                opacity: 0,
-                scale: 0,
-                x: window.innerWidth,
-                y: window.innerHeight,
-              }}
-              animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
-              transition={{ duration: 0.5 }}
-              onAnimationComplete={() => {
-                setAnimationShown(true);
-              }}
-            >
-              <Header
-                title={getTitle()}
-                currentMediaType={currentMediaType}
-                setCurrentMediaType={setCurrentMediaType}
-                movies={movies}
-                setMovies={setMovies}
-              />
-              <MediaGrid
-                setArray={setMovies}
-                array={currentMediaType === "movie" ? movies : tvShows}
-              />
-            </motion.div>
-          )
-        }
-        {
-          // verified &&
-          animationShown && (
-            <div>
-              <Header
-                title={getTitle()}
-                currentMediaType={currentMediaType}
-                setCurrentMediaType={setCurrentMediaType}
-                movies={movies}
-                setMovies={setMovies}
-              />
-              <MediaGrid
-                setArray={setMovies}
-                array={currentMediaType === "movie" ? movies : tvShows}
-              />
-            </div>
-          )
-        }
+        {!animationShown && (
+          <motion.div
+            initial={{
+              opacity: 0,
+              scale: 0,
+              x: window.innerWidth,
+              y: window.innerHeight,
+            }}
+            animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
+            transition={{ duration: 0.5 }}
+            onAnimationComplete={() => {
+              setAnimationShown(true);
+            }}
+          >
+            <Header
+              title={getTitle()}
+              currentMediaType={currentMediaType}
+              setCurrentMediaType={setCurrentMediaType}
+              movies={movies}
+              setMovies={setMovies}
+            />
+            <MediaGrid
+              setArray={setMovies}
+              array={currentMediaType === "movie" ? movies : tvShows}
+            />
+          </motion.div>
+        )}
+        {animationShown && (
+          <div>
+            <Header
+              title={getTitle()}
+              currentMediaType={currentMediaType}
+              setCurrentMediaType={setCurrentMediaType}
+              movies={movies}
+              setMovies={setMovies}
+            />
+            <MediaGrid
+              setArray={setMovies}
+              array={currentMediaType === "movie" ? movies : tvShows}
+            />
+          </div>
+        )}
       </AnimatePresence>
       {loading && <div>Loading...</div>}
     </>

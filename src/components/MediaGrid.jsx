@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
-import {useLocalStorage} from "../hooks/useLocalStorage";
+import { useLocalStorage } from "../hooks/useLocalStorage";
 
 export default function MediaGrid({ array }) {
-  const [savedMediaType] = useLocalStorage("media-type", "movie")
+  const [savedMediaType] = useLocalStorage("media-type", "movie");
   const [uniqueItem, setUniqueItem] = useState([]);
 
   useEffect(() => {
