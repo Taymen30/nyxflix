@@ -30,9 +30,6 @@ export default function MediaDetails({
 
   // Anime-related state
   const [isAnime, setIsAnime] = useState(false);
-  const [anilistId, setAnilistId] = useState(null);
-  const [anilistData, setAnilistData] = useState(null);
-  const [isLoadingAnilist, setIsLoadingAnilist] = useState(false);
 
   useEffect(() => {
     if (currentEpisode.season) {
@@ -68,156 +65,25 @@ export default function MediaDetails({
   }, [id, type, contentType, displaySeason]);
 
   // Check if the media is anime based on origin country and genres
-  const checkIfAnime = useCallback(
-    (data) => {
-      if (!data) return;
+  const checkIfAnime = useCallback((data) => {
+    if (!data) return;
 
-      // For debugging
-      console.log("Checking if anime:", data);
+    // Check if origin country is Japan
+    const isJapaneseOrigin =
+      (data.origin_country && data.origin_country.includes("JP")) ||
+      (data.production_countries &&
+        data.production_countries.some((c) => c.iso_3166_1 === "JP")) ||
+      data.original_language === "ja";
 
-      // Check if origin country is Japan
-      const isJapaneseOrigin =
-        (data.origin_country && data.origin_country.includes("JP")) ||
-        (data.production_countries &&
-          data.production_countries.some((c) => c.iso_3166_1 === "JP")) ||
-        data.original_language === "ja";
+    // Check if it has animation genre (id 16 is Animation in TMDB)
+    const isAnimation =
+      data.genres &&
+      data.genres.some((g) => g.id === 16 || g.name === "Animation");
 
-      // Check if it has animation genre (id 16 is Animation in TMDB)
-      const isAnimation =
-        data.genres &&
-        data.genres.some((g) => g.id === 16 || g.name === "Animation");
-
-      console.log("Anime detection:", { isJapaneseOrigin, isAnimation });
-
-      // Set as anime if both conditions are met
-      const animeDetected = isJapaneseOrigin && isAnimation;
-      setIsAnime(animeDetected);
-
-      // If it's anime and we're in gamer mode, fetch the Anilist ID
-      if (animeDetected && isGamerMode) {
-        // Use a fallback ID immediately so we don't have to wait for the API
-        setAnilistId(`tmdb${id}`);
-
-        // Get anime title to search
-        const animeTitle =
-          data.name || data.title || data.original_title || data.original_name;
-        if (animeTitle) {
-          // Use a local function to avoid dependency issues
-          setIsLoadingAnilist(true);
-
-          const searchAnilist = async (title) => {
-            try {
-              const query = `
-              query ($search: String) {
-                Media (search: $search, type: ANIME) {
-                  id
-                  title {
-                    romaji
-                    english
-                    native
-                  }
-                  episodes
-                }
-              }
-            `;
-
-              const variables = {
-                search: title,
-              };
-
-              const response = await fetch("https://graphql.anilist.co", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  Accept: "application/json",
-                },
-                body: JSON.stringify({
-                  query: query,
-                  variables: variables,
-                }),
-              });
-
-              const result = await response.json();
-
-              console.log("Anilist result:", result);
-
-              if (result.data && result.data.Media) {
-                setAnilistData(result.data.Media);
-                setAnilistId(`ani${result.data.Media.id}`);
-              }
-            } catch (error) {
-              console.error("Error fetching Anilist data:", error);
-            } finally {
-              setIsLoadingAnilist(false);
-            }
-          };
-
-          searchAnilist(animeTitle);
-        }
-      }
-    },
-    [isGamerMode, id]
-  );
-
-  // Search for anime on Anilist API
-  const fetchAnilistData = useCallback(
-    async (title) => {
-      if (!title || isLoadingAnilist) return;
-
-      setIsLoadingAnilist(true);
-
-      try {
-        const query = `
-        query ($search: String) {
-          Media (search: $search, type: ANIME) {
-            id
-            title {
-              romaji
-              english
-              native
-            }
-            episodes
-            coverImage {
-              large
-            }
-          }
-        }
-      `;
-
-        const variables = {
-          search: title,
-        };
-
-        const response = await fetch("https://graphql.anilist.co", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({
-            query: query,
-            variables: variables,
-          }),
-        });
-
-        const result = await response.json();
-
-        if (result.data && result.data.Media) {
-          setAnilistData(result.data.Media);
-          setAnilistId(`ani${result.data.Media.id}`);
-        } else {
-          // If no match found on Anilist, use TMDB ID as fallback
-          setAnilistId(`tmdb${id}`);
-        }
-      } catch (error) {
-        console.error("Error fetching Anilist data:", error);
-        setAnilistId(`tmdb${id}`); // Fallback to TMDB ID
-      } finally {
-        setIsLoadingAnilist(false);
-      }
-    },
-    [id, isLoadingAnilist]
-  );
+    // Set as anime if both conditions are met
+    const animeDetected = isJapaneseOrigin && isAnimation;
+    setIsAnime(animeDetected);
+  }, []);
 
   const fetchEpisodes = async (seasonNumber) => {
     try {
@@ -265,7 +131,6 @@ export default function MediaDetails({
     // For debugging
     console.log("Media Details:", {
       isAnime,
-      anilistId,
       isGamerMode,
       type,
       id,
@@ -278,13 +143,17 @@ export default function MediaDetails({
       };
     }
 
-    // For anime content - prioritize this check
+    // Determine season and episode numbers, defaulting to 1 if not set
+    const episodeNum = selectedEpisode.episode || currentEpisode.episode || 1;
+    const seasonNum = selectedEpisode.season || currentEpisode.season || 1;
+
+    // For anime content - Treat like TV shows using TMDB ID
     if (isAnime) {
-      // Use tmdb prefix if no Anilist ID was found
-      const animeId = anilistId || `tmdb${id}`;
+      const animeId = `tmdb${id}`; // Prefix TMDB ID
+      // Using vidsrc.cc v2 embed for anime
       return {
-        primary: `https://vidsrc.cc/v2/embed/anime/${animeId}/1/sub?autoPlay=true&autoSkipIntro=true`,
-        secondary: `https://vidsrc.cc/v2/embed/anime/${animeId}/1/dub?autoPlay=true&autoSkipIntro=true`,
+        primary: `https://vidsrc.cc/v2/embed/anime/${animeId}/${episodeNum}/dub?autoPlay=true&autoSkipIntro=true`,
+        secondary: `https://vidsrc.cc/v2/embed/anime/${animeId}/${episodeNum}/sub?autoPlay=true&autoSkipIntro=true`,
       };
     }
 
@@ -301,9 +170,6 @@ export default function MediaDetails({
     }
 
     // For TV shows
-    const episodeNum = selectedEpisode.episode || currentEpisode.episode || 1;
-    const seasonNum = selectedEpisode.season || currentEpisode.season || 1;
-
     return {
       primary: `https://vidsrc.cc/v3/embed/tv/${id}/${seasonNum}/${episodeNum}`,
       secondary: `https://vidsrc.net/embed/tv?tmdb=${id}&season=${seasonNum}&episode=${episodeNum}`,
@@ -311,7 +177,6 @@ export default function MediaDetails({
   }, [
     isGamerMode,
     isAnime,
-    anilistId,
     type,
     id,
     mediaDetails,
