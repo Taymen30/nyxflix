@@ -4,7 +4,9 @@ import Player from "../components/Player";
 import BookmarkButton from "../components/BookmarkButton";
 import Credits from "../components/Credits";
 import Header from "../components/Header";
+import CenteredSpinner from "../components/CenteredSpinner";
 import { useLocalStorage } from "../hooks/useLocalStorage";
+import { motion, AnimatePresence } from "framer-motion";
 
 const API_KEY = process.env.REACT_APP_API_KEY;
 
@@ -27,6 +29,8 @@ export default function MediaDetails({
   });
   const [isGamerMode] = useLocalStorage("gamer", false);
   const episodeCarouselRef = useRef(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
 
   // Anime-related state
   const [isAnime, setIsAnime] = useState(false);
@@ -200,173 +204,201 @@ export default function MediaDetails({
     currentEpisode,
   ]);
 
-  if (!mediaDetails) {
-    return (
-      <div className="w-full h-full">
-        <p className="text-3xl absolute top-1/2 left-1/2">Loading...</p>
-      </div>
-    );
-  }
+  const renderContent = () => {
+    if (!mediaDetails) return null;
 
-  const playerUrls = getPlayerUrls();
+    const playerUrls = getPlayerUrls();
+
+    return (
+      <>
+        <header className="absolute w-full z-10 flex flex-col">
+          <section className="block w-2/3 lg:w-full lg:flex items-baseline">
+            <Header
+              title={false}
+              currentMediaType={currentMediaType}
+              setCurrentMediaType={setCurrentMediaType}
+            />
+            <h1 className="text-2xl md:text-5xl">
+              {type === "movie"
+                ? mediaDetails.title
+                : mediaDetails.original_name}
+            </h1>
+            <p className="md-text-2xl ml-2 lg:ml-5">
+              {type === "movie"
+                ? `(${mediaDetails.release_date?.split("-")[0] || "N/A"})`
+                : `(${mediaDetails.first_air_date?.split("-")[0] || "N/A"} - ${
+                    mediaDetails.last_air_date?.split("-")[0] || "Present"
+                  })`}
+            </p>
+          </section>
+          <ul className="flex gap-1 ml-2 md:mt-3 md:ml-8">
+            {mediaDetails.genres &&
+              mediaDetails.genres.map((genre, i) => (
+                <Link
+                  className="px-0 md:px-2 py-0.5 hover:opacity-70 transition-opacity duration-300"
+                  key={i}
+                  to={`/genre/${genre.id}`}
+                >
+                  {genre.name}
+                </Link>
+              ))}
+          </ul>
+        </header>
+
+        {mediaDetails.backdrop_path && (
+          <img
+            src={`https://image.tmdb.org/t/p/original/${mediaDetails.backdrop_path}`}
+            alt=""
+            className="w-full h-screen object-cover"
+            onLoad={() => {
+              setIsImageLoaded(true);
+              setTimeout(() => setIsLoading(false), 500);
+            }}
+          />
+        )}
+
+        <motion.div
+          initial={{ opacity: 1 }}
+          animate={{ opacity: isImageLoaded ? 0.2 : 1 }}
+          transition={{ duration: 0.5 }}
+          className="absolute inset-0 bg-black"
+        />
+
+        <div id="player-container" className="w-full flex justify-center"></div>
+
+        <div className="absolute bottom-0 p-4 w-full flex gap-5 md:gap-20 items-center justify-center">
+          <section className="flex flex-col gap-1">
+            <Player
+              imdb_id={mediaDetails.imdb_id}
+              id={id}
+              type={type}
+              season={selectedEpisode.season || currentEpisode.season}
+              episode={selectedEpisode.episode || currentEpisode.episode}
+              onPlayClick={handlePlayButtonClick}
+              isAnime={isAnime}
+              playerUrls={playerUrls}
+            />
+            <BookmarkButton id={mediaDetails.id} />
+            <Credits
+              mediaCast={castInfo}
+              setMediaCast={setCastInfo}
+              mediaType={contentType}
+              id={id}
+            />
+          </section>
+
+          {type !== "tvshow" && (
+            <p className="text-xs md:text-[16px] w-2/3">
+              {mediaDetails.overview}
+            </p>
+          )}
+
+          {isGamerMode && type === "tvshow" && (
+            <div className="relative w-2/3">
+              <div className="w-full flex justify-center mt-2">
+                <select
+                  onChange={(e) => handleSeasonChange(e.target.value)}
+                  value={displaySeason}
+                  className="text-xs text-center w-20 md:w-32 h-7 md:h-9 rounded text-black"
+                >
+                  {tvShowData.seasons.map((season) => (
+                    <option
+                      key={season.season_number}
+                      value={season.season_number}
+                    >
+                      {season.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div
+                ref={episodeCarouselRef}
+                className="overflow-x-auto m-2 whitespace-nowrap "
+              >
+                {tvShowData.episodes.map((episode) => (
+                  <div
+                    onClick={() => handleEpisodeClick(episode.episode_number)}
+                    key={episode.episode_number}
+                    className={`inline-block w-28 md:w-52 p-2 rounded-lg mr-4 hover:cursor-pointer transition-all duration-300 hover:brightness-125 ${
+                      selectedEpisode.season === displaySeason &&
+                      selectedEpisode.episode === episode.episode_number
+                        ? "bg-black"
+                        : currentEpisode.episode === episode.episode_number &&
+                          currentEpisode.season === displaySeason
+                        ? "bg-yellow-300 text-black"
+                        : "bg-black bg-opacity-30"
+                    }`}
+                  >
+                    <div className="relative">
+                      {episode.still_path && (
+                        <img
+                          src={`https://image.tmdb.org/t/p/w500/${episode.still_path}`}
+                          alt={episode.name}
+                          className="w-full h-14 md:h-28 mb-2 rounded"
+                        />
+                      )}
+                      <div className="absolute top-2 right-2 w-5 h-5 border border-white bg-black bg-opacity-70 rounded-full flex items-center justify-center">
+                        <span className="text-white text-xs font-bold">
+                          {episode.episode_number}
+                        </span>
+                      </div>
+                    </div>
+                    <section className="m-1">
+                      <p className="text-[10px] md:text-sm font-bold overflow-hidden">
+                        {episode.name}
+                      </p>
+                      <div className="flex justify-between mt-1">
+                        <p className="text-xs">
+                          {episode.air_date
+                            ? new Date(episode.air_date).toLocaleDateString(
+                                "en-AU"
+                              )
+                            : "TBA"}
+                        </p>
+                        {episode.runtime && (
+                          <p className="text-xs">{episode.runtime} min</p>
+                        )}
+                      </div>
+                    </section>
+                  </div>
+                ))}
+              </div>
+              <button
+                onClick={() => scrollEpisodeCarousel("left")}
+                className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2"
+              >
+                &#8249;
+              </button>
+              <button
+                onClick={() => scrollEpisodeCarousel("right")}
+                className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2"
+              >
+                &#8250;
+              </button>
+            </div>
+          )}
+        </div>
+      </>
+    );
+  };
 
   return (
     <div className="h-screen">
-      <header className="absolute w-full z-10 flex flex-col">
-        <section className="block w-2/3 lg:w-full lg:flex items-baseline">
-          <Header
-            title={false}
-            currentMediaType={currentMediaType}
-            setCurrentMediaType={setCurrentMediaType}
-          />
-          <h1 className="text-2xl md:text-5xl">
-            {type === "movie" ? mediaDetails.title : mediaDetails.original_name}
-          </h1>
-          <p className="md-text-2xl ml-2 lg:ml-5">
-            {type === "movie"
-              ? `(${mediaDetails.release_date?.split("-")[0] || "N/A"})`
-              : `(${mediaDetails.first_air_date?.split("-")[0] || "N/A"} - ${
-                  mediaDetails.last_air_date?.split("-")[0] || "Present"
-                })`}
-          </p>
-        </section>
-        <ul className="flex gap-1 ml-2 md:mt-3 md:ml-8">
-          {mediaDetails.genres &&
-            mediaDetails.genres.map((genre, i) => (
-              <Link
-                className="px-0 md:px-2 py-0.5 hover:opacity-70 transition-opacity duration-300"
-                key={i}
-                to={`/genre/${genre.id}`}
-              >
-                {genre.name}
-              </Link>
-            ))}
-        </ul>
-      </header>
-
-      {mediaDetails.backdrop_path && (
-        <img
-          src={`https://image.tmdb.org/t/p/original/${mediaDetails.backdrop_path}`}
-          alt=""
-          className="w-full h-screen object-cover"
-        />
-      )}
-      <div className="absolute inset-0 bg-black opacity-20"></div>
-
-      <div id="player-container" className="w-full flex justify-center"></div>
-
-      <div className="absolute bottom-0 p-4 w-full flex gap-5 md:gap-20 items-center justify-center">
-        <section className="flex flex-col gap-1">
-          <Player
-            imdb_id={mediaDetails.imdb_id}
-            id={id}
-            type={type}
-            season={selectedEpisode.season || currentEpisode.season}
-            episode={selectedEpisode.episode || currentEpisode.episode}
-            onPlayClick={handlePlayButtonClick}
-            isAnime={isAnime}
-            playerUrls={playerUrls}
-          />
-          <BookmarkButton id={mediaDetails.id} />
-          <Credits
-            mediaCast={castInfo}
-            setMediaCast={setCastInfo}
-            mediaType={contentType}
-            id={id}
-          />
-        </section>
-
-        {type !== "tvshow" && (
-          <p className="text-xs md:text-[16px] w-2/3">
-            {mediaDetails.overview}
-          </p>
+      <AnimatePresence>
+        {isLoading && (
+          <motion.div
+            initial={{ opacity: 1 }}
+            animate={{ opacity: isImageLoaded ? 0 : 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            className="fixed bg-black inset-0 z-50"
+          >
+            <CenteredSpinner />
+          </motion.div>
         )}
+      </AnimatePresence>
 
-        {isGamerMode && type === "tvshow" && (
-          <div className="relative w-2/3">
-            <div className="w-full flex justify-center mt-2">
-              <select
-                onChange={(e) => handleSeasonChange(e.target.value)}
-                value={displaySeason}
-                className="text-xs text-center w-20 md:w-32 h-7 md:h-9 rounded text-black"
-              >
-                {tvShowData.seasons.map((season) => (
-                  <option
-                    key={season.season_number}
-                    value={season.season_number}
-                  >
-                    {season.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div
-              ref={episodeCarouselRef}
-              className="overflow-x-auto m-2 whitespace-nowrap "
-            >
-              {tvShowData.episodes.map((episode) => (
-                <div
-                  onClick={() => handleEpisodeClick(episode.episode_number)}
-                  key={episode.episode_number}
-                  className={`inline-block w-28 md:w-52 p-2 rounded-lg mr-4 hover:cursor-pointer transition-all duration-300 hover:brightness-125 ${
-                    selectedEpisode.season === displaySeason &&
-                    selectedEpisode.episode === episode.episode_number
-                      ? "bg-black"
-                      : currentEpisode.episode === episode.episode_number &&
-                        currentEpisode.season === displaySeason
-                      ? "bg-yellow-300 text-black"
-                      : "bg-black bg-opacity-30"
-                  }`}
-                >
-                  <div className="relative">
-                    {episode.still_path && (
-                      <img
-                        src={`https://image.tmdb.org/t/p/w500/${episode.still_path}`}
-                        alt={episode.name}
-                        className="w-full h-14 md:h-28 mb-2 rounded"
-                      />
-                    )}
-                    <div className="absolute top-2 right-2 w-5 h-5 border border-white bg-black bg-opacity-70 rounded-full flex items-center justify-center">
-                      <span className="text-white text-xs font-bold">
-                        {episode.episode_number}
-                      </span>
-                    </div>
-                  </div>
-                  <section className="m-1">
-                    <p className="text-[10px] md:text-sm font-bold overflow-hidden">
-                      {episode.name}
-                    </p>
-                    <div className="flex justify-between mt-1">
-                      <p className="text-xs">
-                        {episode.air_date
-                          ? new Date(episode.air_date).toLocaleDateString(
-                              "en-AU"
-                            )
-                          : "TBA"}
-                      </p>
-                      {episode.runtime && (
-                        <p className="text-xs">{episode.runtime} min</p>
-                      )}
-                    </div>
-                  </section>
-                </div>
-              ))}
-            </div>
-            <button
-              onClick={() => scrollEpisodeCarousel("left")}
-              className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2"
-            >
-              &#8249;
-            </button>
-            <button
-              onClick={() => scrollEpisodeCarousel("right")}
-              className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2"
-            >
-              &#8250;
-            </button>
-          </div>
-        )}
-      </div>
+      {renderContent()}
     </div>
   );
 }
