@@ -17,7 +17,7 @@ export default function MediaTypeToggle({
           onClick={() => setCurrentMediaType(mediaType)}
         >
           <div
-            className={`appearance-none rounded-full w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 border-2 group-hover:bg-white group-hover:border-transparent ${
+            className={`appearance-none rounded-full w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 border-2 group-hover:bg-white duration-300 group-hover:border-transparent ${
               currentMediaType === mediaType
                 ? "bg-white border-transparent"
                 : "border-white"

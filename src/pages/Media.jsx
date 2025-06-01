@@ -211,14 +211,14 @@ export default function MediaDetails({
 
     return (
       <>
-        <header className="absolute w-full z-10 flex flex-col">
-          <section className="block w-2/3 lg:w-full lg:flex items-baseline">
+        <header className="absolute w-full z-10 flex flex-col m-2">
+          <section className="block w-2/3  lg:w-full lg:flex items-baseline">
             <Header
               title={false}
               currentMediaType={currentMediaType}
               setCurrentMediaType={setCurrentMediaType}
             />
-            <h1 className="text-2xl md:text-5xl">
+            <h1 className="text-2xl px-4 md:px-6 md:text-5xl">
               {type === "movie"
                 ? mediaDetails.title
                 : mediaDetails.original_name}
@@ -231,7 +231,7 @@ export default function MediaDetails({
                   })`}
             </p>
           </section>
-          <ul className="flex gap-1 ml-2 md:mt-3 md:ml-8">
+          <ul className="flex gap-1 ml-2  md:ml-8">
             {mediaDetails.genres &&
               mediaDetails.genres.map((genre, i) => (
                 <Link
