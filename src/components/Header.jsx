@@ -215,38 +215,87 @@ export default function Header({
                 </motion.div>
               )}
             </AnimatePresence>
-            <div className="flex items-center gap-2 sm:gap-4">
-              <HomeButton
-                currentMediaType={currentMediaType}
-                setCurrentMediaType={setCurrentMediaType}
-              />
-              <div className="w-[40px] h-[40px] hidden sm:block">
-                {location.pathname === "/" && currentMediaType === "movie" && (
-                  <img
-                    onClick={() => shuffleMovies()}
-                    src="distribute-randomize.512x480.png"
-                    alt=""
-                    className="w-full h-full hover:cursor-pointer hover:opacity-70 transition-opacity duration-300 filter invert"
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => navigate("/")}
+                className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full text-white hover:bg-white hover:text-black transition-all duration-300"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="w-6 h-6 sm:w-7 sm:h-7"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
                   />
-                )}
-              </div>
+                </svg>
+              </button>
+              {location.pathname === "/" && currentMediaType === "movie" && (
+                <button
+                  onClick={() => shuffleMovies()}
+                  className="hidden sm:flex items-center justify-center w-10 h-10 rounded-full text-white hover:bg-white hover:text-black transition-all duration-300"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-7 h-7"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 00-3.7-3.7 48.678 48.678 0 00-7.324 0 4.006 4.006 0 00-3.7 3.7c-.017.22-.032.441-.046.662M19.5 12l3-3m-3 3l-3-3m-12 3c0 1.232.046 2.453.138 3.662a4.006 4.006 0 003.7 3.7 48.656 48.656 0 007.324 0 4.006 4.006 0 003.7-3.7c.017-.22.032-.441.046-.662M4.5 12l3 3m-3-3l-3 3"
+                    />
+                  </svg>
+                </button>
+              )}
               {location.pathname !== "/bookmarks" && hasBookmarks() && (
-                <Link to="/bookmarks">
-                  <img
-                    src="/bookmarks-outline.417x512.png"
-                    alt=""
-                    className="h-[30px] sm:h-[40px] filter invert hover:cursor-pointer hover:opacity-70 transition-opacity duration-300"
-                  />
+                <Link
+                  to="/bookmarks"
+                  className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full text-white hover:bg-white hover:text-black transition-all duration-300"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-6 h-6 sm:w-7 sm:h-7"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"
+                    />
+                  </svg>
                 </Link>
               )}
-              <motion.img
+              <button
                 onClick={() => setIsSearchVisible(true)}
-                src="/search.512x512.png"
-                alt=""
-                className="w-[30px] h-[30px] sm:w-[40px] sm:h-[40px] hover:cursor-pointer hover:opacity-70 transition-opacity duration-300"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-              />
+                className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full text-white hover:bg-white hover:text-black transition-all duration-300"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="w-6 h-6 sm:w-7 sm:h-7"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+                  />
+                </svg>
+              </button>
             </div>
           </div>
         )}
