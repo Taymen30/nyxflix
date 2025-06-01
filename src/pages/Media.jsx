@@ -307,7 +307,7 @@ export default function MediaDetails({
           </div>
 
           {type !== "tvshow" && (
-            <p className="text-xs md:text-[16px] w-full bg-black bg-opacity-50 p-4 rounded-lg backdrop-blur-sm">
+            <p className="text-xs md:text-[16px] w-full max-w-2xl mx-auto bg-black bg-opacity-50 p-4 rounded-lg backdrop-blur-sm">
               {mediaDetails.overview}
             </p>
           )}
