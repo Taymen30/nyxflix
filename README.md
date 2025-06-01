@@ -1,4 +1,4 @@
-# MovieMaster App 🎥🍿
+# Nyxflix App 🎥🍿
 
 Welcome to the updated MovieMaster app! This React-based web application now features a range of new and improved functionalities, including React Router integration, bookmarking capabilities, and enhanced genre and individual searching. The app has also undergone a design overhaul, resulting in a more streamlined and user-friendly experience, all made possible with the power of Tailwind CSS and React Router.
 
