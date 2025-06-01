@@ -252,7 +252,7 @@ export default function MediaDetails({
             className="w-full h-screen object-cover"
             onLoad={() => {
               setIsImageLoaded(true);
-              setTimeout(() => setIsLoading(false), 500);
+              setTimeout(() => setIsLoading(false), 100);
             }}
           />
         )}
@@ -260,7 +260,7 @@ export default function MediaDetails({
         <motion.div
           initial={{ opacity: 1 }}
           animate={{ opacity: isImageLoaded ? 0.2 : 1 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.2 }}
           className="absolute inset-0 bg-black"
         />
 
@@ -391,8 +391,8 @@ export default function MediaDetails({
             animate={{ opacity: 0 }}
             exit={{ opacity: 0 }}
             transition={{
-              duration: 0.5,
-              delay: mediaDetails?.backdrop_path ? 0.5 : 0,
+              duration: 0.2,
+              delay: mediaDetails?.backdrop_path ? 0.1 : 0,
             }}
             className="fixed bg-black inset-0 z-50"
           >
