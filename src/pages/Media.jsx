@@ -388,7 +388,9 @@ export default function MediaDetails({
         {isLoading && (
           <motion.div
             initial={{ opacity: 1 }}
-            animate={{ opacity: isImageLoaded ? 0 : 1 }}
+            animate={{
+              opacity: isImageLoaded || !mediaDetails?.backdrop_path ? 0 : 1,
+            }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
             className="fixed bg-black inset-0 z-50"
