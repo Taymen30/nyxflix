@@ -93,7 +93,7 @@ export default function Header({
       <div className="relative w-full">
         {shouldShowControls && (
           <div className="flex justify-between items-center px-4 md:px-6 py-2">
-            <h1 className="text-2xl sm:text-4xl md:text-6xl w-[200px]">
+            <h1 className="text-2xl sm:text-4xl md:text-6xl w-[200px] font-bold tracking-wide text-white [text-shadow:_0_0_10px_#ff69b4,_0_0_20px_#ff69b4,_0_0_30px_#ff69b4]">
               {title}
             </h1>
             <AnimatePresence>

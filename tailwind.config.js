@@ -2,7 +2,12 @@
 module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        "space-grotesk": ['"Space Grotesk"', "sans-serif"],
+        outfit: ["Outfit", "sans-serif"],
+      },
+    },
   },
   plugins: [require("@tailwindcss/aspect-ratio")],
 };
