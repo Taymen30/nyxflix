@@ -93,10 +93,12 @@ export default function Header({
       <div className="relative w-full">
         {shouldShowControls && (
           <div className="flex justify-between items-center px-4 md:px-6 py-2">
-            <h1 className="text-2xl sm:text-4xl md:text-6xl">{title}</h1>
+            <h1 className="text-2xl sm:text-4xl md:text-6xl w-[200px]">
+              {title}
+            </h1>
             <AnimatePresence>
               {!isSearchVisible && (
-                <motion.div className="flex-grow flex justify-center media-type-toggle">
+                <motion.div className="flex justify-center media-type-toggle w-[280px]">
                   {title && !location.pathname.includes("/person") && (
                     <div className="flex items-center gap-2">
                       <button
@@ -109,7 +111,8 @@ export default function Header({
                       >
                         {currentMediaType === "movie" ? (
                           <>
-                            <span>Movies</span>
+                            <span className="hidden sm:block">Movies</span>
+                            <span className="sm:hidden">Movie</span>
                             <span className="w-6 h-6 flex-shrink-0 flex items-center justify-center">
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -134,6 +137,7 @@ export default function Header({
                           </>
                         ) : (
                           <>
+                            <span className="hidden sm:block">Movies</span>
                             <span className="w-6 h-6 flex-shrink-0 flex items-center justify-center">
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -155,7 +159,6 @@ export default function Header({
                                 />
                               </svg>
                             </span>
-                            <span className="hidden sm:block">Movies</span>
                           </>
                         )}
                       </button>
@@ -169,8 +172,6 @@ export default function Header({
                       >
                         {currentMediaType === "tv" ? (
                           <>
-                            <span className="hidden sm:inline">TV Shows</span>
-                            <span className="sm:hidden">TV</span>
                             <span className="w-6 h-6 flex-shrink-0 flex items-center justify-center">
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -187,6 +188,8 @@ export default function Header({
                                 />
                               </svg>
                             </span>
+                            <span className="hidden sm:inline">TV Shows</span>
+                            <span className="sm:hidden">TV</span>
                           </>
                         ) : (
                           <>
@@ -215,7 +218,7 @@ export default function Header({
                 </motion.div>
               )}
             </AnimatePresence>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 w-[200px] justify-end">
               <button
                 onClick={() => navigate("/")}
                 className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full text-white hover:bg-white hover:text-black transition-all duration-300"
@@ -331,7 +334,8 @@ export default function Header({
                   >
                     {currentMediaType === "movie" ? (
                       <>
-                        <span>Movies</span>
+                        <span className="hidden sm:block">Movies</span>
+                        <span className="sm:hidden">Movie</span>
                         <span className="w-6 h-6 flex-shrink-0 flex items-center justify-center">
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -356,6 +360,7 @@ export default function Header({
                       </>
                     ) : (
                       <>
+                        <span className="hidden sm:block">Movies</span>
                         <span className="w-6 h-6 flex-shrink-0 flex items-center justify-center">
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -377,7 +382,6 @@ export default function Header({
                             />
                           </svg>
                         </span>
-                        <span className="hidden sm:block">Movies</span>
                       </>
                     )}
                   </button>
@@ -391,8 +395,6 @@ export default function Header({
                   >
                     {currentMediaType === "tv" ? (
                       <>
-                        <span className="hidden sm:inline">TV Shows</span>
-                        <span className="sm:hidden">TV</span>
                         <span className="w-6 h-6 flex-shrink-0 flex items-center justify-center">
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -409,6 +411,8 @@ export default function Header({
                             />
                           </svg>
                         </span>
+                        <span className="hidden sm:inline">TV Shows</span>
+                        <span className="sm:hidden">TV</span>
                       </>
                     ) : (
                       <>
