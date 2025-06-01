@@ -131,15 +131,28 @@ export default function Player({
 
   return (
     <div
-      className={`${
-        isAnime && gamer ? "bg-red-500" : "bg-white"
-      } text-black text-xs w-20 md:w-32 h-7 md:h-9 rounded-2xl flex items-center justify-center cursor-pointer hover:opacity-70 transition-opacity duration-300`}
+      className={`flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white hover:bg-black hover:text-white transition-all duration-300 cursor-pointer ${
+        isAnime && gamer ? "bg-red-500 hover:bg-red-600" : "text-black"
+      }`}
       onClick={handlePlayButtonClick}
       onDoubleClick={handlePlayButtonDoubleClick}
       id="play-button"
       disabled={!trailerId && !isAnime}
     >
-      Play
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={1.5}
+        stroke="currentColor"
+        className="w-6 h-6 sm:w-7 sm:h-7"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"
+        />
+      </svg>
     </div>
   );
 }

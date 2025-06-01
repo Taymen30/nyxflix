@@ -266,67 +266,70 @@ export default function MediaDetails({
 
         <div id="player-container" className="w-full flex justify-center"></div>
 
-        <div className="absolute bottom-0 p-4 w-full flex gap-5 md:gap-20 items-center justify-center">
-          <section className="flex flex-col gap-1">
-            <Player
-              imdb_id={mediaDetails.imdb_id}
-              id={id}
-              type={type}
-              season={selectedEpisode.season || currentEpisode.season}
-              episode={selectedEpisode.episode || currentEpisode.episode}
-              onPlayClick={handlePlayButtonClick}
-              isAnime={isAnime}
-              playerUrls={playerUrls}
-            />
-            <BookmarkButton id={mediaDetails.id} />
-            <Credits
-              mediaCast={castInfo}
-              setMediaCast={setCastInfo}
-              mediaType={contentType}
-              id={id}
-            />
-          </section>
+        <div className="absolute bottom-0 p-4 w-full flex flex-col gap-5 md:gap-8">
+          <div className="w-full flex items-center justify-center gap-8 mb-2">
+            <section className="flex flex-row gap-3 items-center">
+              <Player
+                imdb_id={mediaDetails.imdb_id}
+                id={id}
+                type={type}
+                season={selectedEpisode.season || currentEpisode.season}
+                episode={selectedEpisode.episode || currentEpisode.episode}
+                onPlayClick={handlePlayButtonClick}
+                isAnime={isAnime}
+                playerUrls={playerUrls}
+              />
+              <BookmarkButton id={mediaDetails.id} />
+              <Credits
+                mediaCast={castInfo}
+                setMediaCast={setCastInfo}
+                mediaType={contentType}
+                id={id}
+              />
+            </section>
+            {isGamerMode && type === "tvshow" && (
+              <select
+                onChange={(e) => handleSeasonChange(e.target.value)}
+                value={displaySeason}
+                className="text-sm text-center w-24 md:w-32 h-8 md:h-10 rounded-full bg-black bg-opacity-50 text-white border border-white border-opacity-20 backdrop-blur-sm focus:outline-none focus:border-opacity-50 transition-all duration-300"
+              >
+                {tvShowData.seasons.map((season) => (
+                  <option
+                    key={season.season_number}
+                    value={season.season_number}
+                    className="bg-black"
+                  >
+                    {season.name}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
 
           {type !== "tvshow" && (
-            <p className="text-xs md:text-[16px] w-2/3">
+            <p className="text-xs md:text-[16px] w-full bg-black bg-opacity-50 p-4 rounded-lg backdrop-blur-sm">
               {mediaDetails.overview}
             </p>
           )}
 
           {isGamerMode && type === "tvshow" && (
-            <div className="relative w-2/3">
-              <div className="w-full flex justify-center mt-2">
-                <select
-                  onChange={(e) => handleSeasonChange(e.target.value)}
-                  value={displaySeason}
-                  className="text-xs text-center w-20 md:w-32 h-7 md:h-9 rounded text-black"
-                >
-                  {tvShowData.seasons.map((season) => (
-                    <option
-                      key={season.season_number}
-                      value={season.season_number}
-                    >
-                      {season.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <div className="relative w-full">
               <div
                 ref={episodeCarouselRef}
-                className="overflow-x-auto m-2 whitespace-nowrap "
+                className="overflow-x-auto m-2 whitespace-nowrap scrollbar-hide"
               >
                 {tvShowData.episodes.map((episode) => (
                   <div
                     onClick={() => handleEpisodeClick(episode.episode_number)}
                     key={episode.episode_number}
-                    className={`inline-block w-28 md:w-52 p-2 rounded-lg mr-4 hover:cursor-pointer transition-all duration-300 hover:brightness-125 ${
+                    className={`inline-block w-28 md:w-52 p-2 rounded-lg mr-4 hover:cursor-pointer transition-all duration-300 hover:brightness-125 backdrop-blur-sm ${
                       selectedEpisode.season === displaySeason &&
                       selectedEpisode.episode === episode.episode_number
-                        ? "bg-black"
+                        ? "bg-black bg-opacity-80 border border-white border-opacity-50"
                         : currentEpisode.episode === episode.episode_number &&
                           currentEpisode.season === displaySeason
-                        ? "bg-yellow-300 text-black"
-                        : "bg-black bg-opacity-30"
+                        ? "bg-yellow-400 bg-opacity-90 text-black"
+                        : "bg-black bg-opacity-50 border border-white border-opacity-20"
                     }`}
                   >
                     <div className="relative">
@@ -337,27 +340,25 @@ export default function MediaDetails({
                           className="w-full h-14 md:h-28 mb-2 rounded"
                         />
                       )}
-                      <div className="absolute top-2 right-2 w-5 h-5 border border-white bg-black bg-opacity-70 rounded-full flex items-center justify-center">
+                      <div className="absolute top-2 right-2 w-6 h-6 border border-white bg-black bg-opacity-70 rounded-full flex items-center justify-center backdrop-blur-sm">
                         <span className="text-white text-xs font-bold">
                           {episode.episode_number}
                         </span>
                       </div>
                     </div>
                     <section className="m-1">
-                      <p className="text-[10px] md:text-sm font-bold overflow-hidden">
+                      <p className="text-[10px] md:text-sm font-bold overflow-hidden text-ellipsis whitespace-nowrap">
                         {episode.name}
                       </p>
-                      <div className="flex justify-between mt-1">
-                        <p className="text-xs">
+                      <div className="flex justify-between mt-1 text-[8px] md:text-xs text-white text-opacity-70">
+                        <p>
                           {episode.air_date
                             ? new Date(episode.air_date).toLocaleDateString(
                                 "en-AU"
                               )
                             : "TBA"}
                         </p>
-                        {episode.runtime && (
-                          <p className="text-xs">{episode.runtime} min</p>
-                        )}
+                        {episode.runtime && <p>{episode.runtime} min</p>}
                       </div>
                     </section>
                   </div>
@@ -365,13 +366,13 @@ export default function MediaDetails({
               </div>
               <button
                 onClick={() => scrollEpisodeCarousel("left")}
-                className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2"
+                className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full backdrop-blur-sm hover:bg-opacity-70 transition-all duration-300"
               >
                 &#8249;
               </button>
               <button
                 onClick={() => scrollEpisodeCarousel("right")}
-                className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2"
+                className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full backdrop-blur-sm hover:bg-opacity-70 transition-all duration-300"
               >
                 &#8250;
               </button>
