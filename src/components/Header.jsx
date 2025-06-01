@@ -98,10 +98,65 @@ export default function Header({
               {!isSearchVisible && (
                 <motion.div className="flex-grow flex justify-center media-type-toggle">
                   {title && !location.pathname.includes("/person") && (
-                    <MediaTypeToggle
-                      currentMediaType={currentMediaType}
-                      setCurrentMediaType={setCurrentMediaType}
-                    />
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setCurrentMediaType("movie")}
+                        className={`flex items-center gap-2 px-3 py-1 rounded-full transition-colors duration-300 min-w-[120px] justify-center ${
+                          currentMediaType === "movie"
+                            ? "bg-white text-black"
+                            : "text-white hover:bg-white hover:bg-opacity-10"
+                        }`}
+                      >
+                        <span className="w-6 h-6 flex items-center justify-center">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="currentColor"
+                            className="w-5 h-5"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M15.91 11.672a.375.375 0 010 .656l-5.603 3.113a.375.375 0 01-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112z"
+                            />
+                          </svg>
+                        </span>
+                        <span>Movies</span>
+                      </button>
+                      <button
+                        onClick={() => setCurrentMediaType("tv")}
+                        className={`flex items-center gap-2 px-3 py-1 rounded-full transition-colors duration-300 min-w-[120px] justify-center ${
+                          currentMediaType === "tv"
+                            ? "bg-white text-black"
+                            : "text-white hover:bg-white hover:bg-opacity-10"
+                        }`}
+                      >
+                        <span className="w-6 h-6 flex items-center justify-center">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="currentColor"
+                            className="w-5 h-5"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M6 20.25h12M3.75 6v7.5A2.25 2.25 0 006 15.75h13.5A2.25 2.25 0 0021.75 13.5V6m-18 0v-.75A2.25 2.25 0 016 3h13.5A2.25 2.25 0 0121.75 5.25V6m-18 0h18"
+                            />
+                          </svg>
+                        </span>
+                        <span>TV Shows</span>
+                      </button>
+                    </div>
                   )}
                 </motion.div>
               )}
@@ -111,14 +166,16 @@ export default function Header({
                 currentMediaType={currentMediaType}
                 setCurrentMediaType={setCurrentMediaType}
               />
-              {location.pathname === "/" && currentMediaType === "movie" && (
-                <img
-                  onClick={() => shuffleMovies()}
-                  src="distribute-randomize.512x480.png"
-                  alt=""
-                  className="w-[40px] h-[40px] hidden sm:block hover:cursor-pointer hover:opacity-70 transition-opacity duration-300 filter invert"
-                />
-              )}
+              <div className="w-[40px] h-[40px] hidden sm:block">
+                {location.pathname === "/" && currentMediaType === "movie" && (
+                  <img
+                    onClick={() => shuffleMovies()}
+                    src="distribute-randomize.512x480.png"
+                    alt=""
+                    className="w-full h-full hover:cursor-pointer hover:opacity-70 transition-opacity duration-300 filter invert"
+                  />
+                )}
+              </div>
               {location.pathname !== "/bookmarks" && hasBookmarks() && (
                 <Link to="/bookmarks">
                   <img
@@ -160,10 +217,65 @@ export default function Header({
                 animate={{ x: 0, y: 0, opacity: 1 }}
                 transition={{ type: "spring", stiffness: 200, damping: 20 }}
               >
-                <MediaTypeToggle
-                  currentMediaType={currentMediaType}
-                  setCurrentMediaType={setCurrentMediaType}
-                />
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setCurrentMediaType("movie")}
+                    className={`flex items-center gap-2 px-3 py-1 rounded-full transition-colors duration-300 min-w-[120px] justify-center ${
+                      currentMediaType === "movie"
+                        ? "bg-white text-black"
+                        : "text-white hover:bg-white hover:bg-opacity-10"
+                    }`}
+                  >
+                    <span className="w-6 h-6 flex items-center justify-center">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1.5}
+                        stroke="currentColor"
+                        className="w-5 h-5"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M15.91 11.672a.375.375 0 010 .656l-5.603 3.113a.375.375 0 01-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112z"
+                        />
+                      </svg>
+                    </span>
+                    <span>Movies</span>
+                  </button>
+                  <button
+                    onClick={() => setCurrentMediaType("tv")}
+                    className={`flex items-center gap-2 px-3 py-1 rounded-full transition-colors duration-300 min-w-[120px] justify-center ${
+                      currentMediaType === "tv"
+                        ? "bg-white text-black"
+                        : "text-white hover:bg-white hover:bg-opacity-10"
+                    }`}
+                  >
+                    <span className="w-6 h-6 flex items-center justify-center">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1.5}
+                        stroke="currentColor"
+                        className="w-5 h-5"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M6 20.25h12M3.75 6v7.5A2.25 2.25 0 006 15.75h13.5A2.25 2.25 0 0021.75 13.5V6m-18 0v-.75A2.25 2.25 0 016 3h13.5A2.25 2.25 0 0121.75 5.25V6m-18 0h18"
+                        />
+                      </svg>
+                    </span>
+                    <span>TV Shows</span>
+                  </button>
+                </div>
               </motion.div>
               <motion.div
                 onClick={handleFormClick}
