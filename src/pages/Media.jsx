@@ -159,20 +159,36 @@ export default function MediaDetails({
 
     // For regular movies
     if (type === "movie") {
+      const imdbId = mediaDetails?.imdb_id;
+      const formattedImdbId = imdbId
+        ? imdbId.startsWith("tt")
+          ? imdbId
+          : `tt${imdbId}`
+        : null;
+
       return {
-        primary: `https://vidsrc.cc/v3/embed/movie/${
-          mediaDetails?.imdb_id || id
-        }`,
-        secondary: `https://vidsrc.net/embed/movie?imdb=${
-          mediaDetails?.imdb_id || id
-        }`,
+        primary: `https://vidsrc.cc/v2/embed/movie/${
+          formattedImdbId || id
+        }?autoPlay=true`,
+        secondary: `https://vidsrc.to/embed/movie/${formattedImdbId || id}`,
       };
     }
 
     // For TV shows
+    const imdbId = mediaDetails?.imdb_id;
+    const formattedImdbId = imdbId
+      ? imdbId.startsWith("tt")
+        ? imdbId
+        : `tt${imdbId}`
+      : null;
+
     return {
-      primary: `https://vidsrc.cc/v3/embed/tv/${id}/${seasonNum}/${episodeNum}`,
-      secondary: `https://vidsrc.net/embed/tv?tmdb=${id}&season=${seasonNum}&episode=${episodeNum}`,
+      primary: `https://vidsrc.cc/v2/embed/tv/${
+        formattedImdbId || id
+      }/${seasonNum}/${episodeNum}?autoPlay=true`,
+      secondary: `https://vidsrc.to/embed/tv/${
+        formattedImdbId || id
+      }/${seasonNum}/${episodeNum}`,
     };
   }, [
     isGamerMode,
