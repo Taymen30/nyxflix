@@ -20,6 +20,6 @@ export function getTitle() {
   } else if (currentDate === "11-09") {
     return "HBD Carola!";
   } else {
-    return "MovieMaster";
+    return "NYXFLIX";
   }
 }
