@@ -92,7 +92,7 @@ export default function Header({
     >
       <div className="relative w-full">
         {shouldShowControls && (
-          <div className="flex justify-between items-center px-4 md:px-6 py-2">
+          <div className="flex justify-between items-center px-4 md:px-6 py-1">
             <h1 className="text-2xl sm:text-4xl md:text-6xl w-[200px] font-bold tracking-wide text-white [text-shadow:_0_0_10px_#ff69b4,_0_0_20px_#ff69b4,_0_0_30px_#ff69b4]">
               {title}
             </h1>
@@ -103,24 +103,26 @@ export default function Header({
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => setCurrentMediaType("movie")}
-                        className={`flex items-center justify-between px-3 sm:px-4 h-9 rounded-full transition-all duration-300 ${
+                        className={`flex items-center justify-between px-2 sm:px-3 md:px-4 h-6 sm:h-7 md:h-8 rounded-full transition-all duration-300 ${
                           currentMediaType === "movie"
-                            ? "bg-white text-black min-w-[120px]"
-                            : "text-white hover:bg-white hover:bg-opacity-10 min-w-[40px]"
+                            ? "bg-white text-black min-w-[100px] sm:min-w-[120px]"
+                            : "text-white hover:bg-white hover:bg-opacity-10 min-w-[32px] sm:min-w-[40px]"
                         }`}
                       >
                         {currentMediaType === "movie" ? (
                           <>
-                            <span className="hidden sm:block">Movies</span>
-                            <span className="sm:hidden">Movie</span>
-                            <span className="w-6 h-6 flex-shrink-0 flex items-center justify-center">
+                            <span className="hidden sm:block text-sm md:text-base">
+                              Movies
+                            </span>
+                            <span className="sm:hidden text-sm">Movie</span>
+                            <span className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0 flex items-center justify-center">
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 strokeWidth={1.5}
                                 stroke="currentColor"
-                                className="w-5 h-5"
+                                className="w-4 h-4 sm:w-5 sm:h-5"
                               >
                                 <path
                                   strokeLinecap="round"
@@ -137,15 +139,17 @@ export default function Header({
                           </>
                         ) : (
                           <>
-                            <span className="hidden sm:block">Movies</span>
-                            <span className="w-6 h-6 flex-shrink-0 flex items-center justify-center">
+                            <span className="hidden sm:block text-sm md:text-base">
+                              Movies
+                            </span>
+                            <span className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0 flex items-center justify-center">
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 strokeWidth={1.5}
                                 stroke="currentColor"
-                                className="w-5 h-5"
+                                className="w-4 h-4 sm:w-5 sm:h-5"
                               >
                                 <path
                                   strokeLinecap="round"
@@ -164,22 +168,22 @@ export default function Header({
                       </button>
                       <button
                         onClick={() => setCurrentMediaType("tv")}
-                        className={`flex items-center justify-between px-3 sm:px-4 h-9 rounded-full transition-all duration-300 ${
+                        className={`flex items-center justify-between px-2 sm:px-3 md:px-4 h-6 sm:h-7 md:h-8 rounded-full transition-all duration-300 ${
                           currentMediaType === "tv"
-                            ? "bg-white text-black min-w-[120px]"
-                            : "text-white hover:bg-white hover:bg-opacity-10 min-w-[40px]"
+                            ? "bg-white text-black min-w-[100px] sm:min-w-[120px]"
+                            : "text-white hover:bg-white hover:bg-opacity-10 min-w-[32px] sm:min-w-[40px]"
                         }`}
                       >
                         {currentMediaType === "tv" ? (
                           <>
-                            <span className="w-6 h-6 flex-shrink-0 flex items-center justify-center">
+                            <span className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0 flex items-center justify-center">
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 strokeWidth={1.5}
                                 stroke="currentColor"
-                                className="w-5 h-5"
+                                className="w-4 h-4 sm:w-5 sm:h-5"
                               >
                                 <path
                                   strokeLinecap="round"
@@ -188,19 +192,21 @@ export default function Header({
                                 />
                               </svg>
                             </span>
-                            <span className="hidden sm:inline">TV Shows</span>
-                            <span className="sm:hidden">TV</span>
+                            <span className="hidden sm:inline text-sm md:text-base">
+                              TV Shows
+                            </span>
+                            <span className="sm:hidden text-sm">TV</span>
                           </>
                         ) : (
                           <>
-                            <span className="w-6 h-6 flex-shrink-0 flex items-center justify-center">
+                            <span className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0 flex items-center justify-center">
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 strokeWidth={1.5}
                                 stroke="currentColor"
-                                className="w-5 h-5"
+                                className="w-4 h-4 sm:w-5 sm:h-5"
                               >
                                 <path
                                   strokeLinecap="round"
@@ -209,7 +215,9 @@ export default function Header({
                                 />
                               </svg>
                             </span>
-                            <span className="hidden sm:block">TV Shows</span>
+                            <span className="hidden sm:block text-sm md:text-base">
+                              TV Shows
+                            </span>
                           </>
                         )}
                       </button>
@@ -219,25 +227,27 @@ export default function Header({
               )}
             </AnimatePresence>
             <div className="flex items-center gap-1 w-[200px] justify-end">
-              <button
-                onClick={() => navigate("/")}
-                className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full text-white hover:bg-white hover:text-black transition-all duration-300"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="w-6 h-6 sm:w-7 sm:h-7"
+              {location.pathname !== "/" && (
+                <button
+                  onClick={() => navigate("/")}
+                  className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full text-white hover:bg-white hover:text-black transition-all duration-300"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
-                  />
-                </svg>
-              </button>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-6 h-6 sm:w-7 sm:h-7"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
+                    />
+                  </svg>
+                </button>
+              )}
               {location.pathname === "/" && currentMediaType === "movie" && (
                 <button
                   onClick={() => shuffleMovies()}
@@ -326,24 +336,26 @@ export default function Header({
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setCurrentMediaType("movie")}
-                    className={`flex items-center justify-between px-3 sm:px-4 h-9 rounded-full transition-all duration-300 ${
+                    className={`flex items-center justify-between px-2 sm:px-3 md:px-4 h-6 sm:h-7 md:h-8 rounded-full transition-all duration-300 ${
                       currentMediaType === "movie"
-                        ? "bg-white text-black min-w-[120px]"
-                        : "text-white hover:bg-white hover:bg-opacity-10 min-w-[40px]"
+                        ? "bg-white text-black min-w-[100px] sm:min-w-[120px]"
+                        : "text-white hover:bg-white hover:bg-opacity-10 min-w-[32px] sm:min-w-[40px]"
                     }`}
                   >
                     {currentMediaType === "movie" ? (
                       <>
-                        <span className="hidden sm:block">Movies</span>
-                        <span className="sm:hidden">Movie</span>
-                        <span className="w-6 h-6 flex-shrink-0 flex items-center justify-center">
+                        <span className="hidden sm:block text-sm md:text-base">
+                          Movies
+                        </span>
+                        <span className="sm:hidden text-sm">Movie</span>
+                        <span className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0 flex items-center justify-center">
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
                             viewBox="0 0 24 24"
                             strokeWidth={1.5}
                             stroke="currentColor"
-                            className="w-5 h-5"
+                            className="w-4 h-4 sm:w-5 sm:h-5"
                           >
                             <path
                               strokeLinecap="round"
@@ -360,15 +372,17 @@ export default function Header({
                       </>
                     ) : (
                       <>
-                        <span className="hidden sm:block">Movies</span>
-                        <span className="w-6 h-6 flex-shrink-0 flex items-center justify-center">
+                        <span className="hidden sm:block text-sm md:text-base">
+                          Movies
+                        </span>
+                        <span className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0 flex items-center justify-center">
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
                             viewBox="0 0 24 24"
                             strokeWidth={1.5}
                             stroke="currentColor"
-                            className="w-5 h-5"
+                            className="w-4 h-4 sm:w-5 sm:h-5"
                           >
                             <path
                               strokeLinecap="round"
@@ -387,22 +401,22 @@ export default function Header({
                   </button>
                   <button
                     onClick={() => setCurrentMediaType("tv")}
-                    className={`flex items-center justify-between px-3 sm:px-4 h-9 rounded-full transition-all duration-300 ${
+                    className={`flex items-center justify-between px-2 sm:px-3 md:px-4 h-6 sm:h-7 md:h-8 rounded-full transition-all duration-300 ${
                       currentMediaType === "tv"
-                        ? "bg-white text-black min-w-[120px]"
-                        : "text-white hover:bg-white hover:bg-opacity-10 min-w-[40px]"
+                        ? "bg-white text-black min-w-[100px] sm:min-w-[120px]"
+                        : "text-white hover:bg-white hover:bg-opacity-10 min-w-[32px] sm:min-w-[40px]"
                     }`}
                   >
                     {currentMediaType === "tv" ? (
                       <>
-                        <span className="w-6 h-6 flex-shrink-0 flex items-center justify-center">
+                        <span className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0 flex items-center justify-center">
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
                             viewBox="0 0 24 24"
                             strokeWidth={1.5}
                             stroke="currentColor"
-                            className="w-5 h-5"
+                            className="w-4 h-4 sm:w-5 sm:h-5"
                           >
                             <path
                               strokeLinecap="round"
@@ -411,19 +425,21 @@ export default function Header({
                             />
                           </svg>
                         </span>
-                        <span className="hidden sm:inline">TV Shows</span>
-                        <span className="sm:hidden">TV</span>
+                        <span className="hidden sm:inline text-sm md:text-base">
+                          TV Shows
+                        </span>
+                        <span className="sm:hidden text-sm">TV</span>
                       </>
                     ) : (
                       <>
-                        <span className="w-6 h-6 flex-shrink-0 flex items-center justify-center">
+                        <span className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0 flex items-center justify-center">
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
                             viewBox="0 0 24 24"
                             strokeWidth={1.5}
                             stroke="currentColor"
-                            className="w-5 h-5"
+                            className="w-4 h-4 sm:w-5 sm:h-5"
                           >
                             <path
                               strokeLinecap="round"
@@ -432,7 +448,9 @@ export default function Header({
                             />
                           </svg>
                         </span>
-                        <span className="hidden sm:block">TV Shows</span>
+                        <span className="hidden sm:block text-sm md:text-base">
+                          TV Shows
+                        </span>
                       </>
                     )}
                   </button>
