@@ -131,8 +131,10 @@ export default function Player({
 
   return (
     <div
-      className={`flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white hover:bg-black hover:text-white transition-all duration-300 cursor-pointer ${
-        isAnime && gamer ? "bg-red-500 hover:bg-red-600" : "text-black"
+      className={`flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full transition-all duration-300 cursor-pointer ${
+        isAnime
+          ? "bg-red-500 hover:bg-red-600 text-white"
+          : "bg-white text-black hover:bg-black hover:text-white"
       }`}
       onClick={handlePlayButtonClick}
       onDoubleClick={handlePlayButtonDoubleClick}
