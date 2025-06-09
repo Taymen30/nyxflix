@@ -5,6 +5,8 @@ import BookmarkButton from "../components/BookmarkButton";
 import Credits from "../components/Credits";
 import Header from "../components/Header";
 import CenteredSpinner from "../components/CenteredSpinner";
+import EpisodeImage from "../components/EpisodeImage";
+import TypingText from "../components/TypingText";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -31,9 +33,16 @@ export default function MediaDetails({
   const episodeCarouselRef = useRef(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
 
   // Anime-related state
   const [isAnime, setIsAnime] = useState(false);
+
+  useEffect(() => {
+    if (isDataLoaded && isImageLoaded) {
+      setIsLoading(false);
+    }
+  }, [isDataLoaded, isImageLoaded]);
 
   useEffect(() => {
     if (currentEpisode.season) {
@@ -43,30 +52,19 @@ export default function MediaDetails({
 
   const contentType = type === "tvshow" ? "tv" : "movie";
 
-  // Fetch media details from TMDB
-  useEffect(() => {
-    async function fetchMediaDetails() {
+  const fetchEpisodes = useCallback(
+    async (seasonNumber) => {
       try {
-        const url = `https://api.themoviedb.org/3/${contentType}/${id}?api_key=${API_KEY}`;
+        const url = `https://api.themoviedb.org/3/tv/${id}/season/${seasonNumber}?api_key=${API_KEY}`;
         const response = await fetch(url);
         const data = await response.json();
-        setMediaDetails(data);
-        document.title = data.title || data.original_name;
-
-        // Check if media is anime
-        checkIfAnime(data);
-
-        if (contentType === "tv") {
-          setTvShowData((prev) => ({ ...prev, seasons: data.seasons }));
-          fetchEpisodes(displaySeason);
-        }
+        setTvShowData((prev) => ({ ...prev, episodes: data.episodes }));
       } catch (error) {
-        console.error("Error fetching media details:", error);
+        console.error("Error fetching season details:", error);
       }
-    }
-
-    fetchMediaDetails();
-  }, [id, type, contentType, displaySeason]);
+    },
+    [id]
+  );
 
   // Check if the media is anime based on origin country and genres
   const checkIfAnime = useCallback((data) => {
@@ -89,21 +87,56 @@ export default function MediaDetails({
     setIsAnime(animeDetected);
   }, []);
 
-  const fetchEpisodes = async (seasonNumber) => {
-    try {
-      const url = `https://api.themoviedb.org/3/tv/${id}/season/${seasonNumber}?api_key=${API_KEY}`;
-      const response = await fetch(url);
-      const data = await response.json();
-      setTvShowData((prev) => ({ ...prev, episodes: data.episodes }));
-    } catch (error) {
-      console.error("Error fetching season details:", error);
+  // Fetch media details from TMDB
+  useEffect(() => {
+    async function fetchMediaDetails() {
+      setIsLoading(true);
+      setIsDataLoaded(false);
+      setIsImageLoaded(false);
+      setMediaDetails(null);
+
+      try {
+        const url = `https://api.themoviedb.org/3/${contentType}/${id}?api_key=${API_KEY}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        setMediaDetails(data);
+        document.title = data.title || data.original_name;
+
+        // Check if media is anime
+        checkIfAnime(data);
+
+        if (contentType === "tv") {
+          setTvShowData((prev) => ({ ...prev, seasons: data.seasons }));
+        }
+        setIsDataLoaded(true);
+
+        if (data.backdrop_path) {
+          const img = new Image();
+          img.src = `https://image.tmdb.org/t/p/original/${data.backdrop_path}`;
+          img.onload = () => setIsImageLoaded(true);
+          img.onerror = () => setIsImageLoaded(true);
+        } else {
+          setIsImageLoaded(true);
+        }
+      } catch (error) {
+        console.error("Error fetching media details:", error);
+        setIsLoading(false);
+      }
     }
-  };
+
+    fetchMediaDetails();
+  }, [id, type, contentType, checkIfAnime]);
+
+  // Fetch episodes when season changes for TV shows
+  useEffect(() => {
+    if (contentType === "tv") {
+      fetchEpisodes(displaySeason);
+    }
+  }, [displaySeason, contentType, fetchEpisodes]);
 
   const handleSeasonChange = (newSeason) => {
     setDisplaySeason(Number(newSeason));
     setSelectedEpisode({ season: null, episode: null });
-    fetchEpisodes(newSeason);
   };
 
   const handleEpisodeClick = (episodeNumber) => {
@@ -210,7 +243,11 @@ export default function MediaDetails({
     const playerUrls = getPlayerUrls();
 
     return (
-      <>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
         <header className="absolute w-full z-10 flex flex-col m-2">
           <section className="block w-2/3  lg:w-full lg:flex items-baseline">
             <Header
@@ -250,19 +287,8 @@ export default function MediaDetails({
             src={`https://image.tmdb.org/t/p/original/${mediaDetails.backdrop_path}`}
             alt=""
             className="w-full h-screen object-cover"
-            onLoad={() => {
-              setIsImageLoaded(true);
-              setTimeout(() => setIsLoading(false), 100);
-            }}
           />
         )}
-
-        <motion.div
-          initial={{ opacity: 1 }}
-          animate={{ opacity: isImageLoaded ? 0.2 : 1 }}
-          transition={{ duration: 0.2 }}
-          className="absolute inset-0 bg-black"
-        />
 
         <div id="player-container" className="w-full flex justify-center"></div>
 
@@ -318,51 +344,58 @@ export default function MediaDetails({
                 ref={episodeCarouselRef}
                 className="overflow-x-auto m-2 whitespace-nowrap scrollbar-hide"
               >
-                {tvShowData.episodes.map((episode) => (
-                  <div
-                    onClick={() => handleEpisodeClick(episode.episode_number)}
-                    key={episode.episode_number}
-                    className={`inline-block w-28 md:w-52 p-2 rounded-lg mr-4 hover:cursor-pointer transition-all duration-300 hover:brightness-125 backdrop-blur-sm ${
-                      selectedEpisode.season === displaySeason &&
-                      selectedEpisode.episode === episode.episode_number
-                        ? "bg-black bg-opacity-80 border border-white border-opacity-50"
-                        : currentEpisode.episode === episode.episode_number &&
-                          currentEpisode.season === displaySeason
-                        ? "bg-yellow-400 bg-opacity-90 text-black"
-                        : "bg-black bg-opacity-50 border border-white border-opacity-20"
-                    }`}
-                  >
-                    <div className="relative">
-                      {episode.still_path && (
-                        <img
-                          src={`https://image.tmdb.org/t/p/w500/${episode.still_path}`}
-                          alt={episode.name}
-                          className="w-full h-14 md:h-28 mb-2 rounded"
+                <AnimatePresence mode="wait">
+                  {tvShowData.episodes.map((episode, i) => (
+                    <motion.div
+                      key={episode.id}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.3, delay: i * 0.05 }}
+                      onClick={() => handleEpisodeClick(episode.episode_number)}
+                      className={`inline-block w-28 md:w-52 p-2 rounded-lg mr-4 hover:cursor-pointer transition-all duration-300 hover:brightness-125 backdrop-blur-sm ${
+                        selectedEpisode.season === displaySeason &&
+                        selectedEpisode.episode === episode.episode_number
+                          ? "bg-black bg-opacity-80 border border-white border-opacity-50"
+                          : currentEpisode.episode === episode.episode_number &&
+                            currentEpisode.season === displaySeason
+                          ? "bg-yellow-400 bg-opacity-90 text-black"
+                          : "bg-black bg-opacity-50 border border-white border-opacity-20"
+                      }`}
+                    >
+                      <div className="relative">
+                        {episode.still_path && (
+                          <EpisodeImage
+                            src={`https://image.tmdb.org/t/p/w500/${episode.still_path}`}
+                            alt={episode.name}
+                            className="w-full h-14 md:h-28 mb-2 rounded"
+                          />
+                        )}
+                        <div className="absolute top-2 right-2 w-6 h-6 border border-white bg-black bg-opacity-70 rounded-full flex items-center justify-center backdrop-blur-sm">
+                          <span className="text-white text-xs font-bold">
+                            {episode.episode_number}
+                          </span>
+                        </div>
+                      </div>
+                      <section className="m-1">
+                        <TypingText
+                          text={episode.name}
+                          className="text-[10px] md:text-sm font-bold overflow-hidden text-ellipsis whitespace-nowrap"
                         />
-                      )}
-                      <div className="absolute top-2 right-2 w-6 h-6 border border-white bg-black bg-opacity-70 rounded-full flex items-center justify-center backdrop-blur-sm">
-                        <span className="text-white text-xs font-bold">
-                          {episode.episode_number}
-                        </span>
-                      </div>
-                    </div>
-                    <section className="m-1">
-                      <p className="text-[10px] md:text-sm font-bold overflow-hidden text-ellipsis whitespace-nowrap">
-                        {episode.name}
-                      </p>
-                      <div className="flex justify-between mt-1 text-[8px] md:text-xs text-white text-opacity-70">
-                        <p>
-                          {episode.air_date
-                            ? new Date(episode.air_date).toLocaleDateString(
-                                "en-AU"
-                              )
-                            : "TBA"}
-                        </p>
-                        {episode.runtime && <p>{episode.runtime} min</p>}
-                      </div>
-                    </section>
-                  </div>
-                ))}
+                        <div className="flex justify-between mt-1 text-[8px] md:text-xs text-white text-opacity-70">
+                          <p>
+                            {episode.air_date
+                              ? new Date(episode.air_date).toLocaleDateString(
+                                  "en-AU"
+                                )
+                              : "TBA"}
+                          </p>
+                          {episode.runtime && <p>{episode.runtime} min</p>}
+                        </div>
+                      </section>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
               </div>
               <button
                 onClick={() => scrollEpisodeCarousel("left")}
@@ -379,7 +412,7 @@ export default function MediaDetails({
             </div>
           )}
         </div>
-      </>
+      </motion.div>
     );
   };
 
@@ -389,20 +422,19 @@ export default function MediaDetails({
         {isLoading && (
           <motion.div
             initial={{ opacity: 1 }}
-            animate={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{
               duration: 0.2,
-              delay: mediaDetails?.backdrop_path ? 0.1 : 0,
             }}
-            className="fixed bg-black inset-0 z-50"
+            className="fixed bg-black inset-0 z-50 flex items-center justify-center"
           >
             <CenteredSpinner />
           </motion.div>
         )}
       </AnimatePresence>
 
-      {renderContent()}
+      {!isLoading && renderContent()}
     </div>
   );
 }
