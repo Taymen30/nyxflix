@@ -4,6 +4,7 @@ import MediaGrid from "../components/MediaGrid";
 import { motion, AnimatePresence } from "framer-motion";
 import { getTitle } from "../utils/Helpers";
 import { useLocalStorage } from "../hooks/useLocalStorage";
+import CenteredSpinner from "../components/CenteredSpinner";
 
 const apiKey = process.env.REACT_APP_API_KEY;
 
@@ -146,6 +147,7 @@ export default function Home({
             <MediaGrid
               setArray={setMovies}
               array={currentMediaType === "movie" ? movies : tvShows}
+              loading={loading}
             />
           </motion.div>
         )}
@@ -161,11 +163,15 @@ export default function Home({
             <MediaGrid
               setArray={setMovies}
               array={currentMediaType === "movie" ? movies : tvShows}
+              loading={loading}
             />
           </div>
         )}
       </AnimatePresence>
-      {loading && <div>Loading...</div>}
+      {loading &&
+        (currentMediaType === "movie"
+          ? movies.length === 0
+          : tvShows.length === 0) && <CenteredSpinner />}
     </>
   );
 }
