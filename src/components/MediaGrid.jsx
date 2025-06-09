@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useLocalStorage } from "../hooks/useLocalStorage";
@@ -7,6 +7,7 @@ import GridSpinner from "./GridSpinner";
 
 const MediaItem = ({ item, mediaType }) => {
   const linkPath = `/${mediaType === "movie" ? "movie" : "tvshow"}/${item.id}`;
+  const [isLoaded, setIsLoaded] = useState(false);
 
   return (
     <motion.div
@@ -19,17 +20,26 @@ const MediaItem = ({ item, mediaType }) => {
         opacity: { duration: 0.5 },
         layout: { duration: Math.random() * 0.5 + 0.2, type: "spring" },
       }}
-      className="w-1/3 md:w-1/5 group relative"
+      className="w-1/3 md:w-1/5 group relative bg-black"
     >
       <Link to={linkPath}>
         {item.poster_path ? (
           <>
             <img
-              className="w-full group-hover:brightness-75 transition-all duration-300"
+              className={`w-full group-hover:brightness-75 transition-opacity duration-500 ${
+                isLoaded ? "opacity-100" : "opacity-0"
+              }`}
               src={`https://image.tmdb.org/t/p/w500/${item.poster_path}`}
               alt={item.title}
+              onLoad={() => setIsLoaded(true)}
             />
-            <MovieHoverInfo video={item} mediaType={mediaType} />
+            <div
+              className={`transition-opacity duration-500 ${
+                isLoaded ? "opacity-100" : "opacity-0"
+              }`}
+            >
+              <MovieHoverInfo video={item} mediaType={mediaType} />
+            </div>
           </>
         ) : (
           <div className="relative flex flex-col h-[30vw] justify-center items-center border-gray-500 border group-hover:bg-gray-800 transition-colors duration-300">
