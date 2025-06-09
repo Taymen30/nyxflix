@@ -92,13 +92,13 @@ export default function Header({
     >
       <div className="relative w-full">
         {shouldShowControls && (
-          <div className="flex justify-between items-center px-4 md:px-6 py-1">
-            <h1 className="text-2xl sm:text-4xl md:text-6xl w-[200px] font-bold tracking-wide text-white [text-shadow:_0_0_10px_#ff69b4,_0_0_20px_#ff69b4,_0_0_30px_#ff69b4]">
+          <div className="flex justify-between items-center px-4 md:px-6 py-1 gap-4">
+            <h1 className="flex-1 min-w-0 text-2xl sm:text-4xl md:text-6xl font-bold tracking-wide text-white [text-shadow:_0_0_10px_#ff69b4,_0_0_20px_#ff69b4,_0_0_30px_#ff69b4] truncate">
               {title}
             </h1>
             <AnimatePresence>
               {!isSearchVisible && (
-                <motion.div className="flex justify-center media-type-toggle w-[280px]">
+                <motion.div className="flex justify-center media-type-toggle w-[280px] flex-shrink-0">
                   {title && !location.pathname.includes("/person") && (
                     <div className="flex items-center gap-2">
                       <button
@@ -226,7 +226,7 @@ export default function Header({
                 </motion.div>
               )}
             </AnimatePresence>
-            <div className="flex items-center gap-1 w-[200px] justify-end">
+            <div className="flex flex-1 items-center gap-1 justify-end">
               {location.pathname !== "/" && (
                 <button
                   onClick={() => navigate("/")}
