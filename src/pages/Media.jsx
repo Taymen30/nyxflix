@@ -44,12 +44,6 @@ export default function MediaDetails({
     }
   }, [isDataLoaded, isImageLoaded]);
 
-  useEffect(() => {
-    if (currentEpisode.season) {
-      setDisplaySeason(currentEpisode.season);
-    }
-  }, [currentEpisode.season]);
-
   const contentType = type === "tvshow" ? "tv" : "movie";
 
   const fetchEpisodes = useCallback(
