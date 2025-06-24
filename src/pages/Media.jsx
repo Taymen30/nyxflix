@@ -34,6 +34,7 @@ export default function MediaDetails({
   const [isLoading, setIsLoading] = useState(true);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
+  const [isSeasonReady, setIsSeasonReady] = useState(false);
 
   // Anime-related state
   const [isAnime, setIsAnime] = useState(false);
@@ -43,6 +44,13 @@ export default function MediaDetails({
       setIsLoading(false);
     }
   }, [isDataLoaded, isImageLoaded]);
+
+  useEffect(() => {
+    if (currentEpisode.season) {
+      setDisplaySeason(currentEpisode.season);
+      setIsSeasonReady(true);
+    }
+  }, [currentEpisode.season]);
 
   const contentType = type === "tvshow" ? "tv" : "movie";
 
@@ -123,10 +131,10 @@ export default function MediaDetails({
 
   // Fetch episodes when season changes for TV shows
   useEffect(() => {
-    if (contentType === "tv") {
+    if (contentType === "tv" && isSeasonReady) {
       fetchEpisodes(displaySeason);
     }
-  }, [displaySeason, contentType, fetchEpisodes]);
+  }, [displaySeason, contentType, fetchEpisodes, isSeasonReady]);
 
   const handleSeasonChange = (newSeason) => {
     setDisplaySeason(Number(newSeason));
