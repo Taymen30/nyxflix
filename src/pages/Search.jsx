@@ -1,20 +1,22 @@
+import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
-import { useEffect, useState } from "react";
 import MediaGrid from "../components/MediaGrid";
 import Header from "../components/Header";
+import { useMedia } from "../context/MediaContext";
 
-export default function Search({ currentMediaType, setCurrentMediaType }) {
+export default function Search() {
+  const { currentMediaType, setCurrentMediaType } = useMedia();
   const [searchParams] = useSearchParams();
   const query = searchParams.get("query");
 
-  const [queryResults, setQueryResults] = useState([]);
+  const [results, setResults] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
 
   const api_key = process.env.REACT_APP_API_KEY;
 
   useEffect(() => {
-    setQueryResults([]);
+    setResults([]);
     setCurrentPage(1);
   }, [query, currentMediaType]);
 
@@ -29,7 +31,7 @@ export default function Search({ currentMediaType, setCurrentMediaType }) {
         const filteredResults = data.results.filter(
           (movie) => movie.poster_path
         );
-        setQueryResults((prevResults) => [...prevResults, ...filteredResults]);
+        setResults((prevResults) => [...prevResults, ...filteredResults]);
         setLoading(false);
       });
   }, [query, currentPage, currentMediaType]);
@@ -59,7 +61,7 @@ export default function Search({ currentMediaType, setCurrentMediaType }) {
         currentMediaType={currentMediaType}
         setCurrentMediaType={setCurrentMediaType}
       />
-      <MediaGrid array={queryResults} />
+      <MediaGrid array={results} />
     </>
   );
 }

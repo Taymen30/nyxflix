@@ -1,14 +1,15 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Header from "../components/Header";
 import { useLocalStorage } from "../hooks/useLocalStorage";
+import { useMedia } from "../context/MediaContext";
 
-export default function Bookmarks({ currentMediaType, setCurrentMediaType }) {
+export default function Bookmarks() {
+  const { currentMediaType, setCurrentMediaType } = useMedia();
   const [bookmarkedMoviesId] = useLocalStorage("bookmarked-movie", []);
   const [bookmarkedTvShowsId] = useLocalStorage("bookmarked-tv", []);
   const [bookmarkedMovies, setBookmarkedMovies] = useState([]);
   const [bookmarkedTvShows, setBookmarkedTvShows] = useState([]);
-
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const [selectedHighlighted, setSelectedHighlighted] = useState(null);
   const [loadingRandom, setLoadingRandom] = useState(false);

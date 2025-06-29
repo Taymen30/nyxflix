@@ -1,9 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import Header from "../components/Header";
+import { useMedia } from "../context/MediaContext";
 
-export default function Person({ currentMediaType, setCurrentMediaType }) {
-  const apiKey = process.env.REACT_APP_API_KEY;
+const apiKey = process.env.REACT_APP_API_KEY;
+
+export default function Person() {
+  const { currentMediaType, setCurrentMediaType } = useMedia();
   const { id } = useParams();
   const [personDetails, setPersonDetails] = useState(null);
   const [loading, setLoading] = useState(true);

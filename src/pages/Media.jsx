@@ -9,13 +9,12 @@ import EpisodeImage from "../components/EpisodeImage";
 import TypingText from "../components/TypingText";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 import { motion, AnimatePresence } from "framer-motion";
+import { useMedia } from "../context/MediaContext";
 
 const API_KEY = process.env.REACT_APP_API_KEY;
 
-export default function MediaDetails({
-  currentMediaType,
-  setCurrentMediaType,
-}) {
+export default function MediaDetails() {
+  const { currentMediaType, setCurrentMediaType } = useMedia();
   const { id, type } = useParams();
   const [mediaDetails, setMediaDetails] = useState(null);
   const [castInfo, setCastInfo] = useState(null);

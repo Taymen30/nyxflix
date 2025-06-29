@@ -1,11 +1,15 @@
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
-
-import MediaGrid from "../components/MediaGrid";
 import Header from "../components/Header";
+import MediaGrid from "../components/MediaGrid";
+import { useMedia } from "../context/MediaContext";
 
-export default function Genre({ currentMediaType, setCurrentMediaType }) {
+const apiKey = process.env.REACT_APP_API_KEY;
+
+export default function Genre() {
+  const { currentMediaType, setCurrentMediaType } = useMedia();
   const { genre } = useParams();
+  const [media, setMedia] = useState([]);
   const [genreResults, setGenreResults] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -37,7 +41,6 @@ export default function Genre({ currentMediaType, setCurrentMediaType }) {
   }, [currentMediaType]);
 
   useEffect(() => {
-    const apiKey = process.env.REACT_APP_API_KEY;
     const url = `https://api.themoviedb.org/3/discover/${currentMediaType}?api_key=${apiKey}&with_genres=${genre}&page=${page}`;
 
     setLoading(true);
