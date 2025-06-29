@@ -92,21 +92,21 @@ export default function Header({
     >
       <div className="relative w-full">
         {shouldShowControls && (
-          <div className="flex justify-between items-center px-4 md:px-6 py-1 gap-4">
-            <h1 className="flex-1 min-w-0 text-2xl sm:text-4xl md:text-6xl font-bold tracking-wide text-white [text-shadow:_0_0_10px_#ff69b4,_0_0_20px_#ff69b4,_0_0_30px_#ff69b4] truncate">
+          <div className="flex justify-between items-center px-4 md:px-6 py-1 gap-2 md:gap-4">
+            <h1 className="flex-1 min-w-0 text-xl sm:text-2xl md:text-4xl lg:text-6xl font-bold tracking-wide text-white [text-shadow:_0_0_10px_#ff69b4,_0_0_20px_#ff69b4,_0_0_30px_#ff69b4]">
               {title}
             </h1>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 md:gap-4">
               <AnimatePresence>
                 {!isSearchVisible && (
-                  <motion.div className="flex justify-center media-type-toggle w-[280px] flex-shrink-0">
+                  <motion.div className="flex justify-center media-type-toggle w-auto md:w-[280px] flex-shrink-0">
                     {title && !location.pathname.includes("/person") && (
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => setCurrentMediaType("movie")}
                           className={`flex items-center justify-between px-2 sm:px-3 md:px-4 h-6 sm:h-7 md:h-8 rounded-full transition-all duration-300 ${
                             currentMediaType === "movie"
-                              ? "bg-white text-black min-w-[100px] sm:min-w-[120px]"
+                              ? "bg-white text-black min-w-[70px] sm:min-w-[100px] md:min-w-[120px]"
                               : "text-white hover:bg-white hover:bg-opacity-10 min-w-[32px] sm:min-w-[40px]"
                           }`}
                         >
@@ -171,7 +171,7 @@ export default function Header({
                           onClick={() => setCurrentMediaType("tv")}
                           className={`flex items-center justify-between px-2 sm:px-3 md:px-4 h-6 sm:h-7 md:h-8 rounded-full transition-all duration-300 ${
                             currentMediaType === "tv"
-                              ? "bg-white text-black min-w-[100px] sm:min-w-[120px]"
+                              ? "bg-white text-black min-w-[70px] sm:min-w-[100px] md:min-w-[120px]"
                               : "text-white hover:bg-white hover:bg-opacity-10 min-w-[32px] sm:min-w-[40px]"
                           }`}
                         >
@@ -340,7 +340,7 @@ export default function Header({
                     onClick={() => setCurrentMediaType("movie")}
                     className={`flex items-center justify-between px-2 sm:px-3 md:px-4 h-6 sm:h-7 md:h-8 rounded-full transition-all duration-300 ${
                       currentMediaType === "movie"
-                        ? "bg-white text-black min-w-[100px] sm:min-w-[120px]"
+                        ? "bg-white text-black min-w-[70px] sm:min-w-[100px] md:min-w-[120px]"
                         : "text-white hover:bg-white hover:bg-opacity-10 min-w-[32px] sm:min-w-[40px]"
                     }`}
                   >
@@ -405,7 +405,7 @@ export default function Header({
                     onClick={() => setCurrentMediaType("tv")}
                     className={`flex items-center justify-between px-2 sm:px-3 md:px-4 h-6 sm:h-7 md:h-8 rounded-full transition-all duration-300 ${
                       currentMediaType === "tv"
-                        ? "bg-white text-black min-w-[100px] sm:min-w-[120px]"
+                        ? "bg-white text-black min-w-[70px] sm:min-w-[100px] md:min-w-[120px]"
                         : "text-white hover:bg-white hover:bg-opacity-10 min-w-[32px] sm:min-w-[40px]"
                     }`}
                   >

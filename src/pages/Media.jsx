@@ -126,10 +126,10 @@ export default function MediaDetails() {
   }, []);
 
   const EpisodeSkeleton = () => (
-    <div className="w-52 p-2 rounded-lg bg-black/50 flex-shrink-0 animate-pulse">
-      <div className="w-full h-28 mb-2 rounded bg-white/10"></div>
-      <div className="h-4 w-3/4 mb-2 rounded bg-white/10"></div>
-      <div className="h-3 w-1/2 rounded bg-white/10"></div>
+    <div className="w-32 sm:w-40 md:w-48 lg:w-52 p-2 rounded-lg bg-black/50 flex-shrink-0 animate-pulse">
+      <div className="w-full h-16 sm:h-20 md:h-24 lg:h-28 mb-2 rounded bg-white/10"></div>
+      <div className="h-3 sm:h-4 w-3/4 mb-2 rounded bg-white/10"></div>
+      <div className="h-2 sm:h-3 w-1/2 rounded bg-white/10"></div>
     </div>
   );
 
@@ -855,7 +855,7 @@ export default function MediaDetails() {
                                   seasonNumber
                                 )
                               }
-                              className={`w-52 p-2 rounded-lg hover:cursor-pointer transition-all duration-300 hover:brightness-125 backdrop-blur-sm flex-shrink-0 ${
+                              className={`w-32 sm:w-40 md:w-48 lg:w-52 p-2 rounded-lg hover:cursor-pointer transition-all duration-300 hover:brightness-125 backdrop-blur-sm flex-shrink-0 ${
                                 selectedEpisode.season === seasonNumber &&
                                 selectedEpisode.episode ===
                                   episode.episode_number
@@ -872,10 +872,10 @@ export default function MediaDetails() {
                                   <EpisodeImage
                                     src={`https://image.tmdb.org/t/p/w500/${episode.still_path}`}
                                     alt={episode.name}
-                                    className="w-full h-28 mb-2 rounded object-cover"
+                                    className="w-full h-16 sm:h-20 md:h-24 lg:h-28 mb-2 rounded object-cover"
                                   />
                                 )}
-                                <div className="absolute top-2 right-2 w-6 h-6 border border-white bg-black bg-opacity-70 rounded-full flex items-center justify-center backdrop-blur-sm">
+                                <div className="absolute top-1 right-1 sm:top-2 sm:right-2 w-5 h-5 sm:w-6 sm:h-6 border border-white bg-black bg-opacity-70 rounded-full flex items-center justify-center backdrop-blur-sm">
                                   <span className="text-white text-xs font-bold">
                                     {episode.episode_number}
                                   </span>
@@ -884,10 +884,10 @@ export default function MediaDetails() {
                               <section className="m-1">
                                 <TypingText
                                   text={episode.name}
-                                  className="text-sm font-bold overflow-hidden text-ellipsis whitespace-nowrap"
+                                  className="text-xs sm:text-sm font-bold overflow-hidden text-ellipsis whitespace-nowrap"
                                 />
                                 <div className="flex justify-between mt-1 text-xs text-white text-opacity-70">
-                                  <p>
+                                  <p className="text-xs">
                                     {episode.air_date
                                       ? new Date(
                                           episode.air_date
@@ -895,7 +895,9 @@ export default function MediaDetails() {
                                       : "TBA"}
                                   </p>
                                   {episode.runtime && (
-                                    <p>{episode.runtime} min</p>
+                                    <p className="text-xs">
+                                      {episode.runtime} min
+                                    </p>
                                   )}
                                 </div>
                               </section>
