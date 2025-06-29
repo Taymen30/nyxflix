@@ -906,7 +906,7 @@ export default function MediaDetails() {
                 onMouseLeave={stopScrolling}
                 onTouchStart={() => startScrolling("right")}
                 onTouchEnd={stopScrolling}
-                className="flex-shrink-0 bg-black/50 p-2 rounded-full hover:bg-black/80 transition-all"
+                className="flex-shrink-0 bg-black/50 p-2 rounded-full hover:bg-black/80 transition-all select-none"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
