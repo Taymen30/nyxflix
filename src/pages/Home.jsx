@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import Header from "../components/Header";
 import MediaGrid from "../components/MediaGrid";
 import { motion, AnimatePresence } from "framer-motion";

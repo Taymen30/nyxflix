@@ -1,4 +1,11 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+  useLayoutEffect,
+  useReducer,
+} from "react";
 import { Link, useParams } from "react-router-dom";
 import Player from "../components/Player";
 import BookmarkButton from "../components/BookmarkButton";
@@ -13,59 +20,89 @@ import { useMedia } from "../context/MediaContext";
 
 const API_KEY = process.env.REACT_APP_API_KEY;
 
+const tvDataReducer = (state, action) => {
+  switch (action.type) {
+    case "FETCH_START":
+      return {
+        ...state,
+        fetchingSeasons: new Set(state.fetchingSeasons).add(
+          action.seasonNumber
+        ),
+      };
+    case "FETCH_SUCCESS": {
+      const newFetching = new Set(state.fetchingSeasons);
+      newFetching.delete(action.seasonNumber);
+      return {
+        ...state,
+        episodesBySeason: {
+          ...state.episodesBySeason,
+          [action.seasonNumber]: action.episodes,
+        },
+        fetchingSeasons: newFetching,
+      };
+    }
+    case "FETCH_ERROR": {
+      const newFetching = new Set(state.fetchingSeasons);
+      newFetching.delete(action.seasonNumber);
+      return { ...state, fetchingSeasons: newFetching };
+    }
+    default:
+      return state;
+  }
+};
+
 export default function MediaDetails() {
   const { currentMediaType, setCurrentMediaType } = useMedia();
   const { id, type } = useParams();
   const [mediaDetails, setMediaDetails] = useState(null);
   const [castInfo, setCastInfo] = useState(null);
-  const [tvShowData, setTvShowData] = useState({ seasons: [], episodes: [] });
+
+  const [tvData, dispatch] = useReducer(tvDataReducer, {
+    episodesBySeason: {},
+    fetchingSeasons: new Set(),
+  });
+  const { episodesBySeason, fetchingSeasons } = tvData;
+
+  const [visibleEpisodes, setVisibleEpisodes] = useState([]);
+
+  // A single, reliable state for the user's progress (only saved when Play is clicked)
   const [currentEpisode, setCurrentEpisode] = useLocalStorage(
     `tvshow_${id}_progress`,
     { season: 1, episode: 1 }
   );
+
+  // State for what season is currently displayed in the dropdown (doesn't save progress)
   const [displaySeason, setDisplaySeason] = useState(currentEpisode.season);
+
+  // This state is only for highlighting the episode that will be played.
   const [selectedEpisode, setSelectedEpisode] = useState({
     season: null,
     episode: null,
   });
+
   const [isGamerMode] = useLocalStorage("gamer", false);
   const episodeCarouselRef = useRef(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
-  const [isSeasonReady, setIsSeasonReady] = useState(false);
+  const [isInitialScrollDone, setIsInitialScrollDone] = useState(false);
+
+  // Refs for scrolling logic
+  const episodesContainerRef = useRef(null);
+  const seasonObserver = useRef(null);
+  const seasonGroupRefs = useRef({});
+  const episodeRefs = useRef({});
+  const isPrepending = useRef(false);
+  const prevScrollWidth = useRef(0);
+  const scrollInterval = useRef(null);
+
+  // Track the target season for scrolling
+  const targetSeasonRef = useRef(null);
+  const justScrolledToTargetRef = useRef(false);
+  const isCorrectingSeasonRef = useRef(false);
 
   // Anime-related state
   const [isAnime, setIsAnime] = useState(false);
-
-  useEffect(() => {
-    if (isDataLoaded && isImageLoaded) {
-      setIsLoading(false);
-    }
-  }, [isDataLoaded, isImageLoaded]);
-
-  useEffect(() => {
-    if (currentEpisode.season) {
-      setDisplaySeason(currentEpisode.season);
-      setIsSeasonReady(true);
-    }
-  }, [currentEpisode.season]);
-
-  const contentType = type === "tvshow" ? "tv" : "movie";
-
-  const fetchEpisodes = useCallback(
-    async (seasonNumber) => {
-      try {
-        const url = `https://api.themoviedb.org/3/tv/${id}/season/${seasonNumber}?api_key=${API_KEY}`;
-        const response = await fetch(url);
-        const data = await response.json();
-        setTvShowData((prev) => ({ ...prev, episodes: data.episodes }));
-      } catch (error) {
-        console.error("Error fetching season details:", error);
-      }
-    },
-    [id]
-  );
 
   // Check if the media is anime based on origin country and genres
   const checkIfAnime = useCallback((data) => {
@@ -88,6 +125,74 @@ export default function MediaDetails() {
     setIsAnime(animeDetected);
   }, []);
 
+  const EpisodeSkeleton = () => (
+    <div className="w-52 p-2 rounded-lg bg-black/50 flex-shrink-0 animate-pulse">
+      <div className="w-full h-28 mb-2 rounded bg-white/10"></div>
+      <div className="h-4 w-3/4 mb-2 rounded bg-white/10"></div>
+      <div className="h-3 w-1/2 rounded bg-white/10"></div>
+    </div>
+  );
+
+  const scrollToEpisode = useCallback(
+    (seasonNum, episodeNum, behavior = "smooth") => {
+      const container = episodesContainerRef.current;
+      if (
+        !episodeRefs.current[seasonNum] ||
+        !episodeRefs.current[seasonNum][episodeNum] ||
+        !container
+      )
+        return;
+
+      const episodeEl = episodeRefs.current[seasonNum][episodeNum];
+      const containerRect = container.getBoundingClientRect();
+      const episodeRect = episodeEl.getBoundingClientRect();
+
+      const scrollLeft =
+        episodeRect.left - containerRect.left + container.scrollLeft - 64; // Position with a 4rem offset from the left
+
+      container.scrollTo({ left: scrollLeft, behavior });
+    },
+    []
+  );
+
+  const scrollToSeason = useCallback((seasonNumber, behavior = "smooth") => {
+    const container = episodesContainerRef.current;
+    const seasonEl = seasonGroupRefs.current[seasonNumber];
+    if (container && seasonEl) {
+      const scrollPosition = seasonEl.offsetLeft - container.offsetLeft - 20; // 20px offset
+      container.scrollTo({
+        left: scrollPosition,
+        behavior,
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isDataLoaded && isImageLoaded) {
+      setIsLoading(false);
+    }
+  }, [isDataLoaded, isImageLoaded]);
+
+  // Ensure currentEpisode.season is never 0
+  useEffect(() => {
+    if (currentEpisode.season === 0) {
+      console.log("Correcting season 0 to season 1");
+      isCorrectingSeasonRef.current = true;
+      setCurrentEpisode((prev) => ({ ...prev, season: 1, episode: 1 }));
+      // Clear the flag after the correction
+      setTimeout(() => {
+        isCorrectingSeasonRef.current = false;
+      }, 100);
+    }
+  }, [currentEpisode.season, setCurrentEpisode]);
+
+  // Sync displaySeason with currentEpisode when currentEpisode changes
+  useEffect(() => {
+    setDisplaySeason(currentEpisode.season);
+  }, [currentEpisode.season]);
+
+  const contentType = type === "tvshow" ? "tv" : "movie";
+
   // Fetch media details from TMDB
   useEffect(() => {
     async function fetchMediaDetails() {
@@ -103,45 +208,331 @@ export default function MediaDetails() {
         setMediaDetails(data);
         document.title = data.title || data.original_name;
 
-        // Check if media is anime
         checkIfAnime(data);
-
-        if (contentType === "tv") {
-          setTvShowData((prev) => ({ ...prev, seasons: data.seasons }));
-        }
         setIsDataLoaded(true);
 
         if (data.backdrop_path) {
           const img = new Image();
           img.src = `https://image.tmdb.org/t/p/original/${data.backdrop_path}`;
           img.onload = () => setIsImageLoaded(true);
-          img.onerror = () => setIsImageLoaded(true);
+          img.onerror = () => setIsImageLoaded(true); // handle error case
         } else {
-          setIsImageLoaded(true);
+          setIsImageLoaded(true); // if no image
         }
       } catch (error) {
         console.error("Error fetching media details:", error);
-        setIsLoading(false);
+        setIsLoading(false); // Make sure loading stops on error
       }
     }
 
     fetchMediaDetails();
   }, [id, type, contentType, checkIfAnime]);
 
-  // Fetch episodes when season changes for TV shows
-  useEffect(() => {
-    if (contentType === "tv" && isSeasonReady) {
-      fetchEpisodes(displaySeason);
-    }
-  }, [displaySeason, contentType, fetchEpisodes, isSeasonReady]);
+  const fetchSeason = useCallback(
+    async (seasonNumber) => {
+      // The guard for fetchSeason is now at the call sites,
+      // and this callback is stable.
+      dispatch({ type: "FETCH_START", seasonNumber });
+      try {
+        const url = `https://api.themoviedb.org/3/tv/${id}/season/${seasonNumber}?api_key=${API_KEY}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        dispatch({
+          type: "FETCH_SUCCESS",
+          seasonNumber,
+          episodes: data.episodes,
+        });
+      } catch (error) {
+        console.error(`Error fetching season ${seasonNumber}:`, error);
+        dispatch({ type: "FETCH_ERROR", seasonNumber });
+      }
+    },
+    [id, dispatch] // Now truly stable
+  );
 
-  const handleSeasonChange = (newSeason) => {
-    setDisplaySeason(Number(newSeason));
-    setSelectedEpisode({ season: null, episode: null });
+  // Simplified initialization effect
+  useEffect(() => {
+    if (!mediaDetails || type !== "tvshow" || isInitialScrollDone) return;
+
+    const initialize = async () => {
+      // Correct for season 0 from old local storage values
+      const startSeason =
+        currentEpisode.season === 0 ? 1 : currentEpisode.season;
+      const startEpisode =
+        currentEpisode.season === 0 ? 1 : currentEpisode.episode;
+
+      // If the season is not 0, but is different from what's in state, update it.
+      if (startSeason !== currentEpisode.season) {
+        setCurrentEpisode({ season: startSeason, episode: startEpisode });
+      }
+
+      // Fetch the initial season and its direct neighbors to create a scroll buffer
+      const seasonsToFetch = [startSeason];
+      const seasonData = mediaDetails.seasons;
+      const prevSeason = seasonData.find(
+        (s) => s.season_number === startSeason - 1
+      );
+      if (prevSeason) seasonsToFetch.push(prevSeason.season_number);
+      const nextSeason = seasonData.find(
+        (s) => s.season_number === startSeason + 1
+      );
+      if (nextSeason) seasonsToFetch.push(nextSeason.season_number);
+
+      const fetchPromises = seasonsToFetch
+        .filter((s) => !episodesBySeason[s] && !fetchingSeasons.has(s))
+        .map((s) => fetchSeason(s));
+
+      await Promise.all(fetchPromises);
+      // The scrolling is now handled by the layout effect after this render.
+    };
+
+    initialize();
+  }, [
+    mediaDetails,
+    type,
+    isInitialScrollDone,
+    currentEpisode.season,
+    currentEpisode.episode,
+    fetchSeason,
+    setCurrentEpisode,
+    scrollToEpisode,
+  ]);
+
+  // Update visible episodes whenever the fetched data changes.
+  useEffect(() => {
+    const seasonsToDisplay = Object.keys(episodesBySeason)
+      .map(Number)
+      .sort((a, b) => a - b);
+
+    const newVisibleEpisodes = seasonsToDisplay.flatMap((seasonNumber) =>
+      (episodesBySeason[seasonNumber] || []).map((ep) => ({
+        ...ep,
+        season_number: seasonNumber,
+      }))
+    );
+    setVisibleEpisodes(newVisibleEpisodes);
+  }, [episodesBySeason]);
+
+  // Layout effect for smooth prepending
+  useLayoutEffect(() => {
+    if (isPrepending.current) {
+      const container = episodesContainerRef.current;
+      const newScrollWidth = container.scrollWidth;
+      const diff = newScrollWidth - prevScrollWidth.current;
+      container.scrollLeft += diff;
+      isPrepending.current = false;
+    }
+  }, [visibleEpisodes]);
+
+  // This layout effect handles all scrolling logic that needs to occur
+  // AFTER the DOM has been updated with new episode/season elements.
+  useLayoutEffect(() => {
+    // 1. Handle the initial scroll to the last-watched episode
+    if (!isInitialScrollDone && mediaDetails && type === "tvshow") {
+      const startSeason =
+        currentEpisode.season === 0 ? 1 : currentEpisode.season;
+      const startEpisode =
+        currentEpisode.season === 0 ? 1 : currentEpisode.episode;
+
+      if (episodeRefs.current[startSeason]?.[startEpisode]) {
+        scrollToEpisode(startSeason, startEpisode, "auto");
+        setSelectedEpisode({ season: startSeason, episode: startEpisode });
+        setIsInitialScrollDone(true); // Prevent this from running again
+      }
+      return; // Exit after handling initial scroll
+    }
+
+    // 2. Handle scrolling to a target season (from dropdown selection)
+    if (
+      targetSeasonRef.current !== null &&
+      seasonGroupRefs.current[targetSeasonRef.current]
+    ) {
+      const targetSeason = targetSeasonRef.current;
+      console.log("Layout effect: Scrolling to target season", targetSeason);
+      scrollToSeason(targetSeason, "smooth");
+      targetSeasonRef.current = null; // Clear the target after scrolling
+      justScrolledToTargetRef.current = true; // Mark that we just scrolled to target
+
+      // Clear the flag after a delay to allow normal scrolling to resume
+      setTimeout(() => {
+        justScrolledToTargetRef.current = false;
+      }, 1000);
+
+      return;
+    }
+
+    // 3. Handle scrolling to the current season when it's newly available (fallback)
+    // But don't run this if we just scrolled to a target season or are correcting season 0
+    if (
+      isInitialScrollDone &&
+      type === "tvshow" &&
+      !justScrolledToTargetRef.current &&
+      !isCorrectingSeasonRef.current &&
+      seasonGroupRefs.current[currentEpisode.season]
+    ) {
+      console.log(
+        "Layout effect: Checking if should scroll to current season",
+        currentEpisode.season
+      );
+
+      // Get the container and check if the current season is visible
+      const container = episodesContainerRef.current;
+      if (container) {
+        const seasonEl = seasonGroupRefs.current[currentEpisode.season];
+        const containerRect = container.getBoundingClientRect();
+        const seasonRect = seasonEl.getBoundingClientRect();
+
+        // Check if the season is already reasonably in view
+        const isInView =
+          seasonRect.left >= containerRect.left - 200 &&
+          seasonRect.right <= containerRect.right + 200;
+
+        console.log("Season visibility check:", {
+          season: currentEpisode.season,
+          isInView,
+          seasonLeft: seasonRect.left,
+          seasonRight: seasonRect.right,
+          containerLeft: containerRect.left,
+          containerRight: containerRect.right,
+        });
+
+        if (!isInView) {
+          console.log("Scrolling to current season", currentEpisode.season);
+          scrollToSeason(currentEpisode.season, "smooth");
+        }
+      }
+    }
+  }, [
+    visibleEpisodes, // This reruns when new seasons are added
+    episodesBySeason, // Also rerun when episode data changes
+    mediaDetails,
+    type,
+    isInitialScrollDone,
+    currentEpisode.season,
+    scrollToEpisode,
+    scrollToSeason,
+  ]);
+
+  // Infinite scroll and season observer
+  useEffect(() => {
+    const container = episodesContainerRef.current;
+    if (!container || !isInitialScrollDone) return;
+
+    const handleScroll = () => {
+      if (isPrepending.current || Object.keys(episodesBySeason).length === 0)
+        return;
+
+      const { scrollLeft, scrollWidth, clientWidth } = container;
+
+      // Load next season
+      if (scrollLeft + clientWidth >= scrollWidth - 1500) {
+        const maxVisibleSeason = Math.max(
+          ...Object.keys(episodesBySeason).map(Number)
+        );
+        const nextSeason = mediaDetails?.seasons.find(
+          (s) => s.season_number === maxVisibleSeason + 1
+        );
+        if (
+          nextSeason &&
+          !fetchingSeasons.has(nextSeason.season_number) &&
+          !episodesBySeason[nextSeason.season_number]
+        ) {
+          fetchSeason(nextSeason.season_number);
+        }
+      }
+
+      // Load previous season
+      if (scrollLeft < 1500) {
+        const minVisibleSeason = Math.min(
+          ...Object.keys(episodesBySeason).map(Number)
+        );
+        if (minVisibleSeason <= 0) return; // Don't try to load seasons before 0
+
+        const prevSeason = mediaDetails?.seasons.find(
+          (s) => s.season_number === minVisibleSeason - 1
+        );
+        if (
+          prevSeason &&
+          !fetchingSeasons.has(prevSeason.season_number) &&
+          !episodesBySeason[prevSeason.season_number]
+        ) {
+          isPrepending.current = true;
+          prevScrollWidth.current = scrollWidth;
+          fetchSeason(prevSeason.season_number);
+        }
+      }
+    };
+
+    container.addEventListener("scroll", handleScroll);
+
+    if (seasonObserver.current) seasonObserver.current.disconnect();
+
+    // Simplified observer - last intersecting season wins
+    seasonObserver.current = new IntersectionObserver(
+      (entries) => {
+        let lastVisibleSeason = null;
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            lastVisibleSeason = Number(entry.target.dataset.seasonGroup);
+          }
+        }
+        // DON'T update currentEpisode here - only update the dropdown display
+        // Progress should only be saved when Play button is clicked
+        if (lastVisibleSeason !== null && displaySeason !== lastVisibleSeason) {
+          // Just update the dropdown to reflect what's visible, but don't save progress
+          setDisplaySeason(lastVisibleSeason);
+        }
+      },
+      { root: container, threshold: 0.1 } // Fire when 10% is visible
+    );
+
+    const seasonGroups = container.querySelectorAll("[data-season-group]");
+    seasonGroups.forEach((group) => seasonObserver.current.observe(group));
+
+    return () => {
+      container.removeEventListener("scroll", handleScroll);
+      if (seasonObserver.current) seasonObserver.current.disconnect();
+    };
+  }, [
+    visibleEpisodes,
+    fetchSeason,
+    mediaDetails,
+    episodesBySeason,
+    isInitialScrollDone,
+    setCurrentEpisode,
+    currentEpisode.season,
+    fetchingSeasons,
+  ]);
+
+  const handleSeasonChange = async (newSeason) => {
+    const seasonNumber = Number(newSeason);
+
+    if (displaySeason === seasonNumber) return;
+
+    // Set the target season for scrolling
+    targetSeasonRef.current = seasonNumber;
+
+    // Update display season (doesn't save progress)
+    setDisplaySeason(seasonNumber);
+    setSelectedEpisode({ season: null, episode: null }); // Clear visual selection
+
+    if (episodesBySeason[seasonNumber]) {
+      // Season is already loaded, scroll immediately
+      scrollToSeason(seasonNumber, "smooth");
+      targetSeasonRef.current = null; // Clear target since we scrolled
+    } else {
+      // Season needs to be fetched. The layout effect will handle scrolling
+      // when the new season data is rendered.
+      if (!fetchingSeasons.has(seasonNumber)) {
+        fetchSeason(seasonNumber);
+      }
+    }
   };
 
-  const handleEpisodeClick = (episodeNumber) => {
-    setSelectedEpisode({ season: displaySeason, episode: episodeNumber });
+  const handleEpisodeClick = (episodeNumber, seasonNumber) => {
+    const newEpisode = { season: seasonNumber, episode: episodeNumber };
+    setSelectedEpisode(newEpisode);
+    // DO NOT save progress here - only save when Play button is clicked
   };
 
   const handlePlayButtonClick = () => {
@@ -150,6 +541,7 @@ export default function MediaDetails() {
         season: selectedEpisode.season,
         episode: selectedEpisode.episode,
       };
+      // Only save progress when Play button is actually clicked
       setCurrentEpisode(updatedEpisode);
     }
   };
@@ -238,6 +630,35 @@ export default function MediaDetails() {
     currentEpisode,
   ]);
 
+  const handleManualScroll = (direction) => {
+    const container = episodesContainerRef.current;
+    if (!container) return;
+    const scrollAmount =
+      container.clientWidth * 0.8 * (direction === "left" ? -1 : 1);
+    container.scrollBy({ left: scrollAmount, behavior: "smooth" });
+  };
+
+  const startScrolling = (direction) => {
+    let speed = 10;
+    const scroll = () => {
+      if (episodesContainerRef.current) {
+        episodesContainerRef.current.scrollBy({
+          left: direction === "left" ? -speed : speed,
+          behavior: "auto",
+        });
+        speed *= 1.03; // Gently accelerate
+        scrollInterval.current = requestAnimationFrame(scroll);
+      }
+    };
+    scroll();
+  };
+
+  const stopScrolling = () => {
+    if (scrollInterval.current) {
+      cancelAnimationFrame(scrollInterval.current);
+    }
+  };
+
   const renderContent = () => {
     if (!mediaDetails) return null;
 
@@ -293,45 +714,47 @@ export default function MediaDetails() {
 
         <div id="player-container" className="w-full flex justify-center"></div>
 
-        <div className="absolute bottom-0 p-4 w-full flex flex-col gap-5 md:gap-8">
-          <div className="w-full flex items-center justify-center gap-8 mb-2">
-            <section className="flex flex-row gap-3 items-center">
-              <Player
-                imdb_id={mediaDetails.imdb_id}
-                id={id}
-                type={type}
-                season={selectedEpisode.season || currentEpisode.season}
-                episode={selectedEpisode.episode || currentEpisode.episode}
-                onPlayClick={handlePlayButtonClick}
-                isAnime={isAnime}
-                playerUrls={playerUrls}
-              />
-              <BookmarkButton id={mediaDetails.id} />
-              <Credits
-                mediaCast={castInfo}
-                setMediaCast={setCastInfo}
-                mediaType={contentType}
-                id={id}
-              />
-            </section>
-            {isGamerMode && type === "tvshow" && (
-              <select
-                onChange={(e) => handleSeasonChange(e.target.value)}
-                value={displaySeason}
-                className="text-sm text-center w-24 md:w-32 h-8 md:h-10 rounded-full bg-black bg-opacity-50 text-white border border-white border-opacity-20 backdrop-blur-sm focus:outline-none focus:border-opacity-50 transition-all duration-300"
-              >
-                {tvShowData.seasons.map((season) => (
-                  <option
-                    key={season.season_number}
-                    value={season.season_number}
-                    className="bg-black"
-                  >
-                    {season.name}
-                  </option>
-                ))}
-              </select>
-            )}
-          </div>
+        <div className="absolute bottom-0 mb-[-1rem] p-4 w-full flex flex-col gap-2">
+          {isGamerMode && (
+            <div className="w-full flex items-center justify-center gap-4 mb-2">
+              <section className="flex flex-row gap-3 items-center">
+                <Player
+                  imdb_id={mediaDetails.imdb_id}
+                  id={id}
+                  type={type}
+                  season={selectedEpisode.season || currentEpisode.season}
+                  episode={selectedEpisode.episode || currentEpisode.episode}
+                  onPlayClick={handlePlayButtonClick}
+                  isAnime={isAnime}
+                  playerUrls={playerUrls}
+                />
+                <BookmarkButton id={mediaDetails.id} />
+                <Credits
+                  mediaCast={castInfo}
+                  setMediaCast={setCastInfo}
+                  mediaType={contentType}
+                  id={id}
+                />
+              </section>
+              {type === "tvshow" && (
+                <select
+                  onChange={(e) => handleSeasonChange(e.target.value)}
+                  value={displaySeason}
+                  className="text-sm text-center w-24 md:w-32 h-8 md:h-10 rounded-full bg-black bg-opacity-50 text-white border border-white border-opacity-20 backdrop-blur-sm focus:outline-none focus:border-opacity-50 transition-all duration-300"
+                >
+                  {mediaDetails.seasons.map((season) => (
+                    <option
+                      key={season.season_number}
+                      value={season.season_number}
+                      className="bg-black"
+                    >
+                      {season.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+          )}
 
           {type !== "tvshow" && (
             <p className="text-xs md:text-[16px] w-full max-w-2xl mx-auto bg-black bg-opacity-50 p-4 rounded-lg backdrop-blur-sm">
@@ -340,75 +763,171 @@ export default function MediaDetails() {
           )}
 
           {isGamerMode && type === "tvshow" && (
-            <div className="relative w-full">
-              <div
-                ref={episodeCarouselRef}
-                className="overflow-x-auto m-2 whitespace-nowrap scrollbar-hide"
+            <div className="flex items-center justify-center w-full gap-2">
+              <button
+                onMouseDown={() => startScrolling("left")}
+                onMouseUp={stopScrolling}
+                onMouseLeave={stopScrolling}
+                onTouchStart={() => startScrolling("left")}
+                onTouchEnd={stopScrolling}
+                className="flex-shrink-0 bg-black/50 p-2 rounded-full hover:bg-black/80 transition-all"
               >
-                <AnimatePresence mode="wait">
-                  {tvShowData.episodes.map((episode, i) => (
-                    <motion.div
-                      key={episode.id}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.3, delay: i * 0.05 }}
-                      onClick={() => handleEpisodeClick(episode.episode_number)}
-                      className={`inline-block w-28 md:w-52 p-2 rounded-lg mr-4 hover:cursor-pointer transition-all duration-300 hover:brightness-125 backdrop-blur-sm ${
-                        selectedEpisode.season === displaySeason &&
-                        selectedEpisode.episode === episode.episode_number
-                          ? "bg-black bg-opacity-80 border border-white border-opacity-50"
-                          : currentEpisode.episode === episode.episode_number &&
-                            currentEpisode.season === displaySeason
-                          ? "bg-yellow-400 bg-opacity-90 text-black"
-                          : "bg-black bg-opacity-50 border border-white border-opacity-20"
-                      }`}
-                    >
-                      <div className="relative">
-                        {episode.still_path && (
-                          <EpisodeImage
-                            src={`https://image.tmdb.org/t/p/w500/${episode.still_path}`}
-                            alt={episode.name}
-                            className="w-full h-14 md:h-28 mb-2 rounded"
-                          />
-                        )}
-                        <div className="absolute top-2 right-2 w-6 h-6 border border-white bg-black bg-opacity-70 rounded-full flex items-center justify-center backdrop-blur-sm">
-                          <span className="text-white text-xs font-bold">
-                            {episode.episode_number}
-                          </span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  style={{ transform: "rotate(180deg)" }}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </button>
+              <div
+                ref={episodesContainerRef}
+                className="w-full overflow-x-auto overflow-y-hidden scrollbar-thin scrollbar-thumb-white/50 scrollbar-track-transparent p-4 flex space-x-8 bg-black/10 rounded-lg"
+              >
+                {Object.keys(episodesBySeason)
+                  .map(Number)
+                  .sort((a, b) => a - b)
+                  .map((seasonNumber) => {
+                    const season = mediaDetails.seasons.find(
+                      (s) => s.season_number === seasonNumber
+                    );
+                    const episodes = episodesBySeason[seasonNumber];
+                    if (!episodes || episodes.length === 0) {
+                      // Show skeleton loader for seasons being fetched
+                      if (fetchingSeasons.has(seasonNumber)) {
+                        return (
+                          <div
+                            key={`season-skeleton-${seasonNumber}`}
+                            className="flex-shrink-0"
+                          >
+                            <h3 className="text-xl font-bold p-2 my-2 text-transparent">
+                              Loading...
+                            </h3>
+                            <div className="flex space-x-4">
+                              {Array.from({ length: 5 }).map((_, i) => (
+                                <EpisodeSkeleton key={i} />
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }
+
+                    return (
+                      <div
+                        ref={(el) =>
+                          (seasonGroupRefs.current[seasonNumber] = el)
+                        }
+                        key={`season-group-${seasonNumber}`}
+                        data-season-group={seasonNumber}
+                        className="flex-shrink-0"
+                      >
+                        <h3 className="text-xl font-bold p-2 my-2">
+                          {season ? season.name : `Season ${seasonNumber}`}
+                        </h3>
+                        <div className="flex space-x-4">
+                          {episodes.map((episode) => (
+                            <motion.div
+                              ref={(el) => {
+                                if (!episodeRefs.current[seasonNumber])
+                                  episodeRefs.current[seasonNumber] = {};
+                                episodeRefs.current[seasonNumber][
+                                  episode.episode_number
+                                ] = el;
+                              }}
+                              key={episode.id}
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              exit={{ opacity: 0 }}
+                              transition={{ duration: 0.3 }}
+                              onClick={() =>
+                                handleEpisodeClick(
+                                  episode.episode_number,
+                                  seasonNumber
+                                )
+                              }
+                              className={`w-52 p-2 rounded-lg hover:cursor-pointer transition-all duration-300 hover:brightness-125 backdrop-blur-sm flex-shrink-0 ${
+                                selectedEpisode.season === seasonNumber &&
+                                selectedEpisode.episode ===
+                                  episode.episode_number
+                                  ? "bg-black bg-opacity-80 border border-white border-opacity-50"
+                                  : currentEpisode.episode ===
+                                      episode.episode_number &&
+                                    currentEpisode.season === seasonNumber
+                                  ? "bg-yellow-400 bg-opacity-90 text-black"
+                                  : "bg-black bg-opacity-50 border border-white border-opacity-20"
+                              }`}
+                            >
+                              <div className="relative">
+                                {episode.still_path && (
+                                  <EpisodeImage
+                                    src={`https://image.tmdb.org/t/p/w500/${episode.still_path}`}
+                                    alt={episode.name}
+                                    className="w-full h-28 mb-2 rounded object-cover"
+                                  />
+                                )}
+                                <div className="absolute top-2 right-2 w-6 h-6 border border-white bg-black bg-opacity-70 rounded-full flex items-center justify-center backdrop-blur-sm">
+                                  <span className="text-white text-xs font-bold">
+                                    {episode.episode_number}
+                                  </span>
+                                </div>
+                              </div>
+                              <section className="m-1">
+                                <TypingText
+                                  text={episode.name}
+                                  className="text-sm font-bold overflow-hidden text-ellipsis whitespace-nowrap"
+                                />
+                                <div className="flex justify-between mt-1 text-xs text-white text-opacity-70">
+                                  <p>
+                                    {episode.air_date
+                                      ? new Date(
+                                          episode.air_date
+                                        ).toLocaleDateString("en-AU")
+                                      : "TBA"}
+                                  </p>
+                                  {episode.runtime && (
+                                    <p>{episode.runtime} min</p>
+                                  )}
+                                </div>
+                              </section>
+                            </motion.div>
+                          ))}
                         </div>
                       </div>
-                      <section className="m-1">
-                        <TypingText
-                          text={episode.name}
-                          className="text-[10px] md:text-sm font-bold overflow-hidden text-ellipsis whitespace-nowrap"
-                        />
-                        <div className="flex justify-between mt-1 text-[8px] md:text-xs text-white text-opacity-70">
-                          <p>
-                            {episode.air_date
-                              ? new Date(episode.air_date).toLocaleDateString(
-                                  "en-AU"
-                                )
-                              : "TBA"}
-                          </p>
-                          {episode.runtime && <p>{episode.runtime} min</p>}
-                        </div>
-                      </section>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
+                    );
+                  })}
               </div>
               <button
-                onClick={() => scrollEpisodeCarousel("left")}
-                className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full backdrop-blur-sm hover:bg-opacity-70 transition-all duration-300"
+                onMouseDown={() => startScrolling("right")}
+                onMouseUp={stopScrolling}
+                onMouseLeave={stopScrolling}
+                onTouchStart={() => startScrolling("right")}
+                onTouchEnd={stopScrolling}
+                className="flex-shrink-0 bg-black/50 p-2 rounded-full hover:bg-black/80 transition-all"
               >
-                &#8249;
-              </button>
-              <button
-                onClick={() => scrollEpisodeCarousel("right")}
-                className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full backdrop-blur-sm hover:bg-opacity-70 transition-all duration-300"
-              >
-                &#8250;
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
               </button>
             </div>
           )}
