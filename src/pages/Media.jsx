@@ -630,14 +630,6 @@ export default function MediaDetails() {
     currentEpisode,
   ]);
 
-  const handleManualScroll = (direction) => {
-    const container = episodesContainerRef.current;
-    if (!container) return;
-    const scrollAmount =
-      container.clientWidth * 0.8 * (direction === "left" ? -1 : 1);
-    container.scrollBy({ left: scrollAmount, behavior: "smooth" });
-  };
-
   const startScrolling = (direction) => {
     let speed = 10;
     const scroll = () => {
@@ -770,7 +762,7 @@ export default function MediaDetails() {
                 onMouseLeave={stopScrolling}
                 onTouchStart={() => startScrolling("left")}
                 onTouchEnd={stopScrolling}
-                className="flex-shrink-0 bg-black/50 p-2 rounded-full hover:bg-black/80 transition-all"
+                className="flex-shrink-0 bg-black/50 p-2 rounded-full hover:bg-black/80 transition-all select-none"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -790,7 +782,7 @@ export default function MediaDetails() {
               </button>
               <div
                 ref={episodesContainerRef}
-                className="w-full overflow-x-auto overflow-y-hidden scrollbar-thin scrollbar-thumb-white/50 scrollbar-track-transparent p-4 flex space-x-8 bg-black/10 rounded-lg"
+                className="w-full overflow-x-auto overflow-y-hidden scrollbar-thin scrollbar-thumb-white/50 scrollbar-track-transparent p-2 sm:p-4 flex space-x-4 sm:space-x-6 md:space-x-8 bg-black/10 rounded-lg"
               >
                 {Object.keys(episodesBySeason)
                   .map(Number)
@@ -811,7 +803,7 @@ export default function MediaDetails() {
                             <h3 className="text-xl font-bold p-2 my-2 text-transparent">
                               Loading...
                             </h3>
-                            <div className="flex space-x-4">
+                            <div className="flex space-x-2 sm:space-x-3 md:space-x-4">
                               {Array.from({ length: 5 }).map((_, i) => (
                                 <EpisodeSkeleton key={i} />
                               ))}
@@ -834,7 +826,7 @@ export default function MediaDetails() {
                         <h3 className="text-xl font-bold p-2 my-2">
                           {season ? season.name : `Season ${seasonNumber}`}
                         </h3>
-                        <div className="flex space-x-4">
+                        <div className="flex space-x-2 sm:space-x-3 md:space-x-4">
                           {episodes.map((episode) => (
                             <motion.div
                               ref={(el) => {
