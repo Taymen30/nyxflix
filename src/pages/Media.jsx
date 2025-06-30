@@ -584,14 +584,6 @@ export default function MediaDetails() {
 
   // Generate the correct player URL based on media type and mode
   const getPlayerUrls = useCallback(() => {
-    // For debugging
-    console.log("Media Details:", {
-      isAnime,
-      isGamerMode,
-      type,
-      id,
-    });
-
     if (!isGamerMode) {
       return {
         primary: null, // Will be set to YouTube trailer URL in Player component

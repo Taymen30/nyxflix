@@ -59,20 +59,6 @@ export default function Player({
     // Add sandbox attribute to all iframes for better security
     iframe.sandbox = "allow-scripts allow-same-origin allow-presentation";
 
-    // Log for debugging
-    console.log("Creating player with:", {
-      isAnime,
-      gamer,
-      useSecondary,
-      playerUrls,
-      chosenUrl:
-        gamer && playerUrls
-          ? useSecondary
-            ? playerUrls.secondary
-            : playerUrls.primary
-          : `https://www.youtube.com/embed/${trailerId}`,
-    });
-
     // Determine the source URL
     if (gamer && playerUrls) {
       iframe.src = useSecondary ? playerUrls.secondary : playerUrls.primary;
@@ -139,6 +125,11 @@ export default function Player({
       onClick={handlePlayButtonClick}
       onDoubleClick={handlePlayButtonDoubleClick}
       id="play-button"
+      title={
+        gamer
+          ? "Click to play | Double-click for alternate server"
+          : "Play Trailer"
+      }
       disabled={!trailerId && !isAnime}
     >
       <svg
