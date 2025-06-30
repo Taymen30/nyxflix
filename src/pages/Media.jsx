@@ -101,8 +101,21 @@ export default function MediaDetails() {
   const justScrolledToTargetRef = useRef(false);
   const isCorrectingSeasonRef = useRef(false);
 
+  // Track when user is manually scrolling to prevent auto-scroll-back
+  const isUserScrollingRef = useRef(false);
+  const userScrollTimeoutRef = useRef(null);
+
   // Anime-related state
   const [isAnime, setIsAnime] = useState(false);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (userScrollTimeoutRef.current) {
+        clearTimeout(userScrollTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Check if the media is anime based on origin country and genres
   const checkIfAnime = useCallback((data) => {
@@ -362,12 +375,13 @@ export default function MediaDetails() {
     }
 
     // 3. Handle scrolling to the current season when it's newly available (fallback)
-    // But don't run this if we just scrolled to a target season or are correcting season 0
+    // But don't run this if we just scrolled to a target season, are correcting season 0, or user is manually scrolling
     if (
       isInitialScrollDone &&
       type === "tvshow" &&
       !justScrolledToTargetRef.current &&
       !isCorrectingSeasonRef.current &&
+      !isUserScrollingRef.current &&
       seasonGroupRefs.current[currentEpisode.season]
     ) {
       console.log(
@@ -421,6 +435,15 @@ export default function MediaDetails() {
     const handleScroll = () => {
       if (isPrepending.current || Object.keys(episodesBySeason).length === 0)
         return;
+
+      // Mark that user is actively scrolling to prevent auto-scroll-back
+      isUserScrollingRef.current = true;
+      if (userScrollTimeoutRef.current) {
+        clearTimeout(userScrollTimeoutRef.current);
+      }
+      userScrollTimeoutRef.current = setTimeout(() => {
+        isUserScrollingRef.current = false;
+      }, 2000); // Clear flag after 2 seconds of no scrolling
 
       const { scrollLeft, scrollWidth, clientWidth } = container;
 
@@ -492,6 +515,9 @@ export default function MediaDetails() {
     return () => {
       container.removeEventListener("scroll", handleScroll);
       if (seasonObserver.current) seasonObserver.current.disconnect();
+      if (userScrollTimeoutRef.current) {
+        clearTimeout(userScrollTimeoutRef.current);
+      }
     };
   }, [
     visibleEpisodes,
@@ -645,6 +671,12 @@ export default function MediaDetails() {
   ]);
 
   const startScrolling = (direction) => {
+    // Mark as user scrolling when using scroll buttons
+    isUserScrollingRef.current = true;
+    if (userScrollTimeoutRef.current) {
+      clearTimeout(userScrollTimeoutRef.current);
+    }
+
     let speed = 10;
     const scroll = () => {
       if (episodesContainerRef.current) {
@@ -663,6 +695,10 @@ export default function MediaDetails() {
     if (scrollInterval.current) {
       cancelAnimationFrame(scrollInterval.current);
     }
+    // Set timeout to clear user scrolling flag after stopping
+    userScrollTimeoutRef.current = setTimeout(() => {
+      isUserScrollingRef.current = false;
+    }, 2000);
   };
 
   const renderContent = () => {
