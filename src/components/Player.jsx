@@ -125,11 +125,7 @@ export default function Player({
       onClick={handlePlayButtonClick}
       onDoubleClick={handlePlayButtonDoubleClick}
       id="play-button"
-      title={
-        gamer
-          ? "Click to play | Double-click for alternate server"
-          : "Play Trailer"
-      }
+      title={gamer ? "Click: Videasy | Double-click: VidSrc" : "Play Trailer"}
       disabled={!trailerId && !isAnime}
     >
       <svg

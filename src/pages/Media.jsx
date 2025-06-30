@@ -65,11 +65,26 @@ export default function MediaDetails() {
 
   const [visibleEpisodes, setVisibleEpisodes] = useState([]);
 
-  // A single, reliable state for the user's progress (only saved when Play is clicked)
-  const [currentEpisode, setCurrentEpisode] = useLocalStorage(
+  // Enhanced progress tracking with detailed watch data
+  const [watchProgress, setWatchProgress] = useLocalStorage(
     `tvshow_${id}_progress`,
-    { season: 1, episode: 1 }
+    {
+      currentEpisode: { season: 1, episode: 1 },
+      episodes: {}, // Will store: { "s1e1": { progress: 85, timestamp: 1200, duration: 2400, completed: true } }
+    }
   );
+
+  // Backwards compatibility - extract current episode from new structure
+  const currentEpisode = watchProgress.currentEpisode || {
+    season: 1,
+    episode: 1,
+  };
+  const setCurrentEpisode = (newEpisode) => {
+    setWatchProgress((prev) => ({
+      ...prev,
+      currentEpisode: newEpisode,
+    }));
+  };
 
   // State for what season is currently displayed in the dropdown (doesn't save progress)
   const [displaySeason, setDisplaySeason] = useState(currentEpisode.season);
@@ -108,14 +123,116 @@ export default function MediaDetails() {
   // Anime-related state
   const [isAnime, setIsAnime] = useState(false);
 
-  // Cleanup timeout on unmount
+  // Helper function to get the next episode - moved before useEffect to avoid initialization error
+  const getNextEpisode = useCallback(
+    (currentSeason, currentEpisodeNum) => {
+      if (!mediaDetails?.seasons) return null;
+
+      // Find current season data
+      const seasonData = mediaDetails.seasons.find(
+        (s) => s.season_number === currentSeason
+      );
+      if (!seasonData) return null;
+
+      // Check if there's a next episode in current season
+      const episodesInSeason = episodesBySeason[currentSeason];
+      if (episodesInSeason && currentEpisodeNum < episodesInSeason.length) {
+        return { season: currentSeason, episode: currentEpisodeNum + 1 };
+      }
+
+      // Check for next season
+      const nextSeason = mediaDetails.seasons.find(
+        (s) => s.season_number === currentSeason + 1
+      );
+      if (nextSeason) {
+        return { season: nextSeason.season_number, episode: 1 };
+      }
+
+      return null; // No next episode
+    },
+    [mediaDetails, episodesBySeason]
+  );
+
+  // Helper function to get episode progress data
+  const getEpisodeProgress = useCallback(
+    (seasonNum, episodeNum) => {
+      // Backwards compatibility: check if watchProgress has the new structure.
+      if (!watchProgress || typeof watchProgress.episodes !== "object") {
+        return null;
+      }
+      const episodeKey = `s${seasonNum}e${episodeNum}`;
+      return watchProgress.episodes[episodeKey] || null;
+    },
+    [watchProgress] // Depend on the whole object to handle structure changes.
+  );
+
+  // Progress tracking message listener
   useEffect(() => {
+    const handleProgressMessage = (event) => {
+      try {
+        if (typeof event.data === "string") {
+          const progressData = JSON.parse(event.data);
+          // console.log("Watch progress received:", progressData);
+
+          // Check if this is progress data from videasy.net
+          if (
+            progressData.id &&
+            progressData.type &&
+            progressData.progress !== undefined
+          ) {
+            const episodeKey =
+              progressData.type === "tv"
+                ? `s${progressData.season}e${progressData.episode}`
+                : "s0e0"; // Movies use season 0, episode 0
+
+            const progressPercent = progressData.progress;
+            const isCompleted = progressPercent >= 85; // Consider 85%+ as completed
+
+            // Update episode/movie progress
+            setWatchProgress((prev) => ({
+              ...prev,
+              episodes: {
+                ...prev.episodes,
+                [episodeKey]: {
+                  progress: progressPercent,
+                  timestamp: progressData.timestamp || 0,
+                  duration: progressData.duration || 0,
+                  completed: isCompleted,
+                  lastWatched: Date.now(),
+                },
+              },
+            }));
+
+            // Auto-advance to next episode if this one is completed and it's a TV show
+            if (
+              isCompleted &&
+              progressData.type === "tv" &&
+              type === "tvshow"
+            ) {
+              const nextEpisode = getNextEpisode(
+                progressData.season,
+                progressData.episode
+              );
+              if (nextEpisode) {
+                setCurrentEpisode(nextEpisode);
+              }
+            }
+          }
+        }
+      } catch (error) {
+        // Ignore parsing errors - not all messages are JSON
+      }
+    };
+
+    window.addEventListener("message", handleProgressMessage);
+
     return () => {
+      window.removeEventListener("message", handleProgressMessage);
       if (userScrollTimeoutRef.current) {
         clearTimeout(userScrollTimeoutRef.current);
       }
     };
-  }, []);
+  }, [id, type, setWatchProgress, setCurrentEpisode, getNextEpisode]);
 
   // Check if the media is anime based on origin country and genres
   const checkIfAnime = useCallback((data) => {
@@ -628,11 +745,25 @@ export default function MediaDetails() {
           : `tt${imdbId}`
         : null;
 
+      // Get movie progress for resume functionality
+      const movieProgress = getEpisodeProgress(0, 0); // Movies use season 0, episode 0
+      const resumeTimestamp = movieProgress?.timestamp || 0;
+
+      // Build videasy URL with features
+      const videasyParams = new URLSearchParams({
+        autoPlay: "true",
+      });
+
+      if (resumeTimestamp > 30) {
+        // Only resume if more than 30 seconds in
+        videasyParams.set("progress", Math.floor(resumeTimestamp).toString());
+      }
+
       return {
-        primary: `https://vidsrc.cc/v2/embed/movie/${
+        primary: `https://player.videasy.net/movie/${id}?${videasyParams.toString()}`,
+        secondary: `https://vidsrc.cc/v2/embed/movie/${
           formattedImdbId || id
         }?autoPlay=true`,
-        secondary: `https://vidsrc.to/embed/movie/${formattedImdbId || id}`,
       };
     }
 
@@ -644,13 +775,28 @@ export default function MediaDetails() {
         : `tt${imdbId}`
       : null;
 
+    // Get episode progress for resume functionality
+    const episodeProgress = getEpisodeProgress(seasonNum, episodeNum);
+    const resumeTimestamp = episodeProgress?.timestamp || 0;
+
+    // Build videasy URL with TV show features
+    const videasyParams = new URLSearchParams({
+      autoPlay: "true",
+      nextEpisode: "true",
+      autoplayNextEpisode: "true",
+      episodeSelector: "true",
+    });
+
+    if (resumeTimestamp > 30) {
+      // Only resume if more than 30 seconds in
+      videasyParams.set("progress", Math.floor(resumeTimestamp).toString());
+    }
+
     return {
-      primary: `https://vidsrc.cc/v2/embed/tv/${
+      primary: `https://player.videasy.net/tv/${id}/${seasonNum}/${episodeNum}?${videasyParams.toString()}`,
+      secondary: `https://vidsrc.cc/v2/embed/tv/${
         formattedImdbId || id
       }/${seasonNum}/${episodeNum}?autoPlay=true`,
-      secondary: `https://vidsrc.to/embed/tv/${
-        formattedImdbId || id
-      }/${seasonNum}/${episodeNum}`,
     };
   }, [
     isGamerMode,
@@ -660,6 +806,7 @@ export default function MediaDetails() {
     mediaDetails,
     selectedEpisode,
     currentEpisode,
+    getEpisodeProgress,
   ]);
 
   const startScrolling = (direction) => {
@@ -869,74 +1016,126 @@ export default function MediaDetails() {
                           {season ? season.name : `Season ${seasonNumber}`}
                         </h3>
                         <div className="flex space-x-2 sm:space-x-3 md:space-x-4">
-                          {episodes.map((episode) => (
-                            <motion.div
-                              ref={(el) => {
-                                if (!episodeRefs.current[seasonNumber])
-                                  episodeRefs.current[seasonNumber] = {};
-                                episodeRefs.current[seasonNumber][
-                                  episode.episode_number
-                                ] = el;
-                              }}
-                              key={episode.id}
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              exit={{ opacity: 0 }}
-                              transition={{ duration: 0.3 }}
-                              onClick={() =>
-                                handleEpisodeClick(
-                                  episode.episode_number,
-                                  seasonNumber
-                                )
-                              }
-                              className={`w-32 sm:w-40 md:w-48 lg:w-52 p-2 rounded-lg hover:cursor-pointer transition-all duration-300 hover:brightness-125 backdrop-blur-sm flex-shrink-0 select-none ${
-                                selectedEpisode.season === seasonNumber &&
-                                selectedEpisode.episode ===
-                                  episode.episode_number
-                                  ? "bg-black bg-opacity-80 border border-white border-opacity-50"
-                                  : currentEpisode.episode ===
-                                      episode.episode_number &&
-                                    currentEpisode.season === seasonNumber
-                                  ? "bg-yellow-400 bg-opacity-90 text-black"
-                                  : "bg-black bg-opacity-50 border border-white border-opacity-20"
-                              }`}
-                            >
-                              <div className="relative">
-                                {episode.still_path && (
-                                  <EpisodeImage
-                                    src={`https://image.tmdb.org/t/p/w500/${episode.still_path}`}
-                                    alt={episode.name}
-                                    className="w-full h-16 sm:h-20 md:h-24 lg:h-28 mb-2 rounded object-cover"
-                                  />
-                                )}
-                                <div className="absolute top-1 right-1 sm:top-2 sm:right-2 w-5 h-5 sm:w-6 sm:h-6 border border-white bg-black bg-opacity-70 rounded-full flex items-center justify-center backdrop-blur-sm">
-                                  <span className="text-white text-xs font-bold">
-                                    {episode.episode_number}
-                                  </span>
-                                </div>
-                              </div>
-                              <section className="m-1">
-                                <TypingText
-                                  text={episode.name}
-                                  className="text-xs sm:text-sm font-bold overflow-hidden text-ellipsis whitespace-nowrap"
-                                />
-                                <div className="flex justify-between mt-1 text-xs text-white text-opacity-70">
-                                  <p className="text-xs">
-                                    {episode.air_date
-                                      ? new Date(
-                                          episode.air_date
-                                        ).toLocaleDateString("en-AU")
-                                      : "TBA"}
-                                  </p>
-                                  {episode.runtime && (
-                                    <p className="text-xs">
-                                      {episode.runtime} min
-                                    </p>
+                          {episodes.map((episode) => {
+                            const progress = getEpisodeProgress(
+                              seasonNumber,
+                              episode.episode_number
+                            );
+                            const isCompleted = progress?.completed || false;
+                            const isInProgress =
+                              progress && progress.progress > 5 && !isCompleted;
+                            const isCurrentEpisode =
+                              currentEpisode.episode ===
+                                episode.episode_number &&
+                              currentEpisode.season === seasonNumber;
+                            const isSelected =
+                              selectedEpisode.season === seasonNumber &&
+                              selectedEpisode.episode ===
+                                episode.episode_number;
+
+                            return (
+                              <motion.div
+                                ref={(el) => {
+                                  if (!episodeRefs.current[seasonNumber])
+                                    episodeRefs.current[seasonNumber] = {};
+                                  episodeRefs.current[seasonNumber][
+                                    episode.episode_number
+                                  ] = el;
+                                }}
+                                key={episode.id}
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.3 }}
+                                onClick={() =>
+                                  handleEpisodeClick(
+                                    episode.episode_number,
+                                    seasonNumber
+                                  )
+                                }
+                                className={`w-32 sm:w-40 md:w-48 lg:w-52 p-2 rounded-lg hover:cursor-pointer transition-all duration-300 hover:brightness-125 backdrop-blur-sm flex-shrink-0 select-none ${
+                                  isSelected
+                                    ? "bg-black bg-opacity-80 border border-white border-opacity-50"
+                                    : isCompleted
+                                    ? "bg-green-600 bg-opacity-90 text-white border border-green-400 border-opacity-50"
+                                    : isInProgress
+                                    ? "bg-blue-600 bg-opacity-90 text-white border border-blue-400 border-opacity-50"
+                                    : isCurrentEpisode
+                                    ? "bg-yellow-400 bg-opacity-90 text-black border border-yellow-300 border-opacity-50"
+                                    : "bg-black bg-opacity-50 border border-white border-opacity-20"
+                                }`}
+                              >
+                                <div className="relative">
+                                  {episode.still_path && (
+                                    <EpisodeImage
+                                      src={`https://image.tmdb.org/t/p/w500/${episode.still_path}`}
+                                      alt={episode.name}
+                                      className="w-full h-16 sm:h-20 md:h-24 lg:h-28 mb-2 rounded object-cover"
+                                    />
                                   )}
+                                  <div className="absolute top-1 right-1 sm:top-2 sm:right-2 w-5 h-5 sm:w-6 sm:h-6 border border-white bg-black bg-opacity-70 rounded-full flex items-center justify-center backdrop-blur-sm">
+                                    <span className="text-white text-xs font-bold">
+                                      {episode.episode_number}
+                                    </span>
+                                  </div>
                                 </div>
-                              </section>
-                            </motion.div>
-                          ))}
+                                <section className="m-1">
+                                  {/* Progress indicators */}
+                                  {isInProgress && (
+                                    <div className="mb-2">
+                                      <div className="text-xs font-bold text-blue-200 mb-1">
+                                        Continue
+                                      </div>
+                                      <div className="w-full bg-blue-900 rounded-full h-1">
+                                        <div
+                                          className="bg-blue-400 h-1 rounded-full transition-all duration-300"
+                                          style={{
+                                            width: `${progress.progress}%`,
+                                          }}
+                                        ></div>
+                                      </div>
+                                    </div>
+                                  )}
+                                  {isCompleted && (
+                                    <div className="flex items-center mb-2">
+                                      <svg
+                                        className="w-4 h-4 text-green-200 mr-1"
+                                        fill="currentColor"
+                                        viewBox="0 0 20 20"
+                                      >
+                                        <path
+                                          fillRule="evenodd"
+                                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                          clipRule="evenodd"
+                                        />
+                                      </svg>
+                                      <span className="text-xs font-bold text-green-200">
+                                        Watched
+                                      </span>
+                                    </div>
+                                  )}
+                                  <TypingText
+                                    text={episode.name}
+                                    className="text-xs sm:text-sm font-bold overflow-hidden text-ellipsis whitespace-nowrap"
+                                  />
+                                  <div className="flex justify-between mt-1 text-xs text-white text-opacity-70">
+                                    <p className="text-xs">
+                                      {episode.air_date
+                                        ? new Date(
+                                            episode.air_date
+                                          ).toLocaleDateString("en-AU")
+                                        : "TBA"}
+                                    </p>
+                                    {episode.runtime && (
+                                      <p className="text-xs">
+                                        {episode.runtime} min
+                                      </p>
+                                    )}
+                                  </div>
+                                </section>
+                              </motion.div>
+                            );
+                          })}
                         </div>
                       </div>
                     );
