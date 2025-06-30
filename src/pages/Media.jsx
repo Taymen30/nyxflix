@@ -577,13 +577,27 @@ export default function MediaDetails() {
     const episodeNum = selectedEpisode.episode || currentEpisode.episode || 1;
     const seasonNum = selectedEpisode.season || currentEpisode.season || 1;
 
-    // For anime content - Treat like TV shows using TMDB ID
+    // For anime content - Calculate absolute episode number across all seasons
     if (isAnime) {
       const animeId = `tmdb${id}`; // Prefix TMDB ID
-      // Using vidsrc.cc v2 embed for anime
+
+      // Calculate absolute episode number by counting episodes from previous seasons
+      let absoluteEpisodeNum = episodeNum;
+      if (mediaDetails?.seasons && seasonNum > 1) {
+        for (let i = 1; i < seasonNum; i++) {
+          const season = mediaDetails.seasons.find(
+            (s) => s.season_number === i
+          );
+          if (season && season.episode_count) {
+            absoluteEpisodeNum += season.episode_count;
+          }
+        }
+      }
+
+      // Using vidsrc.cc v2 embed for anime (only uses absolute episode number, no season)
       return {
-        primary: `https://vidsrc.cc/v2/embed/anime/${animeId}/${episodeNum}/dub?autoPlay=true&autoSkipIntro=true`,
-        secondary: `https://vidsrc.cc/v2/embed/anime/${animeId}/${episodeNum}/sub?autoPlay=true&autoSkipIntro=true`,
+        primary: `https://vidsrc.cc/v2/embed/anime/${animeId}/${absoluteEpisodeNum}/dub?autoPlay=true&autoSkipIntro=true`,
+        secondary: `https://vidsrc.cc/v2/embed/anime/${animeId}/${absoluteEpisodeNum}/sub?autoPlay=true&autoSkipIntro=true`,
       };
     }
 
