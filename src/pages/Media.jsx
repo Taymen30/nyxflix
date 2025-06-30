@@ -897,7 +897,7 @@ export default function MediaDetails() {
                                   seasonNumber
                                 )
                               }
-                              className={`w-32 sm:w-40 md:w-48 lg:w-52 p-2 rounded-lg hover:cursor-pointer transition-all duration-300 hover:brightness-125 backdrop-blur-sm flex-shrink-0 ${
+                              className={`w-32 sm:w-40 md:w-48 lg:w-52 p-2 rounded-lg hover:cursor-pointer transition-all duration-300 hover:brightness-125 backdrop-blur-sm flex-shrink-0 select-none ${
                                 selectedEpisode.season === seasonNumber &&
                                 selectedEpisode.episode ===
                                   episode.episode_number
