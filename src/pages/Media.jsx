@@ -1055,9 +1055,9 @@ export default function MediaDetails() {
                                 }
                                 className={`w-32 sm:w-40 md:w-48 lg:w-52 p-2 rounded-lg hover:cursor-pointer transition-all duration-300 hover:brightness-125 backdrop-blur-sm flex-shrink-0 select-none ${
                                   isSelected
-                                    ? "bg-black bg-opacity-80 border border-white border-opacity-50"
+                                    ? "bg-purple-600 bg-opacity-95 text-white border-2 border-purple-300 shadow-lg shadow-purple-500/50 scale-105"
                                     : isCompleted
-                                    ? "bg-green-600 bg-opacity-90 text-white border border-green-400 border-opacity-50"
+                                    ? "bg-emerald-600 bg-opacity-90 text-white border border-emerald-400 border-opacity-60"
                                     : isInProgress
                                     ? "bg-blue-600 bg-opacity-90 text-white border border-blue-400 border-opacity-50"
                                     : isCurrentEpisode
@@ -1097,9 +1097,9 @@ export default function MediaDetails() {
                                     </div>
                                   )}
                                   {isCompleted && (
-                                    <div className="flex items-center mb-2">
+                                    <div className="flex items-center justify-center mb-2 bg-emerald-500/20 rounded-full py-1 px-2">
                                       <svg
-                                        className="w-4 h-4 text-green-200 mr-1"
+                                        className="w-4 h-4 text-emerald-200 mr-1"
                                         fill="currentColor"
                                         viewBox="0 0 20 20"
                                       >
@@ -1109,8 +1109,8 @@ export default function MediaDetails() {
                                           clipRule="evenodd"
                                         />
                                       </svg>
-                                      <span className="text-xs font-bold text-green-200">
-                                        Watched
+                                      <span className="text-xs font-bold text-emerald-200">
+                                        ✓ Completed
                                       </span>
                                     </div>
                                   )}
