@@ -122,6 +122,7 @@ export default function MediaDetails() {
 
   // Anime-related state
   const [isAnime, setIsAnime] = useState(false);
+  const [animeAudio, setAnimeAudio] = useState("dub"); // 'dub' or 'sub'
 
   // Helper function to get the next episode - moved before useEffect to avoid initialization error
   const getNextEpisode = useCallback(
@@ -729,10 +730,16 @@ export default function MediaDetails() {
         }
       }
 
-      // Using vidsrc.cc v2 embed for anime (only uses absolute episode number, no season)
+      // Using vidsrc.cc v2 embed for anime
+      const primaryUrl = `https://vidsrc.cc/v2/embed/anime/${animeId}/${absoluteEpisodeNum}/${animeAudio}?autoPlay=true&autoSkipIntro=true`;
+
+      // Secondary source is the other audio option
+      const secondaryAudio = animeAudio === "dub" ? "sub" : "dub";
+      const secondaryUrl = `https://vidsrc.cc/v2/embed/anime/${animeId}/${absoluteEpisodeNum}/${secondaryAudio}?autoPlay=true&autoSkipIntro=true`;
+
       return {
-        primary: `https://vidsrc.cc/v2/embed/anime/${animeId}/${absoluteEpisodeNum}/dub?autoPlay=true&autoSkipIntro=true`,
-        secondary: `https://vidsrc.cc/v2/embed/anime/${animeId}/${absoluteEpisodeNum}/sub?autoPlay=true&autoSkipIntro=true`,
+        primary: primaryUrl,
+        secondary: secondaryUrl,
       };
     }
 
@@ -807,6 +814,7 @@ export default function MediaDetails() {
     selectedEpisode,
     currentEpisode,
     getEpisodeProgress,
+    animeAudio,
   ]);
 
   const startScrolling = (direction) => {
@@ -908,6 +916,8 @@ export default function MediaDetails() {
                   onPlayClick={handlePlayButtonClick}
                   isAnime={isAnime}
                   playerUrls={playerUrls}
+                  animeAudio={animeAudio}
+                  onAnimeAudioChange={setAnimeAudio}
                 />
                 <BookmarkButton id={mediaDetails.id} />
                 <Credits

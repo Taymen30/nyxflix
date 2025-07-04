@@ -4,74 +4,71 @@ import { useLocalStorage } from "../hooks/useLocalStorage";
 const apiKey = process.env.REACT_APP_API_KEY;
 
 export default function Player({
-  imdb_id,
   id,
   type,
-  season,
-  episode,
   onPlayClick,
   isAnime,
   playerUrls,
+  animeAudio,
+  onAnimeAudioChange,
 }) {
   const [trailerId, setTrailerId] = useState(null);
-  const [gamer, setGamer] = useLocalStorage("gamer", false);
+  const [gamer] = useLocalStorage("gamer", false);
 
+  // Effect to fetch trailer for non-gamer mode
   useEffect(() => {
-    function handleKeyDown(event) {
-      if (event.ctrlKey && event.key === "v") {
-        toggleGamerStatus();
-      }
+    if (!gamer) {
+      fetchTrailerKey(type, id);
     }
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [id, type, gamer]);
 
-  useEffect(() => {
-    fetchTrailerKey(type, id);
-  }, [id, type]);
-
+  // Main click handler
   function handlePlayButtonClick() {
     onPlayClick();
-    createPlayerIframe(false);
+    createPlayerIframe(false); // Always play primary on single click
   }
 
+  // Double-click for secondary source in gamer mode
   function handlePlayButtonDoubleClick() {
     if (gamer) {
       onPlayClick();
-      createPlayerIframe(true);
+      createPlayerIframe(true); // 'true' for secondary source
+    }
+  }
+
+  // Handler for toggling sub/dub
+  function handleAudioToggle() {
+    if (onAnimeAudioChange) {
+      const newAudio = animeAudio === "dub" ? "sub" : "dub";
+      onAnimeAudioChange(newAudio);
     }
   }
 
   function createPlayerIframe(useSecondary) {
-    // Remove any existing iframe
-    const previousIframe = document.querySelector("#player-container iframe");
+    const playerContainer = document.getElementById("player-container");
+    if (!playerContainer) return;
+
+    const previousIframe = playerContainer.querySelector("iframe");
     if (previousIframe) {
       previousIframe.remove();
     }
 
-    // Create a new iframe
     const iframe = document.createElement("iframe");
     iframe.className =
       "bg-black w-[90vw] h-[50vw] absolute top-[12vh] md:w-[60vw] md:h-[28vw]";
     iframe.referrerPolicy = "no-referrer";
     iframe.setAttribute("allowFullScreen", true);
-
-    // Add sandbox attribute to all iframes for better security
     iframe.sandbox = "allow-scripts allow-same-origin allow-presentation";
 
-    // Determine the source URL
     if (gamer && playerUrls) {
       iframe.src = useSecondary ? playerUrls.secondary : playerUrls.primary;
-    } else {
+    } else if (trailerId) {
       iframe.src = `https://www.youtube.com/embed/${trailerId}`;
+    } else {
+      return;
     }
 
-    // Add the iframe to the container
-    document.getElementById("player-container").appendChild(iframe);
-  }
-
-  function toggleGamerStatus() {
-    setGamer((prevGamer) => !prevGamer);
+    playerContainer.appendChild(iframe);
   }
 
   function fetchTrailerKey(type, id) {
@@ -82,66 +79,53 @@ export default function Player({
     fetch(url)
       .then((res) => res.json())
       .then((data) => {
-        const videos = data.results;
-        if (videos?.length === 0) {
-          console.error("No videos found");
-          return;
-        }
-        const sortedVideos = [...videos];
-        const sortOrder = ["Trailer", "Teaser", "Clip", "Featurette"];
-        sortedVideos.sort((a, b) => {
-          const indexA = sortOrder.indexOf(a.type ?? "");
-          const indexB = sortOrder.indexOf(b.type ?? "");
-          if (indexA === -1 && indexB === -1) {
-            return (a.type ?? "").localeCompare(b.type ?? "");
-          } else if (indexA === -1) {
-            return 1;
-          } else if (indexB === -1) {
-            return -1;
-          } else {
-            return indexA - indexB;
-          }
-        });
-        const bestVideo = sortedVideos.find(
-          (video) => video.site === "YouTube"
+        const bestVideo = data.results?.find(
+          (v) => v.site === "YouTube" && v.type === "Trailer"
         );
-        if (bestVideo && bestVideo.key) {
-          const trailerKey = bestVideo.key;
-          setTrailerId(trailerKey);
-        } else {
-          console.log("No suitable video found");
+        if (bestVideo) {
+          setTrailerId(bestVideo.key);
         }
       })
       .catch((error) => console.error("Error fetching trailers:", error));
   }
 
   return (
-    <div
-      className={`flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full transition-all duration-300 cursor-pointer ${
-        isAnime
-          ? "bg-red-500 hover:bg-red-600 text-white"
-          : "bg-white text-black hover:bg-black hover:text-white"
-      }`}
-      onClick={handlePlayButtonClick}
-      onDoubleClick={handlePlayButtonDoubleClick}
-      id="play-button"
-      title={gamer ? "Click: Videasy | Double-click: VidSrc" : "Play Trailer"}
-      disabled={!trailerId && !isAnime}
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth={1.5}
-        stroke="currentColor"
-        className="w-6 h-6 sm:w-7 sm:h-7"
+    <div className="flex items-center gap-3">
+      {/* Play Button */}
+      <div
+        className={`flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full transition-all duration-300 cursor-pointer ${"bg-white text-black hover:bg-black hover:text-white"}`}
+        onClick={handlePlayButtonClick}
+        onDoubleClick={handlePlayButtonDoubleClick}
+        id="play-button"
+        title={gamer ? "Click: Play | Dbl-Click: Other Source" : "Play Trailer"}
+        style={{ pointerEvents: !gamer && !trailerId ? "none" : "auto" }}
       >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"
-        />
-      </svg>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={1.5}
+          stroke="currentColor"
+          className="w-6 h-6 sm:w-7 sm:h-7"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"
+          />
+        </svg>
+      </div>
+
+      {/* Anime Audio Toggle Button */}
+      {gamer && isAnime && (
+        <button
+          onClick={handleAudioToggle}
+          className="h-8 sm:h-10 px-4 rounded-full bg-purple-600 text-white font-semibold text-sm transition-all duration-300 hover:bg-purple-700"
+          title="Toggle audio between Subbed and Dubbed"
+        >
+          {animeAudio === "dub" ? "Dub" : "Sub"}
+        </button>
+      )}
     </div>
   );
 }
