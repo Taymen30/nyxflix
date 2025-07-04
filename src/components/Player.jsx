@@ -25,12 +25,12 @@ export default function Player({
   // Main click handler
   function handlePlayButtonClick() {
     onPlayClick();
-    createPlayerIframe(false); // Always play primary on single click
+    createPlayerIframe(false); // Play primary source
   }
 
   // Double-click for secondary source in gamer mode
   function handlePlayButtonDoubleClick() {
-    if (gamer) {
+    if (gamer && playerUrls?.secondary) {
       onPlayClick();
       createPlayerIframe(true); // 'true' for secondary source
     }
@@ -60,14 +60,16 @@ export default function Player({
     iframe.setAttribute("allowFullScreen", true);
     iframe.sandbox = "allow-scripts allow-same-origin allow-presentation";
 
+    let src = "";
     if (gamer && playerUrls) {
-      iframe.src = useSecondary ? playerUrls.secondary : playerUrls.primary;
+      src = useSecondary ? playerUrls.secondary : playerUrls.primary;
     } else if (trailerId) {
-      iframe.src = `https://www.youtube.com/embed/${trailerId}`;
-    } else {
-      return;
+      src = `https://www.youtube.com/embed/${trailerId}`;
     }
 
+    if (!src) return; // Don't append iframe if no source is determined
+
+    iframe.src = src;
     playerContainer.appendChild(iframe);
   }
 
@@ -97,8 +99,17 @@ export default function Player({
         onClick={handlePlayButtonClick}
         onDoubleClick={handlePlayButtonDoubleClick}
         id="play-button"
-        title={gamer ? "Click: Play | Dbl-Click: Other Source" : "Play Trailer"}
-        style={{ pointerEvents: !gamer && !trailerId ? "none" : "auto" }}
+        title={
+          gamer
+            ? `Click: Play ${
+                playerUrls?.secondary ? "| Dbl-Click: Other Source" : ""
+              }`
+            : "Play Trailer"
+        }
+        style={{
+          pointerEvents: !gamer && !trailerId ? "none" : "auto",
+          userSelect: "none",
+        }}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

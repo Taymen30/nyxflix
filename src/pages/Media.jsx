@@ -122,7 +122,11 @@ export default function MediaDetails() {
 
   // Anime-related state
   const [isAnime, setIsAnime] = useState(false);
-  const [animeAudio, setAnimeAudio] = useState("dub"); // 'dub' or 'sub'
+  const [animeAudio, setAnimeAudio] = useLocalStorage(
+    "animeAudioPreference",
+    "dub"
+  ); // 'dub' or 'sub'
+  const [anilistId, setAnilistId] = useState(null);
 
   // Helper function to get the next episode - moved before useEffect to avoid initialization error
   const getNextEpisode = useCallback(
@@ -256,6 +260,82 @@ export default function MediaDetails() {
     setIsAnime(animeDetected);
   }, []);
 
+  const contentType = type === "tvshow" ? "tv" : "movie";
+
+  // Fetch anilist ID by title when media is identified as anime.
+  useEffect(() => {
+    if (isAnime && mediaDetails) {
+      const fetchAnilistIdByTitle = async () => {
+        // Prefer the English title for search, as it's often more unique.
+        const searchTerm = mediaDetails.name || mediaDetails.original_name;
+
+        if (!searchTerm) {
+          return; // Can't search without a title
+        }
+
+        const query = `
+          query ($search: String) {
+            Page(page: 1, perPage: 1) {
+              media(search: $search, type: ANIME, sort: SEARCH_MATCH) {
+                id
+                title {
+                  romaji
+                  english
+                }
+              }
+            }
+          }
+        `;
+
+        const variables = {
+          search: searchTerm,
+        };
+
+        try {
+          console.log(`Searching AniList for title: "${searchTerm}"`);
+          const response = await fetch("https://graphql.anilist.co", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify({
+              query,
+              variables,
+            }),
+          });
+
+          if (!response.ok) {
+            console.error(
+              `AniList API search failed. Status: ${response.status}`
+            );
+            setAnilistId(null);
+            return;
+          }
+
+          const result = await response.json();
+          const firstMatch = result.data?.Page?.media[0];
+
+          if (firstMatch) {
+            console.log(
+              `AniList ID found: ${firstMatch.id} for title "${
+                firstMatch.title.english || firstMatch.title.romaji
+              }"`
+            );
+            setAnilistId(firstMatch.id);
+          } else {
+            console.warn(`No AniList ID found for title "${searchTerm}"`);
+            setAnilistId(null);
+          }
+        } catch (error) {
+          console.error("Error fetching from AniList API:", error);
+          setAnilistId(null);
+        }
+      };
+      fetchAnilistIdByTitle();
+    }
+  }, [isAnime, mediaDetails]);
+
   const EpisodeSkeleton = () => (
     <div className="w-32 sm:w-40 md:w-48 lg:w-52 p-2 rounded-lg bg-black/50 flex-shrink-0 animate-pulse">
       <div className="w-full h-16 sm:h-20 md:h-24 lg:h-28 mb-2 rounded bg-white/10"></div>
@@ -321,8 +401,6 @@ export default function MediaDetails() {
   useEffect(() => {
     setDisplaySeason(currentEpisode.season);
   }, [currentEpisode.season]);
-
-  const contentType = type === "tvshow" ? "tv" : "movie";
 
   // Fetch media details from TMDB
   useEffect(() => {
@@ -733,9 +811,17 @@ export default function MediaDetails() {
       // Using vidsrc.cc v2 embed for anime
       const primaryUrl = `https://vidsrc.cc/v2/embed/anime/${animeId}/${absoluteEpisodeNum}/${animeAudio}?autoPlay=true&autoSkipIntro=true`;
 
-      // Secondary source is the other audio option
-      const secondaryAudio = animeAudio === "dub" ? "sub" : "dub";
-      const secondaryUrl = `https://vidsrc.cc/v2/embed/anime/${animeId}/${absoluteEpisodeNum}/${secondaryAudio}?autoPlay=true&autoSkipIntro=true`;
+      // Secondary source using videasy.net with anilistId
+      let secondaryUrl = null;
+      if (anilistId) {
+        const dubParam = animeAudio === "dub" ? "?dub=true" : "";
+        if (type === "tvshow") {
+          secondaryUrl = `https://player.videasy.net/anime/${anilistId}/${absoluteEpisodeNum}${dubParam}`;
+        } else {
+          // It's a movie
+          secondaryUrl = `https://player.videasy.net/anime/${anilistId}${dubParam}`;
+        }
+      }
 
       return {
         primary: primaryUrl,
@@ -759,6 +845,7 @@ export default function MediaDetails() {
       // Build videasy URL with features
       const videasyParams = new URLSearchParams({
         autoPlay: "true",
+        subtitles: "false", // Subtitles off by default
       });
 
       if (resumeTimestamp > 30) {
@@ -792,6 +879,7 @@ export default function MediaDetails() {
       nextEpisode: "true",
       autoplayNextEpisode: "true",
       episodeSelector: "true",
+      subtitles: "false", // Subtitles off by default
     });
 
     if (resumeTimestamp > 30) {
@@ -815,6 +903,7 @@ export default function MediaDetails() {
     currentEpisode,
     getEpisodeProgress,
     animeAudio,
+    anilistId,
   ]);
 
   const startScrolling = (direction) => {
