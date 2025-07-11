@@ -128,6 +128,14 @@ export default function MediaDetails() {
   ); // 'dub' or 'sub'
   const [anilistId, setAnilistId] = useState(null);
 
+  // Disable scrolling on this page only
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, []);
+
   // Helper function to get the next episode - moved before useEffect to avoid initialization error
   const getNextEpisode = useCallback(
     (currentSeason, currentEpisodeNum) => {
@@ -980,6 +988,31 @@ export default function MediaDetails() {
                 </Link>
               ))}
           </ul>
+
+          {/* Current episode info */}
+          {isGamerMode &&
+            type === "tvshow" &&
+            (selectedEpisode.season || currentEpisode.season) && (
+              <div className="ml-2 md:ml-8 mt-2">
+                <p className="text-lg md:text-xl font-semibold text-white/90">
+                  {(() => {
+                    const seasonNum =
+                      selectedEpisode.season || currentEpisode.season;
+                    const episodeNum =
+                      selectedEpisode.episode || currentEpisode.episode;
+                    const episodes = episodesBySeason[seasonNum];
+                    const episode = episodes?.find(
+                      (ep) => ep.episode_number === episodeNum
+                    );
+
+                    if (episode) {
+                      return `S${seasonNum}E${episodeNum}: ${episode.name}`;
+                    }
+                    return `Season ${seasonNum}, Episode ${episodeNum}`;
+                  })()}
+                </p>
+              </div>
+            )}
         </header>
 
         {mediaDetails.backdrop_path && (
@@ -990,9 +1023,12 @@ export default function MediaDetails() {
           />
         )}
 
-        <div id="player-container" className="w-full flex justify-center"></div>
+        <div
+          id="player-container"
+          className="w-full flex justify-center mt-8"
+        ></div>
 
-        <div className="absolute bottom-0 mb-[-1rem] p-4 w-full flex flex-col gap-2">
+        <div className="absolute bottom-0 mb-4 p-4 w-full flex flex-col gap-2">
           {isGamerMode && (
             <div className="w-full flex items-center justify-center gap-4 mb-2">
               <section className="flex flex-row gap-3 items-center">
@@ -1050,11 +1086,11 @@ export default function MediaDetails() {
                 onMouseLeave={stopScrolling}
                 onTouchStart={() => startScrolling("left")}
                 onTouchEnd={stopScrolling}
-                className="flex-shrink-0 bg-black/50 p-2 rounded-full hover:bg-black/80 transition-all select-none"
+                className="flex-shrink-0 bg-black/70 p-1.5 rounded-full hover:bg-black/90 transition-all select-none"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
+                  className="h-4 w-4"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -1070,7 +1106,7 @@ export default function MediaDetails() {
               </button>
               <div
                 ref={episodesContainerRef}
-                className="w-full overflow-x-auto overflow-y-hidden scrollbar-thin scrollbar-thumb-white/50 scrollbar-track-transparent p-2 sm:p-4 flex space-x-4 sm:space-x-6 md:space-x-8 bg-black/10 rounded-lg"
+                className="w-full overflow-x-auto overflow-y-hidden scrollbar-none py-2 px-1 flex space-x-2"
               >
                 {Object.keys(episodesBySeason)
                   .map(Number)
@@ -1088,12 +1124,17 @@ export default function MediaDetails() {
                             key={`season-skeleton-${seasonNumber}`}
                             className="flex-shrink-0"
                           >
-                            <h3 className="text-xl font-bold p-2 my-2 text-transparent">
+                            <h3 className="text-sm font-semibold px-2 py-1 text-white/80">
                               Loading...
                             </h3>
-                            <div className="flex space-x-2 sm:space-x-3 md:space-x-4">
+                            <div className="flex space-x-1.5">
                               {Array.from({ length: 5 }).map((_, i) => (
-                                <EpisodeSkeleton key={i} />
+                                <div
+                                  key={i}
+                                  className="w-36 h-24 p-1 rounded-md bg-black/50 flex-shrink-0 animate-pulse"
+                                >
+                                  <div className="w-full h-full bg-white/10 rounded"></div>
+                                </div>
                               ))}
                             </div>
                           </div>
@@ -1111,10 +1152,10 @@ export default function MediaDetails() {
                         data-season-group={seasonNumber}
                         className="flex-shrink-0"
                       >
-                        <h3 className="text-xl font-bold p-2 my-2">
-                          {season ? season.name : `Season ${seasonNumber}`}
+                        <h3 className="text-sm font-semibold px-2 py-1 text-white/90 bg-black/40 rounded-md backdrop-blur-sm inline-block mb-2">
+                          {season ? season.name : `S${seasonNumber}`}
                         </h3>
-                        <div className="flex space-x-2 sm:space-x-3 md:space-x-4">
+                        <div className="flex space-x-1.5">
                           {episodes.map((episode) => {
                             const progress = getEpisodeProgress(
                               seasonNumber,
@@ -1152,7 +1193,7 @@ export default function MediaDetails() {
                                     seasonNumber
                                   )
                                 }
-                                className={`w-32 sm:w-40 md:w-48 lg:w-52 p-2 rounded-lg hover:cursor-pointer transition-all duration-300 hover:brightness-125 backdrop-blur-sm flex-shrink-0 select-none ${
+                                className={`w-36 h-24 p-1 rounded-md hover:cursor-pointer transition-all duration-200 hover:brightness-125 flex-shrink-0 select-none ${
                                   isSelected
                                     ? "bg-purple-600 bg-opacity-95 text-white border-2 border-purple-300 shadow-lg shadow-purple-500/50 scale-105"
                                     : isCompleted
@@ -1164,41 +1205,42 @@ export default function MediaDetails() {
                                     : "bg-black bg-opacity-50 border border-white border-opacity-20"
                                 }`}
                               >
-                                <div className="relative">
-                                  {episode.still_path && (
+                                {/* Episode image with overlay */}
+                                <div className="relative w-full h-full">
+                                  {episode.still_path ? (
                                     <EpisodeImage
-                                      src={`https://image.tmdb.org/t/p/w500/${episode.still_path}`}
+                                      src={`https://image.tmdb.org/t/p/w300/${episode.still_path}`}
                                       alt={episode.name}
-                                      className="w-full h-16 sm:h-20 md:h-24 lg:h-28 mb-2 rounded object-cover"
+                                      className="w-full h-full rounded object-cover"
                                     />
+                                  ) : (
+                                    <div className="w-full h-full bg-gray-600 rounded flex items-center justify-center">
+                                      <svg
+                                        className="w-4 h-4 text-gray-400"
+                                        fill="currentColor"
+                                        viewBox="0 0 20 20"
+                                      >
+                                        <path
+                                          fillRule="evenodd"
+                                          d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"
+                                          clipRule="evenodd"
+                                        />
+                                      </svg>
+                                    </div>
                                   )}
-                                  <div className="absolute top-1 right-1 sm:top-2 sm:right-2 w-5 h-5 sm:w-6 sm:h-6 border border-white bg-black bg-opacity-70 rounded-full flex items-center justify-center backdrop-blur-sm">
+
+                                  {/* Episode number overlay */}
+                                  <div className="absolute top-0.5 right-0.5 w-4 h-4 bg-black/80 rounded-full flex items-center justify-center">
                                     <span className="text-white text-xs font-bold">
                                       {episode.episode_number}
                                     </span>
                                   </div>
-                                </div>
-                                <section className="m-1">
+
                                   {/* Progress indicators */}
-                                  {isInProgress && (
-                                    <div className="mb-2">
-                                      <div className="text-xs font-bold text-blue-200 mb-1">
-                                        Continue
-                                      </div>
-                                      <div className="w-full bg-blue-900 rounded-full h-1">
-                                        <div
-                                          className="bg-blue-400 h-1 rounded-full transition-all duration-300"
-                                          style={{
-                                            width: `${progress.progress}%`,
-                                          }}
-                                        ></div>
-                                      </div>
-                                    </div>
-                                  )}
                                   {isCompleted && (
-                                    <div className="flex items-center justify-center mb-2 bg-emerald-500/20 rounded-full py-1 px-2">
+                                    <div className="absolute bottom-0.5 left-0.5">
                                       <svg
-                                        className="w-4 h-4 text-emerald-200 mr-1"
+                                        className="w-3 h-3 text-emerald-400"
                                         fill="currentColor"
                                         viewBox="0 0 20 20"
                                       >
@@ -1208,30 +1250,24 @@ export default function MediaDetails() {
                                           clipRule="evenodd"
                                         />
                                       </svg>
-                                      <span className="text-xs font-bold text-emerald-200">
-                                        ✓ Completed
-                                      </span>
                                     </div>
                                   )}
-                                  <TypingText
-                                    text={episode.name}
-                                    className="text-xs sm:text-sm font-bold overflow-hidden text-ellipsis whitespace-nowrap"
-                                  />
-                                  <div className="flex justify-between mt-1 text-xs text-white text-opacity-70">
-                                    <p className="text-xs">
-                                      {episode.air_date
-                                        ? new Date(
-                                            episode.air_date
-                                          ).toLocaleDateString("en-AU")
-                                        : "TBA"}
-                                    </p>
-                                    {episode.runtime && (
-                                      <p className="text-xs">
-                                        {episode.runtime} min
-                                      </p>
+                                  {isInProgress && (
+                                    <div className="absolute bottom-0 left-0 right-0 bg-blue-900/50 rounded-b h-1">
+                                      <div
+                                        className="bg-blue-400 h-1 rounded-b"
+                                        style={{
+                                          width: `${progress.progress}%`,
+                                        }}
+                                      ></div>
+                                    </div>
+                                  )}
+                                  {isCurrentEpisode &&
+                                    !isCompleted &&
+                                    !isInProgress && (
+                                      <div className="absolute bottom-0.5 left-0.5 w-2 h-2 bg-yellow-400 rounded-full"></div>
                                     )}
-                                  </div>
-                                </section>
+                                </div>
                               </motion.div>
                             );
                           })}
@@ -1246,11 +1282,11 @@ export default function MediaDetails() {
                 onMouseLeave={stopScrolling}
                 onTouchStart={() => startScrolling("right")}
                 onTouchEnd={stopScrolling}
-                className="flex-shrink-0 bg-black/50 p-2 rounded-full hover:bg-black/80 transition-all select-none"
+                className="flex-shrink-0 bg-black/70 p-1.5 rounded-full hover:bg-black/90 transition-all select-none"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
+                  className="h-4 w-4"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -1271,7 +1307,7 @@ export default function MediaDetails() {
   };
 
   return (
-    <div className="h-screen">
+    <div className="h-screen overflow-hidden">
       <AnimatePresence>
         {isLoading && (
           <motion.div

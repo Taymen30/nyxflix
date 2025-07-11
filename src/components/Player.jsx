@@ -55,7 +55,7 @@ export default function Player({
 
     const iframe = document.createElement("iframe");
     iframe.className =
-      "bg-black w-[90vw] h-[50vw] absolute top-[12vh] md:w-[60vw] md:h-[28vw]";
+      "bg-black w-[90vw] h-[50vw] absolute top-[30vh] lg:top-[16vh] lg:w-[60vw] lg:h-[28vw]";
     iframe.referrerPolicy = "no-referrer";
     iframe.setAttribute("allowFullScreen", true);
     iframe.sandbox = "allow-scripts allow-same-origin allow-presentation";
