@@ -13,7 +13,6 @@ import Credits from "../components/Credits";
 import Header from "../components/Header";
 import CenteredSpinner from "../components/CenteredSpinner";
 import EpisodeImage from "../components/EpisodeImage";
-import TypingText from "../components/TypingText";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMedia } from "../context/MediaContext";
@@ -201,20 +200,30 @@ export default function MediaDetails() {
             const progressPercent = progressData.progress;
             const isCompleted = progressPercent >= 85; // Consider 85%+ as completed
 
-            // Update episode/movie progress
-            setWatchProgress((prev) => ({
-              ...prev,
-              episodes: {
-                ...prev.episodes,
-                [episodeKey]: {
-                  progress: progressPercent,
-                  timestamp: progressData.timestamp || 0,
-                  duration: progressData.duration || 0,
-                  completed: isCompleted,
-                  lastWatched: Date.now(),
+            // Update episode/movie progress and also reflect the currently playing episode
+            setWatchProgress((prev) => {
+              const updated = {
+                ...prev,
+                episodes: {
+                  ...prev.episodes,
+                  [episodeKey]: {
+                    progress: progressPercent,
+                    timestamp: progressData.timestamp || 0,
+                    duration: progressData.duration || 0,
+                    completed: isCompleted,
+                    lastWatched: Date.now(),
+                  },
                 },
-              },
-            }));
+              };
+              // For TV/Anime, keep currentEpisode in sync with what the player is actually playing
+              if (progressData.type === "tv" && type === "tvshow") {
+                updated.currentEpisode = {
+                  season: progressData.season,
+                  episode: progressData.episode,
+                };
+              }
+              return updated;
+            });
 
             // Auto-advance to next episode if this one is completed and it's a TV show
             if (

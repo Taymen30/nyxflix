@@ -44,21 +44,98 @@ export default function Player({
     }
   }
 
+  // Decide iframe size/position using both viewport width and height.
+  // Uses fixed breakpoints (sm/md/lg/xl) and caps height by a fraction of viewport height
+  // so the bottom controls area is never overlapped.
+  function computeIframeLayout() {
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const aspect = viewportWidth / viewportHeight;
+
+    let iframeWidth;
+    if (viewportWidth < 640 || aspect < 0.75) {
+      // Small screens or portrait phones (e.g., 9:19.5)
+      iframeWidth = Math.min(viewportWidth * 0.92, 520);
+    } else if (aspect >= 2.0) {
+      // Ultra wide (e.g., 19.5:9 landscape)
+      iframeWidth = Math.min(viewportWidth * 0.55, 1280);
+    } else if (aspect >= 1.75) {
+      // 16:9 to 18:9
+      iframeWidth = Math.min(viewportWidth * 0.58, 1200);
+    } else {
+      // 16:10 or similar
+      iframeWidth = Math.min(viewportWidth * 0.6, 1150);
+    }
+
+    const heightFromAspect = (iframeWidth * 9) / 16; // 16:9 content area
+
+    // Reserve bottom area for controls/episodes strip
+    const reservedBottom = Math.max(240, viewportHeight * 0.26);
+    const minimumTop =
+      aspect < 0.75 ? viewportHeight * 0.14 : viewportHeight * 0.16;
+
+    // Absolute max height that fits between minimumTop and reserved bottom
+    const maxHeightFromLayout = Math.max(
+      180,
+      viewportHeight - reservedBottom - minimumTop
+    );
+
+    // Cap height by viewport height and by layout window
+    const heightCap =
+      aspect < 0.75
+        ? Math.min(viewportHeight * 0.46, maxHeightFromLayout)
+        : aspect >= 2.0
+        ? Math.min(viewportHeight * 0.6, maxHeightFromLayout)
+        : Math.min(viewportHeight * 0.52, maxHeightFromLayout); // tighter for 16:9/16:10
+
+    let iframeHeight = Math.min(heightFromAspect, heightCap);
+
+    // If height was constrained by the layout, recompute width from height to keep 16:9
+    iframeWidth = Math.min(iframeWidth, (iframeHeight * 16) / 9);
+    // Re-sync height in case width constraint above changed it
+    iframeHeight = (iframeWidth * 9) / 16;
+
+    // Center vertically within available safe area
+    const centeredTop = (viewportHeight - reservedBottom - iframeHeight) / 2;
+    const maxTop = viewportHeight - reservedBottom - iframeHeight;
+    const iframeTop = Math.max(minimumTop, Math.min(maxTop, centeredTop));
+
+    return { width: iframeWidth, height: iframeHeight, top: iframeTop };
+  }
+
   function createPlayerIframe(useSecondary) {
     const playerContainer = document.getElementById("player-container");
     if (!playerContainer) return;
 
     const previousIframe = playerContainer.querySelector("iframe");
     if (previousIframe) {
+      // Clean up any resize listener attached to a previous iframe
+      if (previousIframe._applyLayout) {
+        window.removeEventListener("resize", previousIframe._applyLayout);
+      }
       previousIframe.remove();
     }
 
     const iframe = document.createElement("iframe");
-    iframe.className =
-      "bg-black w-[90vw] h-[50vw] absolute top-[30vh] lg:top-[16vh] lg:w-[60vw] lg:h-[28vw]";
+    iframe.className = "bg-black rounded-md shadow-2xl absolute z-30";
     iframe.referrerPolicy = "no-referrer";
     iframe.setAttribute("allowFullScreen", true);
     iframe.sandbox = "allow-scripts allow-same-origin allow-presentation";
+
+    // Apply computed size and position; keep horizontally centered
+    const applyLayout = () => {
+      const { width, height, top } = computeIframeLayout();
+      iframe.style.width = `${Math.round(width)}px`;
+      iframe.style.height = `${Math.round(height)}px`;
+      iframe.style.top = `${Math.round(top)}px`;
+      iframe.style.left = "50%";
+      iframe.style.transform = "translateX(-50%)";
+      iframe.style.border = "0";
+    };
+    applyLayout();
+    // Store handler on element so it can be removed when replacing the iframe
+    iframe._applyLayout = applyLayout;
+    window.addEventListener("resize", applyLayout);
 
     let src = "";
     if (gamer && playerUrls) {
