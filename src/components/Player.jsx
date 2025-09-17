@@ -120,10 +120,8 @@ export default function Player({
     iframe.className = "bg-black rounded-md shadow-2xl absolute z-30";
     iframe.referrerPolicy = "no-referrer";
     iframe.setAttribute("allowFullScreen", true);
-
-    iframe.sandbox = useSecondary
-      ? "allow-scripts allow-same-origin allow-presentation"
-      : "";
+    useSecondary &&
+      (iframe.sandbox = "allow-scripts allow-same-origin allow-presentation");
 
     // Apply computed size and position; keep horizontally centered
     const applyLayout = () => {
