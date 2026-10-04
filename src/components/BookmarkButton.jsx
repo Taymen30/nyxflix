@@ -1,48 +1,30 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useLocalStorage } from "../hooks/useLocalStorage";
+import { useMedia } from "../context/MediaContext";
 
-export default function BookmarkButton({ id }) {
-  const [mediaType] = useLocalStorage("media-type", "movie");
-  const [bookmarks, setBookmarks] = useLocalStorage(
-    `bookmarked-${mediaType}`,
-    []
-  );
-  const [isBookmarked, setIsBookmarked] = useState(false);
+export default function BookmarkButton({ id, mediaType, className = "" }) {
+  const { currentMediaType } = useMedia();
+  const [movies, setMovies] = useLocalStorage("bookmarked-movie", []);
+  const [tvShows, setTvShows] = useLocalStorage("bookmarked-tv", []);
+  const resolvedType = (mediaType || currentMediaType) === "tvshow" ? "tv" : mediaType || currentMediaType;
+  const bookmarks = resolvedType === "tv" ? tvShows : movies;
+  const setBookmarks = resolvedType === "tv" ? setTvShows : setMovies;
+  const itemId = Number(id);
+  const isBookmarked = Array.isArray(bookmarks) && bookmarks.some((value) => Number(value) === itemId);
+  const label = isBookmarked ? "Remove from bookmarks" : "Save to bookmarks";
 
-  useEffect(() => {
-    setIsBookmarked(bookmarks.includes(id));
-  }, [id, bookmarks]);
-
-  function toggleFavorite() {
-    if (isBookmarked) {
-      setBookmarks(bookmarks.filter((movieId) => movieId !== id));
-    } else {
-      setBookmarks([...bookmarks, id]);
-    }
-    setIsBookmarked(!isBookmarked);
+  function toggleBookmark() {
+    setBookmarks((previous) => {
+      const ids = Array.isArray(previous) ? previous : [];
+      return ids.some((value) => Number(value) === itemId)
+        ? ids.filter((value) => Number(value) !== itemId)
+        : [...ids, itemId];
+    });
   }
 
   return (
-    <button
-      className={`flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white hover:bg-black hover:text-white transition-all duration-300 ${
-        isBookmarked ? "bg-yellow-400 hover:bg-yellow-500" : "text-black"
-      }`}
-      onClick={toggleFavorite}
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill={isBookmarked ? "currentColor" : "none"}
-        viewBox="0 0 24 24"
-        strokeWidth={1.5}
-        stroke="currentColor"
-        className="w-6 h-6 sm:w-7 sm:h-7"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"
-        />
-      </svg>
+    <button type="button" aria-label={label} title={label} aria-pressed={isBookmarked} disabled={!Number.isFinite(itemId)} onClick={toggleBookmark} className={`flex h-11 w-11 items-center justify-center rounded-full border transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white ${isBookmarked ? "border-white/30 bg-white/[.16] text-white hover:bg-white/25" : "border-white/15 bg-white/[.08] text-white/75 hover:bg-white/15 hover:text-white"} ${className}`}>
+      <svg aria-hidden="true" fill={isBookmarked ? "currentColor" : "none"} viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="h-5 w-5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 3h12v18l-6-4-6 4V3Z" /></svg>
     </button>
   );
 }

@@ -9,7 +9,6 @@ const apiKey = process.env.REACT_APP_API_KEY;
 export default function Genre() {
   const { currentMediaType, setCurrentMediaType } = useMedia();
   const { genre } = useParams();
-  const [media, setMedia] = useState([]);
   const [genreResults, setGenreResults] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -38,22 +37,27 @@ export default function Genre() {
   useEffect(() => {
     setGenreResults([]);
     setPage(1);
-  }, [currentMediaType]);
+  }, [genre, currentMediaType]);
 
   useEffect(() => {
     const url = `https://api.themoviedb.org/3/discover/${currentMediaType}?api_key=${apiKey}&with_genres=${genre}&page=${page}`;
 
+    const controller = new AbortController();
+    let active = true;
     setLoading(true);
-
-    fetch(url)
-      .then((response) => response.json())
+    fetch(url, { signal: controller.signal })
+      .then((response) => {
+        if (!response.ok) throw new Error("Unable to load genre");
+        return response.json();
+      })
       .then((data) => {
-        const filteredResults = data.results.filter(
-          (movie) => movie.poster_path
-        );
-        setGenreResults((prevResults) => [...prevResults, ...filteredResults]);
-        setLoading(false);
-      });
+        if (active) setGenreResults((previous) => [...previous, ...(data.results || []).filter((item) => item.poster_path)]);
+      })
+      .catch((error) => {
+        if (active && error.name !== "AbortError") console.error("Unable to load genre", error);
+      })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; controller.abort(); };
   }, [genre, page, currentMediaType]);
 
   useEffect(() => {
@@ -81,7 +85,7 @@ export default function Genre() {
         setCurrentMediaType={setCurrentMediaType}
       />
 
-      <MediaGrid array={genreResults} />
+      <MediaGrid array={genreResults} loading={loading} />
     </>
   );
 }

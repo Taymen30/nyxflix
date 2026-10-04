@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import MediaGrid from "../components/MediaGrid";
 import Header from "../components/Header";
@@ -21,20 +21,25 @@ export default function Search() {
   }, [query, currentMediaType]);
 
   useEffect(() => {
-    const url = `https://api.themoviedb.org/3/search/${currentMediaType}?api_key=${api_key}&query=${query}&page=${currentPage}`;
+    const url = `https://api.themoviedb.org/3/search/${currentMediaType}?api_key=${api_key}&query=${encodeURIComponent(query || "")}&page=${currentPage}`;
 
+    const controller = new AbortController();
+    let active = true;
     setLoading(true);
-
-    fetch(url)
-      .then((response) => response.json())
+    fetch(url, { signal: controller.signal })
+      .then((response) => {
+        if (!response.ok) throw new Error("Unable to search titles");
+        return response.json();
+      })
       .then((data) => {
-        const filteredResults = data.results.filter(
-          (movie) => movie.poster_path
-        );
-        setResults((prevResults) => [...prevResults, ...filteredResults]);
-        setLoading(false);
-      });
-  }, [query, currentPage, currentMediaType]);
+        if (active) setResults((previous) => [...previous, ...(data.results || []).filter((item) => item.poster_path)]);
+      })
+      .catch((error) => {
+        if (active && error.name !== "AbortError") console.error("Unable to search titles", error);
+      })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; controller.abort(); };
+  }, [query, currentPage, currentMediaType, api_key]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -61,7 +66,7 @@ export default function Search() {
         currentMediaType={currentMediaType}
         setCurrentMediaType={setCurrentMediaType}
       />
-      <MediaGrid array={results} />
+      <MediaGrid array={results} loading={loading} />
     </>
   );
 }

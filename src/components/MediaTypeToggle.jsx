@@ -1,41 +1,18 @@
 import React from "react";
 
-export default function MediaTypeToggle({
-  currentMediaType,
-  setCurrentMediaType,
-}) {
-  const mediaTypes = ["movie", "tv"];
-
+export default function MediaTypeToggle({ currentMediaType, setCurrentMediaType }) {
   return (
-    <div className="flex items-center gap-2 mx-2 md:gap-5 md:mx-5">
-      {mediaTypes.map((mediaType) => (
-        <div
-          key={mediaType}
-          className={`group flex cursor-pointer ${
-            currentMediaType === mediaType ? "text-white" : ""
-          }`}
-          onClick={() => setCurrentMediaType(mediaType)}
+    <div role="group" aria-label="Content type" className="media-type-toggle inline-flex rounded-full border border-white/10 bg-white/[.04] p-1">
+      {[["movie", "Movies"], ["tv", "TV Shows"]].map(([value, label]) => (
+        <button
+          key={value}
+          type="button"
+          aria-pressed={currentMediaType === value}
+          onClick={() => setCurrentMediaType(value)}
+          className={`min-h-10 rounded-full px-5 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ${currentMediaType === value ? "bg-white text-black shadow-sm" : "text-white/60 hover:bg-white/5 hover:text-white"}`}
         >
-          <div
-            className={`appearance-none rounded-full w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 border-2 group-hover:bg-white duration-300 group-hover:border-transparent ${
-              currentMediaType === mediaType
-                ? "bg-white border-transparent"
-                : "border-white"
-            }`}
-          />
-          <label
-            htmlFor={mediaType}
-            className="text-xs sm:text-sm lg:text-lg ml-1 group-hover:cursor-pointer"
-          >
-            {mediaType === "movie" ? (
-              "Movies"
-            ) : (
-              <>
-                TV <span className="hidden sm:inline">Shows</span>
-              </>
-            )}
-          </label>
-        </div>
+          {label}
+        </button>
       ))}
     </div>
   );

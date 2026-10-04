@@ -11,7 +11,8 @@ import Player from "../components/Player";
 import BookmarkButton from "../components/BookmarkButton";
 import Credits from "../components/Credits";
 import Header from "../components/Header";
-import CenteredSpinner from "../components/CenteredSpinner";
+import MediaSkeleton from "../components/MediaSkeleton";
+import { mediaStyles } from "../components/mediaStyles";
 import EpisodeImage from "../components/EpisodeImage";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 import { motion, AnimatePresence } from "framer-motion";
@@ -54,7 +55,6 @@ export default function MediaDetails() {
   const { currentMediaType, setCurrentMediaType } = useMedia();
   const { id, type } = useParams();
   const [mediaDetails, setMediaDetails] = useState(null);
-  const [castInfo, setCastInfo] = useState(null);
 
   const [tvData, dispatch] = useReducer(tvDataReducer, {
     episodesBySeason: {},
@@ -478,7 +478,7 @@ export default function MediaDetails() {
 
   // Simplified initialization effect
   useEffect(() => {
-    if (!mediaDetails || type !== "tvshow" || isInitialScrollDone) return;
+    if (!mediaDetails?.seasons || mediaDetails.id !== Number(id) || type !== "tvshow" || isInitialScrollDone) return;
 
     const initialize = async () => {
       // Correct for season 0 from old local storage values
@@ -515,6 +515,7 @@ export default function MediaDetails() {
     initialize();
   }, [
     mediaDetails,
+    id,
     type,
     isInitialScrollDone,
     currentEpisode.season,
@@ -964,361 +965,370 @@ export default function MediaDetails() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
+        className={mediaStyles.page}
       >
-        <header className="absolute w-full z-10 flex flex-col m-2">
-          <section className="block w-2/3  lg:w-full lg:flex items-baseline">
-            <Header
-              title={false}
-              currentMediaType={currentMediaType}
-              setCurrentMediaType={setCurrentMediaType}
-            />
-            <h1 className="text-2xl px-4 md:px-6 md:text-5xl">
-              {type === "movie"
-                ? mediaDetails.title
-                : mediaDetails.original_name}
-            </h1>
-            <p className="md-text-2xl ml-2 lg:ml-5">
-              {type === "movie"
-                ? `(${mediaDetails.release_date?.split("-")[0] || "N/A"})`
-                : `(${mediaDetails.first_air_date?.split("-")[0] || "N/A"} - ${
-                    mediaDetails.last_air_date?.split("-")[0] || "Present"
-                  })`}
-            </p>
-          </section>
-          <ul className="flex gap-1 ml-2  md:ml-8">
-            {mediaDetails.genres &&
-              mediaDetails.genres.map((genre, i) => (
-                <Link
-                  className="px-0 md:px-2 py-0.5 hover:opacity-70 transition-opacity duration-300"
-                  key={i}
-                  to={`/genre/${genre.id}`}
-                >
-                  {genre.name}
-                </Link>
-              ))}
-          </ul>
-
-          {/* Current episode info */}
-          {isGamerMode &&
-            type === "tvshow" &&
-            (selectedEpisode.season || currentEpisode.season) && (
-              <div className="ml-2 md:ml-8 mt-2">
-                <p className="text-lg md:text-xl font-semibold text-white/90">
-                  {(() => {
-                    const seasonNum =
-                      selectedEpisode.season || currentEpisode.season;
-                    const episodeNum =
-                      selectedEpisode.episode || currentEpisode.episode;
-                    const episodes = episodesBySeason[seasonNum];
-                    const episode = episodes?.find(
-                      (ep) => ep.episode_number === episodeNum
-                    );
-
-                    if (episode) {
-                      return `S${seasonNum}E${episodeNum}: ${episode.name}`;
-                    }
-                    return `Season ${seasonNum}, Episode ${episodeNum}`;
-                  })()}
-                </p>
-              </div>
-            )}
-        </header>
-
         {mediaDetails.backdrop_path && (
           <img
             src={`https://image.tmdb.org/t/p/original/${mediaDetails.backdrop_path}`}
             alt=""
-            className="w-full h-screen object-cover"
+            className="pointer-events-none absolute inset-0 -z-10 h-full w-full object-cover"
           />
         )}
 
-        <div
-          id="player-container"
-          className="w-full flex justify-center mt-8"
-        ></div>
-
-        <div className="absolute bottom-0 mb-4 p-4 w-full flex flex-col gap-2">
-          {isGamerMode && (
-            <div className="w-full flex items-center justify-center gap-4 mb-2">
-              <section className="flex flex-row gap-3 items-center">
-                <Player
-                  imdb_id={mediaDetails.imdb_id}
-                  id={id}
-                  type={type}
-                  season={selectedEpisode.season || currentEpisode.season}
-                  episode={selectedEpisode.episode || currentEpisode.episode}
-                  onPlayClick={handlePlayButtonClick}
-                  isAnime={isAnime}
-                  playerUrls={playerUrls}
-                  animeAudio={animeAudio}
-                  onAnimeAudioChange={setAnimeAudio}
-                />
-                <BookmarkButton id={mediaDetails.id} />
-                <Credits
-                  mediaCast={castInfo}
-                  setMediaCast={setCastInfo}
-                  mediaType={contentType}
-                  id={id}
-                />
-              </section>
-              {type === "tvshow" && (
-                <select
-                  onChange={(e) => handleSeasonChange(e.target.value)}
-                  value={displaySeason}
-                  className="text-sm text-center w-24 md:w-32 h-8 md:h-10 rounded-full bg-black bg-opacity-50 text-white border border-white border-opacity-20 backdrop-blur-sm focus:outline-none focus:border-opacity-50 transition-all duration-300"
-                >
-                  {mediaDetails.seasons.map((season) => (
-                    <option
-                      key={season.season_number}
-                      value={season.season_number}
-                      className="bg-black"
-                    >
-                      {season.name}
-                    </option>
-                  ))}
-                </select>
-              )}
-            </div>
-          )}
-
-          {type !== "tvshow" && (
-            <p className="text-xs md:text-[16px] w-full max-w-2xl mx-auto bg-black bg-opacity-50 p-4 rounded-lg backdrop-blur-sm">
-              {mediaDetails.overview}
-            </p>
-          )}
-
-          {isGamerMode && type === "tvshow" && (
-            <div className="flex items-center justify-center w-full gap-2">
-              <button
-                onMouseDown={() => startScrolling("left")}
-                onMouseUp={stopScrolling}
-                onMouseLeave={stopScrolling}
-                onTouchStart={() => startScrolling("left")}
-                onTouchEnd={stopScrolling}
-                className="flex-shrink-0 bg-black/70 p-1.5 rounded-full hover:bg-black/90 transition-all select-none"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  style={{ transform: "rotate(180deg)" }}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </button>
-              <div
-                ref={episodesContainerRef}
-                className="w-full overflow-x-auto overflow-y-hidden scrollbar-none py-2 px-1 flex space-x-2"
-              >
-                {Object.keys(episodesBySeason)
-                  .map(Number)
-                  .sort((a, b) => a - b)
-                  .map((seasonNumber) => {
-                    const season = mediaDetails.seasons.find(
-                      (s) => s.season_number === seasonNumber
-                    );
-                    const episodes = episodesBySeason[seasonNumber];
-                    if (!episodes || episodes.length === 0) {
-                      // Show skeleton loader for seasons being fetched
-                      if (fetchingSeasons.has(seasonNumber)) {
-                        return (
-                          <div
-                            key={`season-skeleton-${seasonNumber}`}
-                            className="flex-shrink-0"
-                          >
-                            <h3 className="text-sm font-semibold px-2 py-1 text-white/80">
-                              Loading...
-                            </h3>
-                            <div className="flex space-x-1.5">
-                              {Array.from({ length: 5 }).map((_, i) => (
-                                <div
-                                  key={i}
-                                  className="w-36 h-24 p-1 rounded-md bg-black/50 flex-shrink-0 animate-pulse"
-                                >
-                                  <div className="w-full h-full bg-white/10 rounded"></div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        );
-                      }
-                      return null;
-                    }
-
-                    return (
-                      <div
-                        ref={(el) =>
-                          (seasonGroupRefs.current[seasonNumber] = el)
-                        }
-                        key={`season-group-${seasonNumber}`}
-                        data-season-group={seasonNumber}
-                        className="flex-shrink-0"
-                      >
-                        <h3 className="text-sm font-semibold px-2 py-1 text-white/90 bg-black/40 rounded-md backdrop-blur-sm inline-block mb-2">
-                          {season ? season.name : `S${seasonNumber}`}
-                        </h3>
-                        <div className="flex space-x-1.5">
-                          {episodes.map((episode) => {
-                            const progress = getEpisodeProgress(
-                              seasonNumber,
-                              episode.episode_number
-                            );
-                            const isCompleted = progress?.completed || false;
-                            const isInProgress =
-                              progress && progress.progress > 5 && !isCompleted;
-                            const isCurrentEpisode =
-                              currentEpisode.episode ===
-                                episode.episode_number &&
-                              currentEpisode.season === seasonNumber;
-                            const isSelected =
-                              selectedEpisode.season === seasonNumber &&
-                              selectedEpisode.episode ===
-                                episode.episode_number;
-
-                            return (
-                              <motion.div
-                                ref={(el) => {
-                                  if (!episodeRefs.current[seasonNumber])
-                                    episodeRefs.current[seasonNumber] = {};
-                                  episodeRefs.current[seasonNumber][
-                                    episode.episode_number
-                                  ] = el;
-                                }}
-                                key={episode.id}
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                transition={{ duration: 0.3 }}
-                                onClick={() =>
-                                  handleEpisodeClick(
-                                    episode.episode_number,
-                                    seasonNumber
-                                  )
-                                }
-                                className={`w-36 h-24 p-1 rounded-md hover:cursor-pointer transition-all duration-200 hover:brightness-125 flex-shrink-0 select-none ${
-                                  isSelected
-                                    ? "bg-purple-600 bg-opacity-95 text-white border-2 border-purple-300 shadow-lg shadow-purple-500/50 scale-105"
-                                    : isCompleted
-                                    ? "bg-emerald-600 bg-opacity-90 text-white border border-emerald-400 border-opacity-60"
-                                    : isInProgress
-                                    ? "bg-blue-600 bg-opacity-90 text-white border border-blue-400 border-opacity-50"
-                                    : isCurrentEpisode
-                                    ? "bg-yellow-400 bg-opacity-90 text-black border border-yellow-300 border-opacity-50"
-                                    : "bg-black bg-opacity-50 border border-white border-opacity-20"
-                                }`}
-                              >
-                                {/* Episode image with overlay */}
-                                <div className="relative w-full h-full">
-                                  {episode.still_path ? (
-                                    <EpisodeImage
-                                      src={`https://image.tmdb.org/t/p/w300/${episode.still_path}`}
-                                      alt={episode.name}
-                                      className="w-full h-full rounded object-cover"
-                                    />
-                                  ) : (
-                                    <div className="w-full h-full bg-gray-600 rounded flex items-center justify-center">
-                                      <svg
-                                        className="w-4 h-4 text-gray-400"
-                                        fill="currentColor"
-                                        viewBox="0 0 20 20"
-                                      >
-                                        <path
-                                          fillRule="evenodd"
-                                          d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"
-                                          clipRule="evenodd"
-                                        />
-                                      </svg>
-                                    </div>
-                                  )}
-
-                                  {/* Episode number overlay */}
-                                  <div className="absolute top-0.5 right-0.5 w-4 h-4 bg-black/80 rounded-full flex items-center justify-center">
-                                    <span className="text-white text-xs font-bold">
-                                      {episode.episode_number}
-                                    </span>
-                                  </div>
-
-                                  {/* Progress indicators */}
-                                  {isCompleted && (
-                                    <div className="absolute bottom-0.5 left-0.5">
-                                      <svg
-                                        className="w-3 h-3 text-emerald-400"
-                                        fill="currentColor"
-                                        viewBox="0 0 20 20"
-                                      >
-                                        <path
-                                          fillRule="evenodd"
-                                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                          clipRule="evenodd"
-                                        />
-                                      </svg>
-                                    </div>
-                                  )}
-                                  {isInProgress && (
-                                    <div className="absolute bottom-0 left-0 right-0 bg-blue-900/50 rounded-b h-1">
-                                      <div
-                                        className="bg-blue-400 h-1 rounded-b"
-                                        style={{
-                                          width: `${progress.progress}%`,
-                                        }}
-                                      ></div>
-                                    </div>
-                                  )}
-                                  {isCurrentEpisode &&
-                                    !isCompleted &&
-                                    !isInProgress && (
-                                      <div className="absolute bottom-0.5 left-0.5 w-2 h-2 bg-yellow-400 rounded-full"></div>
-                                    )}
-                                </div>
-                              </motion.div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    );
-                  })}
-              </div>
-              <button
-                onMouseDown={() => startScrolling("right")}
-                onMouseUp={stopScrolling}
-                onMouseLeave={stopScrolling}
-                onTouchStart={() => startScrolling("right")}
-                onTouchEnd={stopScrolling}
-                className="flex-shrink-0 bg-black/70 p-1.5 rounded-full hover:bg-black/90 transition-all select-none"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </button>
-            </div>
-          )}
+        <div className="pointer-events-none absolute inset-0 -z-10 h-full w-full bg-[linear-gradient(180deg,rgba(0,0,0,.35),transparent_28%,rgba(0,0,0,.2)_48%,rgba(8,9,12,.94)_100%),linear-gradient(90deg,rgba(8,9,12,.55),transparent_75%)]" aria-hidden="true" />
+        <div className="absolute left-[clamp(20px,4vw,72px)] right-[clamp(20px,4vw,72px)] top-5 z-50 max-sm:left-5 max-sm:right-5 max-sm:top-4">
+          <Header
+            title={false}
+            controlsClassName="!p-0"
+            currentMediaType={currentMediaType}
+            setCurrentMediaType={setCurrentMediaType}
+          />
         </div>
+
+        <main className={mediaStyles.layout}>
+          <div id="player-container" className={mediaStyles.stage} />
+          <div className="media-details min-w-0">
+            <div className="media-heading">
+              <div className={mediaStyles.titleRow}>
+                <h1 className="media-title max-w-[900px] text-balance font-outfit text-[clamp(36px,4.4vw,72px)] font-semibold leading-[1.08] tracking-[-.035em] group-has-[.media-player-frame]:text-[clamp(26px,2.5vw,40px)]">
+                  {type === "movie"
+                    ? mediaDetails.title
+                    : mediaDetails.original_name}
+                </h1>
+                <p className="whitespace-nowrap text-base text-white/65 max-sm:text-sm">
+                  {type === "movie"
+                    ? `(${mediaDetails.release_date?.split("-")[0] || "N/A"})`
+                    : `(${mediaDetails.first_air_date?.split("-")[0] || "N/A"} - ${
+                        mediaDetails.last_air_date?.split("-")[0] || "Present"
+                      })`}
+                </p>
+              </div>
+              <ul className={mediaStyles.genres}>
+                {mediaDetails.genres &&
+                  mediaDetails.genres.map((genre) => (
+                    <li key={genre.id} className="[&+li]:before:mr-3 [&+li]:before:text-white/40 [&+li]:before:content-['·']">
+                      <Link
+                        className="hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[5px] focus-visible:outline-white"
+                        to={`/genre/${genre.id}`}
+                      >
+                        {genre.name}
+                      </Link>
+                    </li>
+                  ))}
+              </ul>
+
+              {/* Current episode info */}
+              {isGamerMode &&
+                type === "tvshow" &&
+                (selectedEpisode.season || currentEpisode.season) && (
+                  <div className="mt-3">
+                    <p className="text-sm font-medium text-white/80">
+                      {(() => {
+                        const seasonNum =
+                          selectedEpisode.season || currentEpisode.season;
+                        const episodeNum =
+                          selectedEpisode.episode || currentEpisode.episode;
+                        const episodes = episodesBySeason[seasonNum];
+                        const episode = episodes?.find(
+                          (ep) => ep.episode_number === episodeNum
+                        );
+
+                        if (episode) {
+                          return `S${seasonNum}E${episodeNum}: ${episode.name}`;
+                        }
+                        return `Season ${seasonNum}, Episode ${episodeNum}`;
+                      })()}
+                    </p>
+                  </div>
+                )}
+            </div>
+
+            {type !== "tvshow" && mediaDetails.overview && (
+              <p className={mediaStyles.overview}>{mediaDetails.overview}</p>
+            )}
+
+            {isGamerMode && (
+              <div className={mediaStyles.actions}>
+                <section className="flex flex-wrap items-center gap-3 [&>button]:!h-11 [&>button]:!w-11 [&>button]:focus-visible:outline [&>button]:focus-visible:outline-2 [&>button]:focus-visible:outline-offset-[5px] [&>button]:focus-visible:outline-white">
+                  <Player
+                    imdb_id={mediaDetails.imdb_id}
+                    id={id}
+                    type={type}
+                    season={selectedEpisode.season || currentEpisode.season}
+                    episode={selectedEpisode.episode || currentEpisode.episode}
+                    onPlayClick={handlePlayButtonClick}
+                    isAnime={isAnime}
+                    playerUrls={playerUrls}
+                    animeAudio={animeAudio}
+                    onAnimeAudioChange={setAnimeAudio}
+                  />
+                  <BookmarkButton id={mediaDetails.id} mediaType={contentType} />
+                  <Credits
+                    mediaType={contentType}
+                    id={id}
+                  />
+                </section>
+                {type === "tvshow" && (
+                  <select
+                    aria-label="Season"
+                    onChange={(e) => handleSeasonChange(e.target.value)}
+                    value={displaySeason}
+                    className="text-sm text-center w-24 md:w-32 h-8 md:h-10 rounded-full bg-black bg-opacity-50 text-white border border-white border-opacity-20 backdrop-blur-sm focus:outline-none focus:border-opacity-50 transition-all duration-300"
+                  >
+                    {mediaDetails.seasons.map((season) => (
+                      <option
+                        key={season.season_number}
+                        value={season.season_number}
+                        className="bg-black"
+                      >
+                        {season.name}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+            )}
+
+            {isGamerMode && type === "tvshow" && (
+              <div className="mt-5 flex w-full items-center justify-center gap-2">
+                <button
+                  onMouseDown={() => startScrolling("left")}
+                  onMouseUp={stopScrolling}
+                  onMouseLeave={stopScrolling}
+                  onTouchStart={() => startScrolling("left")}
+                  onTouchEnd={stopScrolling}
+                  className="flex-shrink-0 bg-black/70 p-1.5 rounded-full hover:bg-black/90 transition-all select-none"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    style={{ transform: "rotate(180deg)" }}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </button>
+                <div
+                  ref={episodesContainerRef}
+                  className="w-full overflow-x-auto overflow-y-hidden scrollbar-none py-2 px-1 flex space-x-2"
+                >
+                  {Object.keys(episodesBySeason)
+                    .map(Number)
+                    .sort((a, b) => a - b)
+                    .map((seasonNumber) => {
+                      const season = mediaDetails.seasons.find(
+                        (s) => s.season_number === seasonNumber
+                      );
+                      const episodes = episodesBySeason[seasonNumber];
+                      if (!episodes || episodes.length === 0) {
+                        // Show skeleton loader for seasons being fetched
+                        if (fetchingSeasons.has(seasonNumber)) {
+                          return (
+                            <div
+                              key={`season-skeleton-${seasonNumber}`}
+                              className="flex-shrink-0"
+                            >
+                              <h3 className="text-sm font-semibold px-2 py-1 text-white/80">
+                                Loading...
+                              </h3>
+                              <div className="flex space-x-1.5">
+                                {Array.from({ length: 5 }).map((_, i) => (
+                                  <div
+                                    key={i}
+                                    className="w-36 h-24 p-1 rounded-md bg-black/50 flex-shrink-0 animate-pulse"
+                                  >
+                                    <div className="w-full h-full bg-white/10 rounded"></div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }
+
+                      return (
+                        <div
+                          ref={(el) =>
+                            (seasonGroupRefs.current[seasonNumber] = el)
+                          }
+                          key={`season-group-${seasonNumber}`}
+                          data-season-group={seasonNumber}
+                          className="flex-shrink-0"
+                        >
+                          <h3 className="text-sm font-semibold px-2 py-1 text-white/90 bg-black/40 rounded-md backdrop-blur-sm inline-block mb-2">
+                            {season ? season.name : `S${seasonNumber}`}
+                          </h3>
+                          <div className="flex space-x-1.5">
+                            {episodes.map((episode) => {
+                              const progress = getEpisodeProgress(
+                                seasonNumber,
+                                episode.episode_number
+                              );
+                              const isCompleted = progress?.completed || false;
+                              const isInProgress =
+                                progress && progress.progress > 5 && !isCompleted;
+                              const isCurrentEpisode =
+                                currentEpisode.episode ===
+                                  episode.episode_number &&
+                                currentEpisode.season === seasonNumber;
+                              const isSelected =
+                                selectedEpisode.season === seasonNumber &&
+                                selectedEpisode.episode ===
+                                  episode.episode_number;
+
+                              return (
+                                <motion.div
+                                  ref={(el) => {
+                                    if (!episodeRefs.current[seasonNumber])
+                                      episodeRefs.current[seasonNumber] = {};
+                                    episodeRefs.current[seasonNumber][
+                                      episode.episode_number
+                                    ] = el;
+                                  }}
+                                  key={episode.id}
+                                  initial={{ opacity: 0 }}
+                                  animate={{ opacity: 1 }}
+                                  exit={{ opacity: 0 }}
+                                  transition={{ duration: 0.3 }}
+                                  onClick={() =>
+                                    handleEpisodeClick(
+                                      episode.episode_number,
+                                      seasonNumber
+                                    )
+                                  }
+                                  className={`w-36 h-24 p-1 rounded-md hover:cursor-pointer transition-all duration-200 hover:brightness-125 flex-shrink-0 select-none ${
+                                    isSelected
+                                      ? "bg-purple-600 bg-opacity-95 text-white border-2 border-purple-300 shadow-lg shadow-purple-500/50 scale-105"
+                                      : isCompleted
+                                      ? "bg-emerald-600 bg-opacity-90 text-white border border-emerald-400 border-opacity-60"
+                                      : isInProgress
+                                      ? "bg-blue-600 bg-opacity-90 text-white border border-blue-400 border-opacity-50"
+                                      : isCurrentEpisode
+                                      ? "bg-yellow-400 bg-opacity-90 text-black border border-yellow-300 border-opacity-50"
+                                      : "bg-black bg-opacity-50 border border-white border-opacity-20"
+                                  }`}
+                                >
+                                  {/* Episode image with overlay */}
+                                  <div className="relative w-full h-full">
+                                    {episode.still_path ? (
+                                      <EpisodeImage
+                                        src={`https://image.tmdb.org/t/p/w300/${episode.still_path}`}
+                                        alt={episode.name}
+                                        className="w-full h-full rounded object-cover"
+                                      />
+                                    ) : (
+                                      <div className="w-full h-full bg-gray-600 rounded flex items-center justify-center">
+                                        <svg
+                                          className="w-4 h-4 text-gray-400"
+                                          fill="currentColor"
+                                          viewBox="0 0 20 20"
+                                        >
+                                          <path
+                                            fillRule="evenodd"
+                                            d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"
+                                            clipRule="evenodd"
+                                          />
+                                        </svg>
+                                      </div>
+                                    )}
+
+                                    {/* Episode number overlay */}
+                                    <div className="absolute top-0.5 right-0.5 w-4 h-4 bg-black/80 rounded-full flex items-center justify-center">
+                                      <span className="text-white text-xs font-bold">
+                                        {episode.episode_number}
+                                      </span>
+                                    </div>
+
+                                    {/* Progress indicators */}
+                                    {isCompleted && (
+                                      <div className="absolute bottom-0.5 left-0.5">
+                                        <svg
+                                          className="w-3 h-3 text-emerald-400"
+                                          fill="currentColor"
+                                          viewBox="0 0 20 20"
+                                        >
+                                          <path
+                                            fillRule="evenodd"
+                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                            clipRule="evenodd"
+                                          />
+                                        </svg>
+                                      </div>
+                                    )}
+                                    {isInProgress && (
+                                      <div className="absolute bottom-0 left-0 right-0 bg-blue-900/50 rounded-b h-1">
+                                        <div
+                                          className="bg-blue-400 h-1 rounded-b"
+                                          style={{
+                                            width: `${progress.progress}%`,
+                                          }}
+                                        ></div>
+                                      </div>
+                                    )}
+                                    {isCurrentEpisode &&
+                                      !isCompleted &&
+                                      !isInProgress && (
+                                        <div className="absolute bottom-0.5 left-0.5 w-2 h-2 bg-yellow-400 rounded-full"></div>
+                                      )}
+                                  </div>
+                                </motion.div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+                <button
+                  onMouseDown={() => startScrolling("right")}
+                  onMouseUp={stopScrolling}
+                  onMouseLeave={stopScrolling}
+                  onTouchStart={() => startScrolling("right")}
+                  onTouchEnd={stopScrolling}
+                  className="flex-shrink-0 bg-black/70 p-1.5 rounded-full hover:bg-black/90 transition-all select-none"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </button>
+              </div>
+            )}
+          </div>
+        </main>
       </motion.div>
     );
   };
 
+  // Keep the skeleton visible when navigation still has the previous title's data.
+  const isContentLoading =
+    isLoading ||
+    (mediaDetails &&
+      (mediaDetails.id !== Number(id) ||
+        (type === "tvshow" && !mediaDetails.seasons)));
+
   return (
-    <div className="h-screen overflow-hidden">
+    <div className="media-screen h-dvh overflow-x-hidden overflow-y-auto">
       <AnimatePresence>
-        {isLoading && (
+        {isContentLoading && (
           <motion.div
             initial={{ opacity: 1 }}
             animate={{ opacity: 1 }}
@@ -1326,14 +1336,14 @@ export default function MediaDetails() {
             transition={{
               duration: 0.2,
             }}
-            className="fixed bg-black inset-0 z-50 flex items-center justify-center"
+            className="fixed inset-0 z-50 overflow-y-auto"
           >
-            <CenteredSpinner />
+            <MediaSkeleton type={type} showActions={isGamerMode} />
           </motion.div>
         )}
       </AnimatePresence>
 
-      {!isLoading && renderContent()}
+      {!isContentLoading && renderContent()}
     </div>
   );
 }
