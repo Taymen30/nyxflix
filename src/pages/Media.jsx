@@ -5,6 +5,7 @@ import React, {
   useCallback,
   useLayoutEffect,
   useReducer,
+  useMemo,
 } from "react";
 import { Link, useParams } from "react-router-dom";
 import Player from "../components/Player";
@@ -74,16 +75,18 @@ export default function MediaDetails() {
   );
 
   // Backwards compatibility - extract current episode from new structure
-  const currentEpisode = watchProgress.currentEpisode || {
-    season: 1,
-    episode: 1,
-  };
-  const setCurrentEpisode = (newEpisode) => {
+  const currentEpisode = useMemo(
+    () => watchProgress.currentEpisode || { season: 1, episode: 1 },
+    [watchProgress.currentEpisode]
+  );
+  const setCurrentEpisode = useCallback((newEpisode) => {
     setWatchProgress((prev) => ({
       ...prev,
-      currentEpisode: newEpisode,
+      currentEpisode: typeof newEpisode === "function"
+        ? newEpisode(prev.currentEpisode || { season: 1, episode: 1 })
+        : newEpisode,
     }));
-  };
+  }, [setWatchProgress]);
 
   // State for what season is currently displayed in the dropdown (doesn't save progress)
   const [displaySeason, setDisplaySeason] = useState(currentEpisode.season);
@@ -95,7 +98,6 @@ export default function MediaDetails() {
   });
 
   const [isGamerMode] = useLocalStorage("gamer", false);
-  const episodeCarouselRef = useRef(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
@@ -353,14 +355,6 @@ export default function MediaDetails() {
     }
   }, [isAnime, mediaDetails]);
 
-  const EpisodeSkeleton = () => (
-    <div className="w-32 sm:w-40 md:w-48 lg:w-52 p-2 rounded-lg bg-black/50 flex-shrink-0 animate-pulse">
-      <div className="w-full h-16 sm:h-20 md:h-24 lg:h-28 mb-2 rounded bg-white/10"></div>
-      <div className="h-3 sm:h-4 w-3/4 mb-2 rounded bg-white/10"></div>
-      <div className="h-2 sm:h-3 w-1/2 rounded bg-white/10"></div>
-    </div>
-  );
-
   const scrollToEpisode = useCallback(
     (seasonNum, episodeNum, behavior = "smooth") => {
       const container = episodesContainerRef.current;
@@ -523,6 +517,8 @@ export default function MediaDetails() {
     fetchSeason,
     setCurrentEpisode,
     scrollToEpisode,
+    episodesBySeason,
+    fetchingSeasons,
   ]);
 
   // Update visible episodes whenever the fetched data changes.
@@ -637,6 +633,7 @@ export default function MediaDetails() {
     type,
     isInitialScrollDone,
     currentEpisode.season,
+    currentEpisode.episode,
     scrollToEpisode,
     scrollToSeason,
   ]);
@@ -742,6 +739,7 @@ export default function MediaDetails() {
     setCurrentEpisode,
     currentEpisode.season,
     fetchingSeasons,
+    displaySeason,
   ]);
 
   const handleSeasonChange = async (newSeason) => {
@@ -783,16 +781,6 @@ export default function MediaDetails() {
       };
       // Only save progress when Play button is actually clicked
       setCurrentEpisode(updatedEpisode);
-    }
-  };
-
-  const scrollEpisodeCarousel = (direction) => {
-    if (episodeCarouselRef.current) {
-      const scrollAmount = episodeCarouselRef.current.offsetWidth;
-      episodeCarouselRef.current.scrollBy({
-        left: direction === "left" ? -scrollAmount : scrollAmount,
-        behavior: "smooth",
-      });
     }
   };
 
