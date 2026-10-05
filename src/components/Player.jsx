@@ -59,7 +59,8 @@ export default function Player({
     const iframe = document.createElement("iframe");
     iframe.className = "media-player-frame flex-shrink-0 max-w-full rounded-xl border border-white/[.12] bg-black shadow-[0_16px_60px_rgba(0,0,0,.5)]";
     iframe.title = gamer ? "Video player" : "Trailer player";
-    iframe.referrerPolicy = "no-referrer";
+    iframe.referrerPolicy = "same-origin";
+    iframe.allow = "autoplay; encrypted-media; fullscreen; picture-in-picture";
     iframe.setAttribute("allowFullScreen", true);
     useSecondary &&
       (iframe.sandbox = "allow-scripts allow-same-origin allow-presentation");

@@ -184,11 +184,43 @@ export default function MediaDetails() {
   useEffect(() => {
     const handleProgressMessage = (event) => {
       try {
-        if (typeof event.data === "string") {
-          const progressData = JSON.parse(event.data);
-          // console.log("Watch progress received:", progressData);
+        const activeIframe = document.querySelector("#player-container iframe");
+        if (event.source !== activeIframe?.contentWindow) return;
+        if (!["https://vidlink.pro", "https://player.videasy.net"].includes(event.origin)) return;
 
-          // Check if this is progress data from videasy.net
+        let progressData = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
+        if (event.origin === "https://vidlink.pro") {
+          if (progressData?.type === "PLAYER_EVENT") {
+            const data = progressData.data;
+            if (!data || !Number.isFinite(data.duration) || data.duration <= 0 || !Number.isFinite(data.currentTime)) return;
+            progressData = {
+              id: data.mtmdbId,
+              type: data.mediaType,
+              season: Number(data.season),
+              episode: Number(data.episode),
+              progress: (data.currentTime / data.duration) * 100,
+              timestamp: data.currentTime,
+              duration: data.duration,
+            };
+          } else if (progressData?.type === "MEDIA_DATA") {
+            const data = progressData.data?.[id];
+            if (!data || !Number.isFinite(data.progress?.duration) || data.progress.duration <= 0 || !Number.isFinite(data.progress.watched)) return;
+            progressData = {
+              id: data.id,
+              type: data.type,
+              season: Number(data.last_season_watched),
+              episode: Number(data.last_episode_watched),
+              progress: (data.progress.watched / data.progress.duration) * 100,
+              timestamp: data.progress.watched,
+              duration: data.progress.duration,
+            };
+          } else {
+            return;
+          }
+        }
+        if (progressData && String(progressData.id) === String(id) &&
+            (progressData.type !== "tv" || (Number.isInteger(progressData.season) && progressData.season >= 1 && Number.isInteger(progressData.episode) && progressData.episode >= 1))) {
+          // Normalize Vidlink and Videasy progress into the same saved format.
           if (
             progressData.id &&
             progressData.type &&
@@ -837,13 +869,6 @@ export default function MediaDetails() {
 
     // For regular movies
     if (type === "movie") {
-      const imdbId = mediaDetails?.imdb_id;
-      const formattedImdbId = imdbId
-        ? imdbId.startsWith("tt")
-          ? imdbId
-          : `tt${imdbId}`
-        : null;
-
       // Get movie progress for resume functionality
       const movieProgress = getEpisodeProgress(0, 0); // Movies use season 0, episode 0
       const resumeTimestamp = movieProgress?.timestamp || 0;
@@ -860,21 +885,15 @@ export default function MediaDetails() {
       }
 
       return {
-        primary: `https://player.videasy.net/movie/${id}?${videasyParams.toString()}`,
-        secondary: `https://vidsrc.cc/v2/embed/movie/${
-          formattedImdbId || id
-        }?autoPlay=true`,
+        primary: `https://vidlink.pro/movie/${id}?${new URLSearchParams({
+          autoplay: "true",
+          ...(resumeTimestamp > 30 ? { startAt: Math.floor(resumeTimestamp).toString() } : {}),
+        }).toString()}`,
+        secondary: `https://player.videasy.net/movie/${id}?${videasyParams.toString()}`,
       };
     }
 
     // For TV shows
-    const imdbId = mediaDetails?.imdb_id;
-    const formattedImdbId = imdbId
-      ? imdbId.startsWith("tt")
-        ? imdbId
-        : `tt${imdbId}`
-      : null;
-
     // Get episode progress for resume functionality
     const episodeProgress = getEpisodeProgress(seasonNum, episodeNum);
     const resumeTimestamp = episodeProgress?.timestamp || 0;
@@ -894,10 +913,12 @@ export default function MediaDetails() {
     }
 
     return {
-      primary: `https://player.videasy.net/tv/${id}/${seasonNum}/${episodeNum}?${videasyParams.toString()}`,
-      secondary: `https://vidsrc.cc/v2/embed/tv/${
-        formattedImdbId || id
-      }/${seasonNum}/${episodeNum}?autoPlay=true`,
+      primary: `https://vidlink.pro/tv/${id}/${seasonNum}/${episodeNum}?${new URLSearchParams({
+        autoplay: "true",
+        nextbutton: "true",
+        ...(resumeTimestamp > 30 ? { startAt: Math.floor(resumeTimestamp).toString() } : {}),
+      }).toString()}`,
+      secondary: `https://player.videasy.net/tv/${id}/${seasonNum}/${episodeNum}?${videasyParams.toString()}`,
     };
   }, [
     isGamerMode,
