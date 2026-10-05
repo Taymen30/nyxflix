@@ -62,8 +62,12 @@ export default function Player({
     iframe.referrerPolicy = "same-origin";
     iframe.allow = "autoplay; encrypted-media; fullscreen; picture-in-picture";
     iframe.setAttribute("allowFullScreen", true);
-    useSecondary &&
-      (iframe.sandbox = "allow-scripts allow-same-origin allow-presentation");
+    // Let cross-origin players run, while keeping popups, downloads, forms,
+    // and navigation of the parent page blocked for every source.
+    iframe.setAttribute(
+      "sandbox",
+      "allow-scripts allow-same-origin allow-presentation"
+    );
 
     let src = "";
     if (gamer && playerUrls) {
